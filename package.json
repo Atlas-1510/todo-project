@@ -1,0 +1,23 @@
+{
+  "name": "todo-project",
+  "version": "1.0.0",
+  "description": "To-Do project for TOP",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atlas-1510/todo-project.git"
+  },
+  "author": "Jason Aravanis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Atlas-1510/todo-project/issues"
+  },
+  "homepage": "https://github.com/Atlas-1510/todo-project#readme",
+  "devDependencies": {
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0"
+  }
+}
