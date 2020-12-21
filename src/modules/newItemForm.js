@@ -1,4 +1,4 @@
-import ListItem from "./ListItem.js"
+import ListItem from "./ListItemClass.js"
 import { publishItem } from "./publishItem.js"
 
 export function newItemForm() {
