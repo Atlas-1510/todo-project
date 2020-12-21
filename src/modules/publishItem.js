@@ -2,8 +2,8 @@ import { getElements } from "./elementsDOM.js"
 
 export const publishItem = (item) => {
     console.log("publish item activated")
-    const things = getElements()
-    console.log(things)
+    const elementsDOM = getElements()
+    console.log(elementsDOM)
 
     // Basic item module set up
     const itemModule = document.createElement("div")
@@ -22,5 +22,5 @@ export const publishItem = (item) => {
             dotpoint.textContent = `${itemProperties[i]}: ${item[itemProperties[i]]}`
         }
     }
-    // elementsDOM.contentWindow.appendChild(itemModule)
+    elementsDOM.contentWindow.appendChild(itemModule)
 }

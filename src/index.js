@@ -9,10 +9,6 @@ import "./index.css"
 // Front-end layout setup
 renderFrontEndLayout()
 
-// Collect 
-
-
-
 // Form for adding new list items
 // newItemForm()
 
