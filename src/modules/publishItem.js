@@ -1,8 +1,8 @@
-import { getElements } from "./elementsDOM.js"
+import { getDOMelements, getElements } from "./getDOMelements.js"
 
 export const publishItem = (item) => {
     console.log("publish item activated")
-    const DOM = getElements()
+    const DOM = getDOMelements()
 
     // Basic item module set up
     const itemModule = document.createElement("div")

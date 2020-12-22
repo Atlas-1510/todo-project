@@ -1,7 +1,11 @@
 import ListItem from "./ListItemClass.js"
 import { publishItem } from "./publishItem.js"
+import { getDOMelements } from "./getDOMelements.js"
 
 export function newItemForm() {
+
+    const DOM = getDOMelements()
+
     const addItemFormDOM = (() => {
         // Form to create list items
         const newListItemForm = document.createElement("form")
@@ -28,7 +32,7 @@ export function newItemForm() {
         newListItemForm.appendChild(newListItemDueDate)
 
         newListItemForm.appendChild(newListItemButton)
-        mainDOM.appendChild(newListItemForm)
+        DOM.mainContent.appendChild(newListItemForm)
     })()
 
     const addItemFormFunctionality = (() => {

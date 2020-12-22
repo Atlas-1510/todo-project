@@ -1,14 +1,12 @@
 import List from "./modules/ListClass.js"
 import ListItem from "./modules/ListItemClass.js"
 import { publishList } from "./modules/publishList.js"
-import { updateSidePanel } from "./modules/updateSidePanel"
 import { newItemForm } from "./modules/newItemForm.js"
-import { renderFrontEndLayout } from "./modules/renderFrontEndLayout.js"
-import { getElements } from "./modules/elementsDOM.js"
+import { getDOMelements } from "./modules/getDOMelements.js"
 
 import "./index.css"
 
-// ********** Backend **********
+// ******************** Backend ********************
 
 // List declarations
 const listsArray = []
@@ -27,21 +25,84 @@ createListItem(firstList, "second item - first list")
 createListItem(secondList, "first item - second list", "a due date")
 
 
-// ********** Frontend **********
-
-const DOM = getElements()
-
+// ******************** Frontend ********************
 // layout setup
-renderFrontEndLayout()
+const renderFrontEndLayout = (() => {
 
-// Publish lists to sidepanel
-updateSidePanel(listsArray)
+    const mainContent = document.createElement("div")
+    mainContent.setAttribute("id", "mainContent")
+    document.body.append(mainContent)
 
-const renderMainWindow = (list) => {
-    while (list.firstChild) {
-        list.removeChild(list.childNodes[0])
+    // Side panel
+    const sidePanel = document.createElement("div")
+    sidePanel.setAttribute("id", "sidePanel")
+    mainContent.appendChild(sidePanel)
+
+    const listOfLists = document.createElement("div")
+    listOfLists.setAttribute("id", "listOfLists")
+    sidePanel.appendChild(listOfLists)
+
+    // Main content
+    const contentWindow = document.createElement("div")
+    contentWindow.setAttribute("id", "contentWindow")
+    mainContent.appendChild(contentWindow)
+})()
+// Assign DOM elements to object for easy reference
+const DOM = getDOMelements()
+// Function to refresh main content window when new list is loaded
+const updateMainWindow = (list) => {
+    // Remove existing list
+    while (DOM.contentWindow.firstChild) {
+        DOM.contentWindow.removeChild(DOM.contentWindow.childNodes[0])
     }
+    // Update List Title Header
+    const listHeader = document.createElement("h1")
+    listHeader.textContent = list.name
+    DOM.contentWindow.appendChild(listHeader)
+    // Add new list contents
     publishList(list)
 }
 
-renderMainWindow(secondList)
+// Publish lists to sidepanel
+const updateSidePanel = () => {
+
+    const _renderSideBarListElement = (list) => {
+        const listElement = document.createElement("div")
+        listElement.classList.add("sideBarList")
+
+        const listIcon = document.createElement("img")
+        listIcon.classList.add("listIcon")
+        listElement.appendChild(listIcon)
+
+        const listName = document.createElement("div")
+        listName.classList.add("listName")
+        listElement.appendChild(listName)
+
+        const listItemsCount = document.createElement("div")
+        listItemsCount.classList.add("listItemsCount")
+        listElement.appendChild(listItemsCount)
+
+        // listIcon.src = // Insert source image here from list object??
+
+        listName.textContent = list.name
+
+        listItemsCount.textContent = list.listItems.length
+
+        return listElement
+    }
+
+    // publish list name to side panel
+    for (let i = 0; i < listsArray.length; i++) {
+        // Add list to side bar
+        let listNameElement = _renderSideBarListElement(listsArray[i])
+        DOM.listOfLists.appendChild(listNameElement)
+        // Add event listener to list
+        listNameElement.addEventListener("click", () => {
+            updateMainWindow(listsArray[i])
+        })
+    }
+}
+
+updateSidePanel(listsArray)
+
+// newItemForm()

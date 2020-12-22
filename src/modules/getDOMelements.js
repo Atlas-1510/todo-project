@@ -1,4 +1,4 @@
-export const getElements = () => {
+export const getDOMelements = () => {
     const mainContent = document.getElementById("mainContent")
     const sidePanel = document.getElementById("sidePanel")
     const listOfLists = document.getElementById("listOfLists")
