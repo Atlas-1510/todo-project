@@ -11,8 +11,8 @@ import "./index.css"
 // List declarations
 const listsArray = []
 
-const firstList = new List("firstList")
-const secondList = new List("secondList")
+const firstList = new List("firstList", "blue")
+const secondList = new List("secondList", "red")
 listsArray.push(firstList, secondList)
 
 const createListItem = (parentList, title, dueDate, priority, description, flag, location, parentItem) => {
@@ -33,6 +33,16 @@ const renderFrontEndLayout = (() => {
     mainContent.setAttribute("id", "mainContent")
     document.body.append(mainContent)
 
+    // Top bar
+    const topBar = document.createElement("div")
+    topBar.setAttribute("id", "topBar")
+    mainContent.appendChild(topBar)
+
+    const addNewItemButton = document.createElement("button")
+    addNewItemButton.textContent = "+"
+    addNewItemButton.setAttribute("id", "addNewItemButton")
+    topBar.appendChild(addNewItemButton)
+
     // Side panel
     const sidePanel = document.createElement("div")
     sidePanel.setAttribute("id", "sidePanel")
@@ -41,6 +51,11 @@ const renderFrontEndLayout = (() => {
     const listOfLists = document.createElement("div")
     listOfLists.setAttribute("id", "listOfLists")
     sidePanel.appendChild(listOfLists)
+
+    const addNewListButton = document.createElement("button")
+    addNewListButton.textContent = "+ Add List" // Replace with font awsome icon later
+    addNewListButton.setAttribute("id", "addNewListButton")
+    sidePanel.appendChild(addNewListButton)
 
     // Main content
     const contentWindow = document.createElement("div")
@@ -55,10 +70,7 @@ const updateMainWindow = (list) => {
     while (DOM.contentWindow.firstChild) {
         DOM.contentWindow.removeChild(DOM.contentWindow.childNodes[0])
     }
-    // Update List Title Header
-    const listHeader = document.createElement("h1")
-    listHeader.textContent = list.name
-    DOM.contentWindow.appendChild(listHeader)
+
     // Add new list contents
     publishList(list)
 }
@@ -67,28 +79,33 @@ const updateMainWindow = (list) => {
 const updateSidePanel = () => {
 
     const _renderSideBarListElement = (list) => {
-        const listElement = document.createElement("div")
-        listElement.classList.add("sideBarList")
+        const sideBarList = document.createElement("div")
+        sideBarList.classList.add("sideBarList")
+
+        const sideBarColorIcon = document.createElement("div")
+        sideBarColorIcon.classList.add("sideBarColorIcon")
+        sideBarColorIcon.style.backgroundColor = list.color
+        sideBarList.appendChild(sideBarColorIcon)
 
         // const listIcon = document.createElement("img") // Figure out how to use emoji-mart for this later
         // listIcon.classList.add("listIcon")
         // listElement.appendChild(listIcon)
 
-        const listName = document.createElement("div")
-        listName.classList.add("listName")
-        listElement.appendChild(listName)
+        const sideBarListName = document.createElement("div")
+        sideBarListName.classList.add("sideBarListName")
+        sideBarList.appendChild(sideBarListName)
 
-        const listItemsCount = document.createElement("div")
-        listItemsCount.classList.add("listItemsCount")
-        listElement.appendChild(listItemsCount)
+        const sideBarListItemsCount = document.createElement("div")
+        sideBarListItemsCount.classList.add("sideBarListItemsCount")
+        sideBarList.appendChild(sideBarListItemsCount)
 
         // listIcon.src = // Insert source image here from list object??
 
-        listName.textContent = list.name
+        sideBarListName.textContent = list.name
 
-        listItemsCount.textContent = list.listItems.length
+        sideBarListItemsCount.textContent = list.listItems.length
 
-        return listElement
+        return sideBarList
     }
 
     // publish list name to side panel
