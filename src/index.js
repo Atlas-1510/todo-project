@@ -70,9 +70,9 @@ const updateSidePanel = () => {
         const listElement = document.createElement("div")
         listElement.classList.add("sideBarList")
 
-        const listIcon = document.createElement("img")
-        listIcon.classList.add("listIcon")
-        listElement.appendChild(listIcon)
+        // const listIcon = document.createElement("img") // Figure out how to use emoji-mart for this later
+        // listIcon.classList.add("listIcon")
+        // listElement.appendChild(listIcon)
 
         const listName = document.createElement("div")
         listName.classList.add("listName")
