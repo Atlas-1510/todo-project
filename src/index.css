@@ -104,21 +104,21 @@ body {
 
 
 
-/* ******************** List Item Module Design ******************** */
+/* ******************** List Item Module ******************** */
 
 .itemModule {
     display: grid;
-    grid-template-columns: [first] 10% [second] 25% [third] 25% [fourth] 10% [fifth] 1fr [sixth] 10% [seventh];
+    grid-template-columns: [first] 10% [second] 25% [third] 25% [fourth] 10% [fifth] 1fr [sixth] 10% [seventh] 10% [eighth];
     margin: 2%;
     border: 1px solid white;
     font-size: large;
     background-color: white;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    height: 30px;
     align-items: center;
     justify-content: center;
     border-radius: 20px;
     border: 1px solid black;
+    min-height: 30px;
 }
 
 .itemModuleCheckBox {
@@ -147,28 +147,57 @@ body {
 .itemModulePriority {
     grid-column-start: fourth;
     grid-column-end: fifth;
-    color: red;
+    color: green;
 }
 
-.itemModuleExpandIcon {
+.itemModuleEditButton {
     grid-column-start: sixth;
     grid-column-end: seventh;
     justify-self: center;
     color: blue;
 }
 
-.activeItemModule, .itemModule:hover {
-    background-color: aqua;
+.itemModuleDeleteButton {
+    grid-column-start: seventh;
+    grid-column-end: eighth;
+    justify-self: center;
+    color: red;
 }
 
-.expandedItemModule {
-    display: none;
-    overflow: hidden;
-    background-color: white;
-    color: black;
-    margin-left: 2%;
-    margin-right: 2%;
-    border-radius: 20px;
+.activeItemModule, .itemModule:hover {
+    background-color: grey;
+}
+
+/* ************************************************** */
+
+/* ******************** Expanded Pop Up List Item ******************** */
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    border: 1px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    background-color: beige;
+    width: 500px;
+    max-width: 80%;
+
+}
+
+.modal.active {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#overlay {
+    position: fixed;
+    opacity: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* ************************************************** */

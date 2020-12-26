@@ -4,6 +4,7 @@ export const publishItem = (item) => {
     console.log("publish item activated")
     const DOM = getDOMelements()
 
+    // Creates the item in the list
     const createItemModule = (item) => {
         // Basic item module set up
         const itemModule = document.createElement("div")
@@ -21,15 +22,21 @@ export const publishItem = (item) => {
         const itemModulePriority = document.createElement("div")
         itemModulePriority.classList.add("itemModulePriority")
 
-        const itemModuleExpandIcon = document.createElement("div")
-        itemModuleExpandIcon.textContent = "ⓘ"; // Convert this to blue "i" icon later with fontawesome
-        itemModuleExpandIcon.classList.add("itemModuleExpandIcon")
+        const itemModuleEditButton = document.createElement("div")
+        itemModuleEditButton.textContent = "Edit"
+        itemModuleEditButton.classList.add("itemModuleEditButton")
+
+        const itemModuleDeleteButton = document.createElement("div")
+        itemModuleDeleteButton.textContent = "Delete"
+        itemModuleDeleteButton.classList.add("itemModuleDeleteButton")
+
 
         itemModule.appendChild(itemModuleCheckBox)
         itemModule.appendChild(itemModuleTitle)
         itemModule.appendChild(itemModuleDueDate)
         itemModule.appendChild(itemModulePriority)
-        itemModule.appendChild(itemModuleExpandIcon)
+        itemModule.appendChild(itemModuleEditButton)
+        itemModule.appendChild(itemModuleDeleteButton)
 
 
         // Filling in module details
@@ -43,50 +50,39 @@ export const publishItem = (item) => {
         return itemModule
     }
 
-    const applyListener = (item) => {
-        const expandButton = item.querySelector(".itemModuleExpandIcon")
-        expandButton.addEventListener("click", () => {
-            item.classList.add("activeItemModule")
-            const expandedModule = item.nextElementSibling;
-            if (expandedModule.style.display == "block") {
-                expandedModule.style.display = "none"
-                item.classList.remove("activeItemModule")
-            } else {
-                expandedModule.style.display = "block"
-            }
+    // Applies the event listeners to the list item
+    const applyListeners = (itemModule, listItemData) => {
+
+        const _expandListItem = (listItemData) => {
+
+            console.log("double active")
+
+            // Modal - to hold expanded list item info
+            const modal = document.createElement("div")
+            modal.setAttribute("id", "modal")
+            modal.classList.add("modal")
+            DOM.contentWindow.appendChild(modal)
+
+            const modalHeader = document.createElement("h1")
+            modal.appendChild(modalHeader)
+            modalHeader.textContent = listItemData.title
+
+
+            // Overlay - to darken background
+            const overlay = document.createElement("div")
+            overlay.setAttribute("id", "overlay")
+            DOM.contentWindow.appendChild(overlay)
+
+            modal.classList.add("active")
+        }
+
+        itemModule.addEventListener("click", () => {
+            console.log("active")
+            _expandListItem(listItemData)
         })
     }
 
     const newModule = createItemModule(item)
 
-    applyListener(newModule)
-
-    const _createExpandedModule = (item) => {
-        // Expanded module set up <-- When the list item is clicked to expand
-
-        const ExpItemModule = document.createElement("div")
-        ExpItemModule.classList.add("expandedItemModule")
-
-        const ExpItemDescription = document.createElement("div")
-        ExpItemDescription.classList.add("ExpItemDescription")
-        ExpItemModule.appendChild(ExpItemDescription)
-
-        const ExpItemDetails = document.createElement("div")
-        ExpItemDetails.classList.add("ExpItemDetails")
-        ExpItemModule.appendChild(ExpItemDetails)
-
-        const ExpItemDate = document.createElement("div")
-        ExpItemDate.textContent = item.dueDate
-        const ExpItemPriority = document.createElement("div")
-        ExpItemPriority.textContent = item.priority
-        const ExpItemLocation = document.createElement("div")
-        ExpItemLocation.textContent = item.location
-        const expandedItemFlag = document.createElement("div")
-        ExpItemLocation.textContent = item.flag
-
-        ExpItemDetails.append(ExpItemDate, ExpItemPriority, ExpItemLocation, expandedItemFlag)
-
-        DOM.contentWindow.appendChild(ExpItemModule)
-    }
-    _createExpandedModule(item)
+    applyListeners(newModule, item)
 }

@@ -11,8 +11,8 @@ import "./index.css"
 // List declarations
 const listsArray = []
 
-const firstList = new List("firstList", "blue")
-const secondList = new List("secondList", "red")
+const firstList = new List("firstList", "#457b9d")
+const secondList = new List("secondList", "#a73946")
 listsArray.push(firstList, secondList)
 
 const createListItem = (parentList, title, dueDate, priority, description, flag, location, parentItem) => {
@@ -21,7 +21,7 @@ const createListItem = (parentList, title, dueDate, priority, description, flag,
 }
 
 createListItem(firstList, "first item", "next June", "high", "this is the first item", "blue", "another element")
-createListItem(firstList, "second item - first list")
+createListItem(firstList, "second item - first list", "other stuff", "more stuff", "you get the point")
 createListItem(secondList, "first item - second list", "a due date")
 
 
