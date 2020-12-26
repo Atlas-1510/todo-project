@@ -11,5 +11,6 @@ export default class ListItem {
         this.location = location
         this.parentItem = parentItem
         this.creationDate = "" // get current date here somehow
+        this.complete = false
     }
 }

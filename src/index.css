@@ -15,6 +15,16 @@ body {
     height: 100%;
 }
 
+#overlay {
+    position: fixed;
+    opacity: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 /* ******************** Top Bar Panel ******************** */
 
 #topBar {
@@ -119,6 +129,8 @@ body {
     border-radius: 20px;
     border: 1px solid black;
     min-height: 30px;
+    min-width: 600px;
+    pointer-events: all;
 }
 
 .itemModuleCheckBox {
@@ -130,6 +142,7 @@ body {
     background-color: transparent;
     border: 1px solid black;
     margin-left: 2%;
+    pointer-events: none;
 }
 
 .itemModuleTitle {
@@ -168,6 +181,12 @@ body {
     background-color: grey;
 }
 
+/* Completed Item Module */
+
+.itemModule.complete {
+    background-color: orange;
+}
+
 /* ************************************************** */
 
 /* ******************** Expanded Pop Up List Item ******************** */
@@ -183,21 +202,16 @@ body {
     background-color: beige;
     width: 500px;
     max-width: 80%;
-
+    color: black;
 }
 
 .modal.active {
     transform: translate(-50%, -50%) scale(1);
 }
 
-#overlay {
-    position: fixed;
-    opacity: 1;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+.modalHeader {
+    
 }
+
 
 /* ************************************************** */
