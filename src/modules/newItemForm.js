@@ -47,9 +47,19 @@ export function newItemForm() {
 
     const addItemFormFunctionality = (() => {
         function logSubmit(event) {
+
+            // Getting the input from the form
             event.preventDefault()
             let title = document.getElementById("formTitle").value
             let dueDate = document.getElementById("formDueDate").value
+
+            // Loading the input into a new ListItem, and attaching that item to the DOM and and the backend list object
+
+
+
+
+
+
             const newItem = new ListItem(title, dueDate)
             publishItem(newItem)
         }

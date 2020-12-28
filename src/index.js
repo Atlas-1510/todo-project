@@ -9,17 +9,18 @@ import "./index.css"
 
 // ******************** Backend ********************
 
-// List declarations
-const listsArray = []
+const listsHolder = {}
 
-const firstList = new List("firstList", "#457b9d")
-const secondList = new List("secondList", "#a73946")
-listsArray.push(firstList, secondList)
+const demoLists = (() => {
+    const firstList = new List("firstList", "#457b9d")
+    const secondList = new List("secondList", "#a73946")
+    listsHolder.firstList = firstList
+    listsHolder.secondList = secondList
 
-createListItem(firstList, "first item", "next June", "high", "this is the first item", "blue", "another element")
-createListItem(firstList, "second item - first list", "other stuff", "more stuff", "you get the point")
-createListItem(secondList, "first item - second list", "a due date")
-
+    createListItem(firstList, "first item", "next June", "high", "this is the first item", "blue", "another element")
+    createListItem(firstList, "second item - first list", "other stuff", "more stuff", "you get the point")
+    createListItem(secondList, "first item - second list", "a due date")
+})()
 
 // ******************** Frontend ********************
 // layout setup
@@ -63,8 +64,8 @@ const renderFrontEndLayout = (() => {
 })()
 // Assign DOM elements to object for easy reference
 const DOM = getDOMelements()
-// Function to refresh main content window when new list is loaded
-const updateMainWindow = (list) => {
+// Function to render main content window when new list is loaded
+const renderContentWindow = (list) => {
     // Remove existing list
     while (DOM.contentWindow.firstChild) {
         DOM.contentWindow.removeChild(DOM.contentWindow.childNodes[0])
@@ -108,23 +109,25 @@ const updateSidePanel = () => {
         return sideBarList
     }
 
-    // publish list name to side panel
-    for (let i = 0; i < listsArray.length; i++) {
-        // Add list to side bar
-        let listNameElement = _renderSideBarListElement(listsArray[i])
-        DOM.listOfLists.appendChild(listNameElement)
-        // Add event listener to list
+    // publish list name to side panel, add listeners to list elements
+    let list;
+    for (list in listsHolder) {
+        let listObject = listsHolder[list]
+        let listNameElement = _renderSideBarListElement(listObject)
         listNameElement.addEventListener("click", () => {
-            updateMainWindow(listsArray[i])
-            // Need to figure out how to select the list object based on the listNameElement node
-            let listNodeName = listNameElement.dataset.listObjectName
-            console.log(listNodeName)
-
-
+            renderContentWindow(listObject)
+            // Set 'active' to false on all lists, then set 'active' to true for this list.
+            // Using 'active' property to link list displayed in DOM to backend object.
+            let i;
+            for (i in listsHolder) {
+                listsHolder[i].active = false
+            }
+            listObject.active = true
         })
+        DOM.listOfLists.appendChild(listNameElement)
     }
 }
 
-updateSidePanel(listsArray)
+updateSidePanel()
 
 // newItemForm()
