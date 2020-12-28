@@ -130,7 +130,6 @@ body {
     border: 1px solid black;
     min-height: 30px;
     min-width: 600px;
-    pointer-events: all;
 }
 
 .itemModuleCheckBox {
@@ -142,7 +141,6 @@ body {
     background-color: transparent;
     border: 1px solid black;
     margin-left: 2%;
-    pointer-events: none;
 }
 
 .itemModuleTitle {

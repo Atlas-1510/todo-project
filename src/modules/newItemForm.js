@@ -1,12 +1,21 @@
 import ListItem from "./ListItemClass.js"
 import { publishItem } from "./publishItem.js"
 import { getDOMelements } from "./getDOMelements.js"
+import { dimBackground } from "./dimBackground.js"
 
 export function newItemForm() {
 
     const DOM = getDOMelements()
 
     const addItemFormDOM = (() => {
+
+        // Pop-up module
+        const modal = document.createElement("div")
+        modal.setAttribute("id", "modal")
+        modal.classList.add("modal")
+        DOM.contentWindow.appendChild(modal)
+        modal.classList.add("active") // Figure out how to use this for transition effect
+
         // Form to create list items
         const newListItemForm = document.createElement("form")
         newListItemForm.setAttribute("id", "form")
@@ -30,9 +39,10 @@ export function newItemForm() {
         newListItemForm.appendChild(newListItemTitleInput)
         newListItemForm.appendChild(newListItemDueDateLabel)
         newListItemForm.appendChild(newListItemDueDate)
-
         newListItemForm.appendChild(newListItemButton)
-        DOM.mainContent.appendChild(newListItemForm)
+
+        modal.appendChild(newListItemForm)
+        DOM.mainContent.appendChild(modal)
     })()
 
     const addItemFormFunctionality = (() => {
@@ -47,4 +57,6 @@ export function newItemForm() {
         const form = document.getElementById('form');
         form.addEventListener('submit', logSubmit);
     })()
+
+    dimBackground()
 }

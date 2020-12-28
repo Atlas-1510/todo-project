@@ -1,12 +1,12 @@
 import { getDOMelements } from "./getDOMelements.js"
 import { dimBackground } from "./dimBackground.js"
 
-export const publishItem = (item) => {
+export const publishItem = (itemObject) => {
     console.log("publish item activated")
     const DOM = getDOMelements()
 
     // Creates the item in the list
-    const createItemModule = (item) => {
+    const createItemModule = () => {
         // Basic item module set up
         const itemModule = document.createElement("div")
         itemModule.classList.add("itemModule")
@@ -40,9 +40,9 @@ export const publishItem = (item) => {
         itemModule.appendChild(itemModuleDeleteButton)
 
         // Filling in module details
-        itemModuleTitle.textContent = item.title
-        itemModuleDueDate.textContent = item.dueDate
-        itemModulePriority.textContent = item.priority
+        itemModuleTitle.textContent = itemObject.title
+        itemModuleDueDate.textContent = itemObject.dueDate
+        itemModulePriority.textContent = itemObject.priority
 
 
         DOM.contentWindow.appendChild(itemModule)
@@ -51,85 +51,99 @@ export const publishItem = (item) => {
     }
 
     // Applies the event listeners to the list item and item children
-    const applyListeners = (itemNode, listItemObject) => {
+    const applyListeners = (itemNode) => {
 
-        function _expandListItem() {
+        const expandModule = (() => {
 
-            // Modal - to hold expanded list item info
-            const modal = document.createElement("div")
-            modal.setAttribute("id", "modal")
-            modal.classList.add("modal")
-            DOM.contentWindow.appendChild(modal)
-            modal.classList.add("active") // Figure out how to use this for transition effect
+            function _expandListItem() {
 
-            const modalHeader = document.createElement("h1")
-            modalHeader.classList.add("modalHeader")
-            modalHeader.textContent = listItemObject.title
-            modal.appendChild(modalHeader)
+                // Modal - to hold expanded list item info
+                const modal = document.createElement("div")
+                modal.setAttribute("id", "modal")
+                modal.classList.add("modal")
+                DOM.contentWindow.appendChild(modal)
+                modal.classList.add("active") // Figure out how to use this for transition effect
 
-            const modalDescription = document.createElement("div")
-            modalDescription.classList.add("modalDescription")
-            modalDescription.textContent = listItemObject.description
-            modal.appendChild(modalDescription)
+                const modalHeader = document.createElement("h1")
+                modalHeader.classList.add("modalHeader")
+                modalHeader.textContent = itemObject.title
+                modal.appendChild(modalHeader)
 
-            const modalDueDate = document.createElement("div")
-            modalDescription.classList.add("modalDescription")
-            modalDueDate.textContent = listItemObject.dueDate
-            modal.appendChild(modalDueDate)
+                const modalDescription = document.createElement("div")
+                modalDescription.classList.add("modalDescription")
+                modalDescription.textContent = itemObject.description
+                modal.appendChild(modalDescription)
 
-            const modalPriority = document.createElement("div")
-            modalDescription.classList.add("modalDescription")
-            modalPriority.textContent = listItemObject.priority
-            modal.appendChild(modalPriority)
+                const modalDueDate = document.createElement("div")
+                modalDescription.classList.add("modalDescription")
+                modalDueDate.textContent = itemObject.dueDate
+                modal.appendChild(modalDueDate)
 
-            const modalFlag = document.createElement("div")
-            modalDescription.classList.add("modalDescription")
-            modalFlag.textContent = listItemObject.flag
-            modal.appendChild(modalFlag)
+                const modalPriority = document.createElement("div")
+                modalDescription.classList.add("modalDescription")
+                modalPriority.textContent = itemObject.priority
+                modal.appendChild(modalPriority)
 
-            const modalLocation = document.createElement("div")
-            modalDescription.classList.add("modalDescription")
-            modalLocation.textContent = listItemObject.location
-            modal.appendChild(modalLocation)
+                const modalFlag = document.createElement("div")
+                modalDescription.classList.add("modalDescription")
+                modalFlag.textContent = itemObject.flag
+                modal.appendChild(modalFlag)
 
-            // Buttons
+                const modalLocation = document.createElement("div")
+                modalDescription.classList.add("modalDescription")
+                modalLocation.textContent = itemObject.location
+                modal.appendChild(modalLocation)
 
-            const modalCompleteButton = document.createElement("button")
-            modalCompleteButton.textContent = "Complete"
-            modal.appendChild(modalCompleteButton)
+                // Buttons
 
-            const modalEditButton = document.createElement("button")
-            modalEditButton.textContent = "Edit"
-            modal.appendChild(modalEditButton)
+                const modalCompleteButton = document.createElement("button")
+                modalCompleteButton.textContent = "Complete"
+                modal.appendChild(modalCompleteButton)
 
-            const modalDeleteButton = document.createElement("button")
-            modalDeleteButton.textContent = "Delete"
-            modal.appendChild(modalDeleteButton)
+                const modalEditButton = document.createElement("button")
+                modalEditButton.textContent = "Edit"
+                modal.appendChild(modalEditButton)
 
-            // Overlay to dim background
-            dimBackground()
+                const modalDeleteButton = document.createElement("button")
+                modalDeleteButton.textContent = "Delete"
+                modal.appendChild(modalDeleteButton)
+
+                // Overlay to dim background
+                dimBackground()
+            }
+
+            const expandableElements = []
+            const nodeTitle = itemNode.querySelector(".itemModuleTitle")
+            expandableElements.push(nodeTitle)
+            const nodeDate = itemNode.querySelector(".itemModuleDueDate")
+            expandableElements.push(nodeDate)
+            const nodePriority = itemNode.querySelector(".itemModulePriority")
+            expandableElements.push(nodePriority)
+
+            for (let node = 0; node < expandableElements.length; node++) {
+                expandableElements[node].addEventListener("click", _expandListItem)
+            }
+        })()
+
+
+        const markAsComplete = (() => {
+
+            const checkBox = itemNode.querySelector(".itemModuleCheckBox")
+
+            const checkIfChecked = () => {
+                if (checkBox.checked) {
+                    itemNode.classList.add("complete")
+                    itemObject.complete = true
+                } else if (!checkBox.checked) {
+                    itemNode.classList.remove("complete")
+                    itemObject.complete = false
+                }
+            }
+            checkBox.addEventListener("click", checkIfChecked)
         }
-
-        function _markAsComplete() {
-            itemNode.classList.add("complete")
-            listItemObject.complete = true
-        }
-
-        itemNode.addEventListener("click", _expandListItem)
-
-
-        const completeToggle = itemNode.querySelector(".itemModuleCheckBox")
-
-        completeToggle.addEventListener("click", _markAsComplete)
-
-        // Need to remove the '_expandListItem' event listener from the checkbox
-        // otherwise, when ticking the box, the module will expand
-        const checkBox = itemNode.querySelector(".itemModuleCheckBox")
-        console.log(checkBox)
-        checkBox.removeEventListener("click", _expandListItem)
-
-
+        )()
     }
-    const newNode = createItemModule(item)
-    applyListeners(newNode, item)
+
+    const newNode = createItemModule()
+    applyListeners(newNode)
 }

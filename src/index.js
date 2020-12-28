@@ -3,6 +3,7 @@ import ListItem from "./modules/ListItemClass.js"
 import { publishList } from "./modules/publishList.js"
 import { newItemForm } from "./modules/newItemForm.js"
 import { getDOMelements } from "./modules/getDOMelements.js"
+import { createListItem } from "./modules/createListItem.js"
 
 import "./index.css"
 
@@ -14,11 +15,6 @@ const listsArray = []
 const firstList = new List("firstList", "#457b9d")
 const secondList = new List("secondList", "#a73946")
 listsArray.push(firstList, secondList)
-
-const createListItem = (parentList, title, dueDate, priority, description, flag, location, parentItem) => {
-    const newListItem = new ListItem(parentList, title, dueDate, priority, description, flag, location, parentItem)
-    parentList.listItems.push(newListItem)
-}
 
 createListItem(firstList, "first item", "next June", "high", "this is the first item", "blue", "another element")
 createListItem(firstList, "second item - first list", "other stuff", "more stuff", "you get the point")
@@ -41,6 +37,9 @@ const renderFrontEndLayout = (() => {
     const addNewItemButton = document.createElement("button")
     addNewItemButton.textContent = "+"
     addNewItemButton.setAttribute("id", "addNewItemButton")
+    addNewItemButton.addEventListener("click", () => {
+        newItemForm()
+    })
     topBar.appendChild(addNewItemButton)
 
     // Side panel
@@ -81,6 +80,7 @@ const updateSidePanel = () => {
     const _renderSideBarListElement = (list) => {
         const sideBarList = document.createElement("div")
         sideBarList.classList.add("sideBarList")
+        sideBarList.setAttribute("data-list-object-name", list.name)
 
         const sideBarColorIcon = document.createElement("div")
         sideBarColorIcon.classList.add("sideBarColorIcon")
@@ -116,6 +116,11 @@ const updateSidePanel = () => {
         // Add event listener to list
         listNameElement.addEventListener("click", () => {
             updateMainWindow(listsArray[i])
+            // Need to figure out how to select the list object based on the listNameElement node
+            let listNodeName = listNameElement.dataset.listObjectName
+            console.log(listNodeName)
+
+
         })
     }
 }
