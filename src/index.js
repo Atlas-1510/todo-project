@@ -1,9 +1,10 @@
 import List from "./modules/ListClass.js"
 import ListItem from "./modules/ListItemClass.js"
 import { publishList } from "./modules/publishList.js"
-import { newItemForm } from "./modules/newItemForm.js"
 import { getDOMelements } from "./modules/getDOMelements.js"
 import { createListItem } from "./modules/createListItem.js"
+import { publishItem } from "./modules/publishItem.js"
+import { dimBackground } from "./modules/dimBackground.js"
 
 import "./index.css"
 
@@ -64,7 +65,7 @@ const renderFrontEndLayout = (() => {
 })()
 // Assign DOM elements to object for easy reference
 const DOM = getDOMelements()
-// Function to render main content window when new list is loaded
+// Render main content window when new list is selected
 const renderContentWindow = (list) => {
     // Remove existing list
     while (DOM.contentWindow.firstChild) {
@@ -81,7 +82,6 @@ const updateSidePanel = () => {
     const _renderSideBarListElement = (list) => {
         const sideBarList = document.createElement("div")
         sideBarList.classList.add("sideBarList")
-        sideBarList.setAttribute("data-list-object-name", list.name)
 
         const sideBarColorIcon = document.createElement("div")
         sideBarColorIcon.classList.add("sideBarColorIcon")
@@ -128,6 +128,74 @@ const updateSidePanel = () => {
     }
 }
 
+// Module for adding new items to a list, activated by button
+
+const newItemForm = () => {
+
+    const createPopUpForm = (() => {
+
+        // Pop-up module
+        const modal = document.createElement("div")
+        modal.setAttribute("id", "modal")
+        modal.classList.add("modal")
+        DOM.contentWindow.appendChild(modal)
+        modal.classList.add("active") // Figure out how to use this for transition effect
+
+        // Form to create list items
+        const newListItemForm = document.createElement("form")
+        newListItemForm.setAttribute("id", "form")
+        // Title input
+        const newListItemTitleLabel = document.createElement("label")
+        newListItemTitleLabel.textContent = "Title"
+        const newListItemTitleInput = document.createElement("input")
+        newListItemTitleInput.setAttribute("id", "formTitle")
+        // Due date
+        const newListItemDueDateLabel = document.createElement("label")
+        newListItemDueDateLabel.textContent = "Due Date"
+        const newListItemDueDate = document.createElement("input")
+        newListItemDueDate.setAttribute("id", "formDueDate")
+
+        // Submit button
+        const newListItemButton = document.createElement("button")
+        newListItemButton.textContent = "Submit"
+        newListItemButton.type = "submit"
+        // Appending to DOM
+        newListItemForm.appendChild(newListItemTitleLabel)
+        newListItemForm.appendChild(newListItemTitleInput)
+        newListItemForm.appendChild(newListItemDueDateLabel)
+        newListItemForm.appendChild(newListItemDueDate)
+        newListItemForm.appendChild(newListItemButton)
+
+        modal.appendChild(newListItemForm)
+        DOM.mainContent.appendChild(modal)
+    })()
+
+    const processFormInput = (() => {
+        function logSubmit(event) {
+
+            // Getting the input from the form
+            event.preventDefault()
+            let title = document.getElementById("formTitle").value
+            let dueDate = document.getElementById("formDueDate").value
+
+            // Loading form input into a new list item object, and storing that object within the list object that is currently active
+            // Also loading the input into a new list item node, and attaching that node to the DOM
+            let list;
+            for (list in listsHolder) {
+                let listObject = listsHolder[list]
+                if (listObject.active) {
+                    const newItem = createListItem(listObject, title, dueDate)
+                    publishItem(newItem)
+                }
+            }
+        }
+
+        const form = document.getElementById('form');
+        form.addEventListener('submit', logSubmit);
+    })()
+
+    dimBackground()
+}
+
 updateSidePanel()
 
-// newItemForm()

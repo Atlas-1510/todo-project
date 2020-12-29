@@ -2,7 +2,6 @@ import { getDOMelements } from "./getDOMelements.js"
 import { dimBackground } from "./dimBackground.js"
 
 export const publishItem = (itemObject) => {
-    console.log("publish item activated")
     const DOM = getDOMelements()
 
     // Creates the item in the list
