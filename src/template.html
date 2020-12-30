@@ -10,8 +10,58 @@
 <body>
     <div id="projectContainer">
         <div id="topBar"></div>
-        <div id="sideBar"></div>
-        <div id="displaySection"></div>
+        <div id="sideBar">
+            <div id="sideBarContentContainer">
+                <div id="sideBarToggles">
+                    <div id="todayToggle" class="sideBarToggle">
+                        <img src="./img/calendar3.svg" width="25" class="toggleIcon">
+                        <div class="toggleCount">2</div>
+                        <div class="toggleTitle">Today</div>
+                    </div>
+                    <div id="scheduledToggle" class="sideBarToggle">
+                        <img src="./img/alarm.svg" width="25" class="toggleIcon">
+                        <div class="toggleCount">6</div>
+                        <div class="toggleTitle">Scheduled</div>
+                    </div>
+                    <div id="flaggedToggle" class="sideBarToggle">
+                        <img src="./img/flag.svg" width="25" class="toggleIcon">
+                        <div class="toggleCount">42</div>
+                        <div class="toggleTitle">All</div>
+                    </div>
+                    <div id="allToggle" class="sideBarToggle">
+                        <img src="./img/inbox-fill.svg" width="25" class="toggleIcon">
+                        <div class="toggleCount">1</div>
+                        <div class="toggleTitle">Flagged</div>
+                    </div>
+                </div>
+                <div id="listsContainer">
+                    <div class="sideBarList">
+                        <img class="listIcon" src="">
+                        <div class="listTitle">Reminders</div>
+                        <div class="listCount">36</div>
+                    </div>
+                    <div class="sideBarList">
+                        <img class="listIcon" src="">
+                        <div class="listTitle">Grocery</div>
+                        <div class="listCount">1</div>
+                    </div>
+                    <div class="sideBarList">
+                        <img class="listIcon" src="">
+                        <div class="listTitle">Thought Bubbles</div>
+                        <div class="listCount">5</div>
+                    </div>
+                    <div class="sideBarList">
+                        <img class="listIcon" src="">
+                        <div class="listTitle">Work</div>
+                        <div class="listCount">8</div>
+                    </div>
+                </div>
+                <button id="addListButton">+ Add List</button>
+            </div>
+        </div>
+        <div id="displaySection">
+            <div id="userContentContainer"></div>
+        </div>
     </div>
 </body>
 

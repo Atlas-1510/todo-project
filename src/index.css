@@ -1,11 +1,92 @@
+:root {
+    --topMargin: 40px;
+}
+
+body {
+    margin: 0;
+}
+
 #projectContainer {
     display: grid;
     grid-template-columns: [first] 20% [second] 80% [third];
     grid-template-rows: [first] 5% [second] 95% [third];
+    height: 100vh;
+    width: 100vw;
 }
 
 #topBar {
     grid-column: first / third;
     grid-row: first / second;
     background-color: aquamarine;
+    min-height: 50px;
+}
+
+#sideBar {
+    grid-column: first / second;
+    grid-row: second / third;
+    background-color: lightblue;
+    min-width: 200px;
+}
+
+#displaySection {
+    grid-column: second / third;
+    grid-row: second / third;
+    min-width: 100%;
+    min-height: 100%;
+    background-color: lightcyan;
+}
+
+#userContentContainer {
+    margin: 0 auto;
+    width: 70%;
+    background-color: lightcoral;
+    height: 100%;
+    margin-top: var(--topMargin);
+}
+
+#sideBarContentContainer {
+    margin: 0 auto;
+    width: 90%;
+    background-color: lightgoldenrodyellow;
+    height: fit-content;
+    margin-top: var(--topMargin);
+}
+
+#sideBarToggles {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: [first] 1fr [second] 1fr [third];
+    grid-template-rows: [first] 1fr [second] 1fr [third];
+    --subItemMargin: 10px;
+}
+
+.sideBarToggle{
+    border: 1px solid black;
+    border-radius: 15px;
+    display: grid;
+    grid-template-rows: [first] 1fr [second] 1fr [third];
+    grid-template-columns: [first] 25% [second] 1fr [third];
+}
+
+.toggleIcon {
+    grid-row: first / second;
+    grid-column: first / second;
+    margin: var(--subItemMargin)
+}
+
+.toggleCount {
+    grid-row: first / second;
+    grid-column: second / third;
+    justify-self: end;
+    margin: var(--subItemMargin)
+}
+
+.toggleTitle {
+    grid-row: second / third;
+    grid-column: first / third;
+    margin: var(--subItemMargin)
+}
+
+.sideBarList {
+    
 }
