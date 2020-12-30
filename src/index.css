@@ -1,3 +1,5 @@
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+
 :root {
     --topMargin: 40px;
 }
@@ -72,10 +74,6 @@ body {
     min-height: 20px;
     margin: 10px;
 }
-
-
-
-
 
 #sideBarContentContainer {
     display: flex;
@@ -196,3 +194,4 @@ body {
     background-color: lightcoral;
     margin-top: var(--topMargin);
 }
+
