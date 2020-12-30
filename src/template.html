@@ -9,14 +9,20 @@
 
 <body>
     <div id="projectContainer">
-        <div id="topBar"></div>
+        <div id="topBar">
+            <div id="listTitle">Reminders</div>
+            <div id="topBarListCount">36</div>
+            <button id="addListItemButton">+</button>
+        </div>
         <div id="sideBar">
             <div id="sideBarContentContainer">
-                <form id="searchBarForm">
+                <div id="searchBarContainer">
                     <img src="img/search.svg" id="searchIcon">
-                    <input id="searchBar" placeholder="Search..." type="text">
+                    <form id="searchBarForm">
+                        <input id="searchBar" placeholder="Search..." type="text">
+                    </form>
                     <img src="./img/x-circle.svg" id="clearIcon">
-                </form>
+                </div>
                 <div id="sideBarToggles">
                     <div id="todayToggle" class="sideBarToggle">
                         <img src="./img/calendar3.svg" width="25" class="toggleIcon">
@@ -42,22 +48,22 @@
                 <div id="listsContainer">
                     <div class="sideBarList">
                         <img class="listIcon" src="./img/app.svg">
-                        <div class="listTitle">Reminders</div>
+                        <div class="listName">Reminders</div>
                         <div class="listCount">36</div>
                     </div>
                     <div class="sideBarList">
                         <img class="listIcon" src="./img/app.svg">
-                        <div class="listTitle">Grocery</div>
+                        <div class="listName">Grocery</div>
                         <div class="listCount">1</div>
                     </div>
                     <div class="sideBarList">
                         <img class="listIcon" src="./img/app.svg">
-                        <div class="listTitle">Thought Bubbles</div>
+                        <div class="listName">Thought Bubbles</div>
                         <div class="listCount">5</div>
                     </div>
                     <div class="sideBarList">
                         <img class="listIcon" src="./img/app.svg">
-                        <div class="listTitle">Work</div>
+                        <div class="listName">Work</div>
                         <div class="listCount">8</div>
                     </div>
                 </div>

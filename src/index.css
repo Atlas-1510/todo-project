@@ -41,13 +41,41 @@ body {
     flex-direction: column;
 }
 
-#userContentContainer {
-    flex-grow: 2;
-    margin: 0 auto;
-    width: 70%;
-    background-color: lightcoral;
-    margin-top: var(--topMargin);
+#topBar {
+    display: grid;
+    grid-template-columns: [first] 1fr [second] 1fr [third];
+    grid-template-rows: [first] 1fr [second] 1fr [third];
 }
+
+#listTitle {
+    grid-row: second / third;
+    grid-column: first / second;
+    font-size: xx-large;
+    font-weight: bold;
+    margin: 10px;
+}
+
+#topBarListCount {
+    grid-area: second / second / third / third;
+    font-size: xx-large;
+    font-weight: bold;
+    justify-self: end;
+    margin: 10px;
+}
+
+#addListItemButton {
+    grid-area: first / second / second / third;
+    max-width: 30px;
+    min-width: 20px;
+    justify-self: end;
+    max-height: 30px;
+    min-height: 20px;
+    margin: 10px;
+}
+
+
+
+
 
 #sideBarContentContainer {
     display: flex;
@@ -60,30 +88,46 @@ body {
     margin-top: var(--topMargin);
 }
 
-#searchBarForm {
-    margin: 10px;
+#searchBarContainer {
+    box-sizing: border-box;
     display: grid;
-    grid-template-columns: [first] 10px [second] 1fr [third] 10px [fourth];
-    grid-template-rows: [first] 1fr [second];
+    grid-template-columns: 1fr 8fr 1fr;
+    justify-items: center;
+    align-items: center;
     min-width: 100px;
+    min-height: 30px;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid black;
+    overflow: hidden;
+    background-color: white;
 }
 
-#searchIcon {
-    grid-column: first / second;
+#searchBarForm {
+    width: 100%;
 }
 
 #searchBar {
-    grid-column: second / fourth;
-    height: 100%;
-    margin: 0;
+    width: 100%;
     padding: 0;
+    margin: 0;
     border: 0;
-
+    outline: none;
 }
 
 #clearIcon {
-    grid-column: third / fourth;
+    visibility: hidden;
 }
+
+#searchBarContainer:focus-within #clearIcon { 
+    /* Note: replace this css rule with JS to detect form typed input, then show the clear icon/button */
+    visibility: visible;
+}
+
+#searchBarContainer:focus-within {
+    box-shadow: 0 0 5px 1px cyan;
+}
+
 
 #sideBarToggles {
     margin-top: 15px;
@@ -133,7 +177,7 @@ body {
     margin: 10px 0px 10px 0px;
 }
 
-.listTitle {
+.listName {
     margin-left: 5px;
 }
 
@@ -143,4 +187,12 @@ body {
 
 #addListButton {
     margin-top: auto;
+}
+
+#userContentContainer {
+    flex-grow: 2;
+    margin: 0 auto;
+    width: 70%;
+    background-color: lightcoral;
+    margin-top: var(--topMargin);
 }
