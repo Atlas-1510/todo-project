@@ -195,3 +195,32 @@ body {
     margin-top: var(--topMargin);
 }
 
+.task {
+    display: flex;
+    border: 1px solid grey;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    min-height: 30px;
+    align-items: center;
+}
+
+.checkbox {
+    margin-left: 10px;
+}
+
+.taskDescription {
+    margin-left: 15px;
+}
+
+.taskDueDate {
+    margin-left: auto;
+}
+
+.editTaskIcon {
+    margin-left: 15px;
+}
+
+.deleteTaskIcon {
+    margin-left: 5px;
+    margin-right: 10px;
+}

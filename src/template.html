@@ -25,27 +25,28 @@
                 </div>
                 <div id="sideBarToggles">
                     <div id="todayToggle" class="sideBarToggle">
-                        <img src="./img/calendar3.svg" width="25" class="toggleIcon">
+                        <i class="bi bi-calendar3 toggleIcon" style="font-size: x-large;"></i>
                         <div class="toggleCount">2</div>
                         <div class="toggleTitle">Today</div>
                     </div>
                     <div id="scheduledToggle" class="sideBarToggle">
-                        <img src="./img/alarm.svg" width="25" class="toggleIcon">
+                        <i class="bi bi-alarm toggleIcon" style="font-size: x-large;"></i>
                         <div class="toggleCount">6</div>
                         <div class="toggleTitle">Scheduled</div>
                     </div>
                     <div id="flaggedToggle" class="sideBarToggle">
-                        <img src="./img/inbox-fill.svg" width="25" class="toggleIcon">
+                        <i class="bi bi-inbox-fill toggleIcon" style="font-size: x-large;"></i>
                         <div class="toggleCount">42</div>
                         <div class="toggleTitle">All</div>
                     </div>
                     <div id="allToggle" class="sideBarToggle">
-                        <img src="./img/flag.svg" width="25" class="toggleIcon">
+                        <i class="bi bi-flag toggleIcon" style="font-size: x-large;"></i>
                         <div class="toggleCount">1</div>
                         <div class="toggleTitle">Flagged</div>
                     </div>
                 </div>
                 <div id="listsContainer">
+                    <!-- Note: The img tags with the list icons can't be replaced with the bootstrap icon font, due to sizing issues with the <i> tag -->
                     <div class="sideBarList">
                         <img class="listIcon" src="./img/app.svg">
                         <div class="listName">Reminders</div>
@@ -72,13 +73,13 @@
         </div>
         <div id="displaySection">
             <div id="userContentContainer">
-                <div class="task">
-                    <img class="checkBox empty" src="./img/square.svg">
+                <li class="task">
+                    <i class="bi bi-square checkbox empty"></i>
                     <div class="taskDescription">Decide recipe for dinner</div>
-                    <img class="editTaskIcon" src="./img/pencil-square.svg">
-                    <img class="deleteTaskIcon" src="./img/trash.svg">
-                    <i class="bi bi-person-dash"></i>
-                </div>
+                    <div class="taskDueDate">31/12/2020</div>
+                    <i class="bi bi-pencil-square editTaskIcon"></i>
+                    <i class="bi bi-trash deleteTaskIcon"></i>
+                </li>
             </div>
         </div>
     </div>
