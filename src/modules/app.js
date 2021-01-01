@@ -1,4 +1,6 @@
+// Helper modules
 import createNode from "./createNode"
+// Images
 import emptySquareIcon from "../img/square.svg"
 import filledSquareIcon from "../img/square-fill.svg"
 import pencilSquareIcon from "../img/pencil-square.svg"
@@ -7,31 +9,8 @@ import trashIcon from "../img/trash.svg"
 
 export const runApp = () => {
 
-    const main = (() => {
-        // Renders a task object to the DOM
-        function renderTask(completeBool, title, dueDate) {
-            const taskNode = createNode("li", userContentContainer, "", "task")
-            const checkbox = createNode("img", taskNode, "", "checkbox")
-            if (!completeBool) {
-                checkbox.src = emptySquareIcon
-            } else {
-                checkbox.src = filledSquareIcon
-            }
-            const taskDescription = createNode("div", taskNode, "", "taskDescription")
-            taskDescription.textContent = title
-            const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
-            taskDueDate.textContent = dueDate
-            const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
-            editTaskIcon.src = pencilSquareIcon
-            const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
-            deleteTaskIcon.src = trashIcon
-
-            return taskNode
-        }
-
-        // At the moment can add tasks, but only to DOM. Not actually saving in the backend anywhere.
-        // So the next thing to add is an ability to store task information, and then retrieve that info for display in DOM.
-        // To store task info, I can use a MAP object.
+    // 'main' is the main content controller, which CRUDs user tasks and lists
+    const Main = (() => {
 
         // Creates a task object
         function createTask(completeBool, title, dueDate) {
@@ -44,9 +23,35 @@ export const runApp = () => {
         }
 
         // Stores user tasks
-        const userData = new Map()
+        const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
 
-        userData.set('1', createTask(false, "testTitle3", "testDueDate3"))
+        userData.set('1', createTask(false, "testTitle4", "testDueDate4"))
+
+        return { createTask, userData }
+    })()
+
+    // 'render' controls the publication of information to the DOM
+    const Render = (() => {
+        // Renders a task object to the DOM
+        function renderTask(taskObject) {
+            const taskNode = createNode("li", userContentContainer, "", "task")
+            const checkbox = createNode("img", taskNode, "", "checkbox")
+            if (!taskObject.completeBool) {
+                checkbox.src = emptySquareIcon
+            } else {
+                checkbox.src = filledSquareIcon
+            }
+            const taskDescription = createNode("div", taskNode, "", "taskDescription")
+            taskDescription.textContent = taskObject.title
+            const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
+            taskDueDate.textContent = taskObject.dueDate
+            const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
+            editTaskIcon.src = pencilSquareIcon
+            const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
+            deleteTaskIcon.src = trashIcon
+
+            return taskNode
+        }
 
         // Renders userData Map to DOM
         function renderUserContent(map) {
@@ -56,9 +61,17 @@ export const runApp = () => {
             }
         }
 
-        return { renderTask, createTask, renderUserContent, userData }
+        return { renderTask, renderUserContent }
     })()
 
-
-    main.renderUserContent(main.userData)
+    // 'Listeners' adds functionality to DOM buttons
+    const Listeners = (() => {
+        function submitNewItem() {
+            const title = document.getElementById("newItemTitle").value
+            const newTask = Main.createTask(false, title, "")
+            Render.renderTask(newTask)
+        }
+        const submitButton = document.getElementById("newItemSubmit")
+        submitButton.addEventListener("click", function () { submitNewItem() })
+    })()
 }
