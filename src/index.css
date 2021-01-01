@@ -204,7 +204,6 @@ body {
 #userContentContainer > li {
     display: flex;
     align-items: center;
-    min-height: 30px;
 }
 
 .checkbox {
@@ -214,6 +213,8 @@ body {
 
 .taskDescription {
     margin-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .taskDueDate {
@@ -232,58 +233,76 @@ body {
 #newTaskContainer {
     display: flex;
     align-items: center;
-    min-height: 90px;
+    min-height: 30px;
 }
 
 #newTaskContainer > .checkbox {
     align-self: flex-start;
-    margin-top: 7px;
+    margin-top: 10px;
 }
 
 #newTaskContainer > div {
     margin-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     width: 90%;
-    height: 70px;
-    display: grid;
-    row-gap: 10px;
-    column-gap: 10px;
-    grid-template-rows: [first] 1fr [second] 1fr [third];
-    grid-template-columns: [first] 70px [second] 70px [third] 70px [fourth] 70px [fifth] 1fr [sixth];
-    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid lightyellow;
 }
 
 #newTaskContainer > div > input {
     grid-row: first / second;
     grid-column: first / sixth;
-    background-color: aqua;
+    background-color: lightyellow;
     font-size: medium;
     padding: 0;
     margin: 0;
+    margin-bottom: 5px;
     border: 0;
     outline: none;
 }
 
-#newTaskContainer > div > .date {
-    grid-row: second / third;
-    grid-column: first / second;
+#newTaskContainer > div > div {
+    display: flex;
+    align-items: baseline;
 }
 
-#newTaskContainer > div > .location {
-    grid-row: second / third;
-    grid-column: second / third;
+#newTaskContainer > div > div > button {
+    height: 25px;
+    margin-right: 8px;
+    border-radius: 4px;
+    border: 0;
+    background-color: lightgray;
 }
 
-#newTaskContainer > div > .priority {
-    grid-row: second / third;
-    grid-column: third / fourth;
+#newTaskContainer > div > div > .flag {
+    background: url("./img/flag.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 10px;
+    position: relative;
+    bottom: 2px;
+    background-color: lightgray;
 }
 
-#newTaskContainer > div > .flag {
-    grid-row: second / third;
-    grid-column: fourth / fifth;
+#newItemSubmit {
+    align-self: flex-end;
+    margin: 0 auto;
+    background-image: url("./img/check-circle.svg");
+    background-repeat: no-repeat;
+    background-size: 20px;
+    background-position: center;
+    padding: 10px;
+    width: 50px;
+    height: auto;
 }
 
-#newTaskContainer > div > button {
-    padding: 0;
-    width: max-content;
+#newItemAbort {
+    background-image: url("./img/x-circle.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px;
+    width: 50px;
+    padding: 10px;
 }
