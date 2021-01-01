@@ -280,7 +280,10 @@ body {
     background: url("./img/flag.svg");
     background-repeat: no-repeat;
     background-position: center;
-    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     position: relative;
     bottom: 2px;
     background-color: lightgray;
@@ -305,4 +308,5 @@ body {
     background-size: 20px;
     width: 50px;
     padding: 10px;
+    height: auto;
 }
