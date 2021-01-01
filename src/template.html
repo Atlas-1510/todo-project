@@ -25,17 +25,17 @@
                 </div>
                 <div id="sideBarToggles">
                     <div id="todayToggle" class="sideBarToggle">
-                        <i class="bi bi-calendar3 toggleIcon" style="font-size: x-large;"></i>
+                        <img class="toggleIcon" src="./img/calendar3.svg">
                         <div class="toggleCount">2</div>
                         <div class="toggleTitle">Today</div>
                     </div>
                     <div id="scheduledToggle" class="sideBarToggle">
-                        <i class="bi bi-alarm toggleIcon" style="font-size: x-large;"></i>
+                        <img class="toggleIcon" src="./img/alarm.svg">
                         <div class="toggleCount">6</div>
                         <div class="toggleTitle">Scheduled</div>
                     </div>
                     <div id="flaggedToggle" class="sideBarToggle">
-                        <i class="bi bi-inbox-fill toggleIcon" style="font-size: x-large;"></i>
+                        <img class="toggleIcon" src="./img/inbox-fill.svg">
                         <div class="toggleCount">42</div>
                         <div class="toggleTitle">All</div>
                     </div>
@@ -46,7 +46,6 @@
                     </div>
                 </div>
                 <div id="listsContainer">
-                    <!-- Note: The img tags with the list icons can't be replaced with the bootstrap icon font, due to sizing issues with the <i> tag -->
                     <div class="sideBarList">
                         <img class="listIcon" src="./img/app.svg">
                         <div class="listName">Reminders</div>
@@ -74,12 +73,24 @@
         <div id="displaySection">
             <div id="userContentContainer">
                 <li class="task">
-                    <i class="bi bi-square checkbox empty"></i>
+                    <img src="./img/square.svg" class="checkbox"></img>
                     <div class="taskDescription">Decide recipe for dinner</div>
                     <div class="taskDueDate">31/12/2020</div>
-                    <i class="bi bi-pencil-square editTaskIcon"></i>
-                    <i class="bi bi-trash deleteTaskIcon"></i>
+                    <img src="./img/pencil-square.svg" class="editTaskIcon"></img>
+                    <img class="deleteTaskIcon" src="./img/trash.svg"></img>
                 </li>
+                <div id="newTaskContainer">
+                    <img src="./img/square.svg" class="checkbox"></img>
+                    <div>
+                        <input type="text" placeholder="Title">
+                        <button class="date">Add Date</button>
+                        <button class="location">Add Location</button>
+                        <button class="priority">Add Priority</button>
+                        <button class="flag">
+                            <img src="./img/flag.svg">
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

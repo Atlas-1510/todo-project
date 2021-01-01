@@ -1,5 +1,3 @@
-@import "~bootstrap-icons/font/bootstrap-icons.css";
-
 :root {
     --topMargin: 40px;
 }
@@ -106,7 +104,7 @@ body {
 }
 
 #searchBar {
-    width: 100%;
+    width: 98%;
     padding: 0;
     margin: 0;
     border: 0;
@@ -147,7 +145,8 @@ body {
 .toggleIcon {
     grid-row: first / second;
     grid-column: first / second;
-    margin: var(--subItemMargin)
+    margin: var(--subItemMargin);
+    width: 25px;
 }
 
 .toggleCount {
@@ -191,25 +190,30 @@ body {
     flex-grow: 2;
     margin: 0 auto;
     width: 70%;
-    background-color: lightcoral;
+    background-color: lightyellow;
     margin-top: var(--topMargin);
 }
 
-.task {
-    display: flex;
+#userContentContainer > li, #userContentContainer > div {
     border: 1px solid grey;
     border-radius: 15px;
     margin-bottom: 10px;
-    min-height: 30px;
+
+}
+
+#userContentContainer > li {
+    display: flex;
     align-items: center;
+    min-height: 30px;
 }
 
 .checkbox {
-    margin-left: 10px;
+    margin-left: 15px;
+    width: 25;
 }
 
 .taskDescription {
-    margin-left: 15px;
+    margin-left: 25px;
 }
 
 .taskDueDate {
@@ -221,6 +225,65 @@ body {
 }
 
 .deleteTaskIcon {
-    margin-left: 5px;
-    margin-right: 10px;
+    margin-left: 10px;
+    margin-right: 15px;
+}
+
+#newTaskContainer {
+    display: flex;
+    align-items: center;
+    min-height: 90px;
+}
+
+#newTaskContainer > .checkbox {
+    align-self: flex-start;
+    margin-top: 7px;
+}
+
+#newTaskContainer > div {
+    margin-left: 25px;
+    width: 90%;
+    height: 70px;
+    display: grid;
+    row-gap: 10px;
+    column-gap: 10px;
+    grid-template-rows: [first] 1fr [second] 1fr [third];
+    grid-template-columns: [first] 70px [second] 70px [third] 70px [fourth] 70px [fifth] 1fr [sixth];
+    border: 1px solid black;
+}
+
+#newTaskContainer > div > input {
+    grid-row: first / second;
+    grid-column: first / sixth;
+    background-color: aqua;
+    font-size: medium;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    outline: none;
+}
+
+#newTaskContainer > div > .date {
+    grid-row: second / third;
+    grid-column: first / second;
+}
+
+#newTaskContainer > div > .location {
+    grid-row: second / third;
+    grid-column: second / third;
+}
+
+#newTaskContainer > div > .priority {
+    grid-row: second / third;
+    grid-column: third / fourth;
+}
+
+#newTaskContainer > div > .flag {
+    grid-row: second / third;
+    grid-column: fourth / fifth;
+}
+
+#newTaskContainer > div > button {
+    padding: 0;
+    width: max-content;
 }
