@@ -1,3 +1,5 @@
+@import '~js-datepicker/dist/datepicker.min.css';
+
 :root {
     --topMargin: 40px;
 }

@@ -1,6 +1,7 @@
 // Foreign modules
 import add from 'date-fns/add'
 import format from 'date-fns/format'
+import datepicker from 'js-datepicker'
 // Helper home-made modules
 import createNode from "./createNode"
 // Images
@@ -49,7 +50,6 @@ export const runApp = () => {
 
             const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
             let date = taskObject.dueDate
-            console.log(date)
             date = format(date, "dd/MM/yy")
             taskDueDate.textContent = date
 
@@ -69,16 +69,31 @@ export const runApp = () => {
             }
         }
 
+        // Renders the 'Add Task' button to the DOM
+        function renderAddTaskButton() {
+            // Note: id of the button is 'lower' add task button, because there is a second 'higher' one in the top bar.
+            const button = createNode("button", userContentContainer, "LowerAddTaskButton", "addTaskButton")
+
+        }
+
         return { renderTask, renderUserContent }
     })()
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
+        const datePicker = datepicker('#dateInput', {
+            formatter: (input, date) => {
+                input.value = date.toDateString()
+                const node = document.getElementById("dateInput")
+                node.setAttribute("data-date", date)
+            },
+        })
+
         const submitButton = (() => {
             function submitNewItem() {
                 const title = document.getElementById("newItemTitle").value
-                const date = document.getElementById("dateInput").value
+                const date = Date.parse(document.getElementById("dateInput").dataset.date)
                 const newTask = Main.createTask(false, title, date)
                 Render.renderTask(newTask)
             }
