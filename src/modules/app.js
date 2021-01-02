@@ -84,7 +84,7 @@ export const runApp = () => {
 
         const datePicker = datepicker('#dateInput', {
             formatter: (input, date) => {
-                input.value = date.toDateString()
+                input.value = format(date, "eee d/M/yy")
                 const node = document.getElementById("dateInput")
                 node.setAttribute("data-date", date)
             },

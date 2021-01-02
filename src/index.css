@@ -278,8 +278,14 @@ body {
     background-color: lightgray;
 }
 
+#dateInput {
+    width: 80px;
+    text-align: center;
+}
+
 .date::placeholder {
     color:black;
+    text-align: center;
 }
 
 #newTaskContainer > div > div > .flag {
