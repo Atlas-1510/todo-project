@@ -49,6 +49,7 @@ export const runApp = () => {
 
             const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
             let date = taskObject.dueDate
+            console.log(date)
             date = format(date, "dd/MM/yy")
             taskDueDate.textContent = date
 
@@ -77,7 +78,7 @@ export const runApp = () => {
         const submitButton = (() => {
             function submitNewItem() {
                 const title = document.getElementById("newItemTitle").value
-                const date = new Date()
+                const date = document.getElementById("dateInput").value
                 const newTask = Main.createTask(false, title, date)
                 Render.renderTask(newTask)
             }

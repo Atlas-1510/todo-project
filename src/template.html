@@ -84,7 +84,10 @@
                     <div>
                         <input type="text" placeholder="Title" id="newItemTitle">
                         <div>
-                            <button class="date">Add Date</button>
+                            <input id="dateInput" type="text" class="date" placeholder="Add Date"
+                                onfocus="(this.type='date')">
+                            <!-- onblur="(this.type='text')" -->
+                            </input>
                             <button class="location">Add Location</button>
                             <button class="priority">Add Priority</button>
                             <button class="flag"></button>

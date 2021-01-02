@@ -268,12 +268,16 @@ body {
     align-items: baseline;
 }
 
-#newTaskContainer > div > div > button {
+#newTaskContainer > div > div > button, #newTaskContainer > div > div > input  {
     height: 25px;
     margin-right: 8px;
     border-radius: 4px;
     border: 0;
     background-color: lightgray;
+}
+
+.date::placeholder {
+    color:black;
 }
 
 #newTaskContainer > div > div > .flag {
