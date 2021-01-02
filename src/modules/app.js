@@ -1,4 +1,7 @@
-// Helper modules
+// Foreign modules
+import add from 'date-fns/add'
+import format from 'date-fns/format'
+// Helper home-made modules
 import createNode from "./createNode"
 // Images
 import emptySquareIcon from "../img/square.svg"
@@ -43,8 +46,12 @@ export const runApp = () => {
             }
             const taskDescription = createNode("div", taskNode, "", "taskDescription")
             taskDescription.textContent = taskObject.title
+
             const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
-            taskDueDate.textContent = taskObject.dueDate
+            let date = taskObject.dueDate
+            date = format(date, "dd/MM/yy")
+            taskDueDate.textContent = date
+
             const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
             editTaskIcon.src = pencilSquareIcon
             const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
@@ -66,12 +73,17 @@ export const runApp = () => {
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
-        function submitNewItem() {
-            const title = document.getElementById("newItemTitle").value
-            const newTask = Main.createTask(false, title, "")
-            Render.renderTask(newTask)
-        }
-        const submitButton = document.getElementById("newItemSubmit")
-        submitButton.addEventListener("click", function () { submitNewItem() })
+
+        const submitButton = (() => {
+            function submitNewItem() {
+                const title = document.getElementById("newItemTitle").value
+                const date = new Date()
+                const newTask = Main.createTask(false, title, date)
+                Render.renderTask(newTask)
+            }
+            const submitButtonElement = document.getElementById("newItemSubmit")
+            submitButtonElement.addEventListener("click", function () { submitNewItem() })
+        })()
     })()
+
 }
