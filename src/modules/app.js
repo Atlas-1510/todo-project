@@ -9,6 +9,7 @@ import emptySquareIcon from "../img/square.svg"
 import filledSquareIcon from "../img/square-fill.svg"
 import pencilSquareIcon from "../img/pencil-square.svg"
 import trashIcon from "../img/trash.svg"
+import addIcon from "../img/plus-square.svg"
 
 
 export const runApp = () => {
@@ -72,12 +73,16 @@ export const runApp = () => {
         // Renders the 'Add Task' button to the DOM
         function renderAddTaskButton() {
             // Note: id of the button is 'lower' add task button, because there is a second 'higher' one in the top bar.
-            const button = createNode("button", userContentContainer, "LowerAddTaskButton", "addTaskButton")
-
+            const button = createNode("li", userContentContainer, "LowerAddTask", ["addTaskButton"])
+            const addTaskIconNode = createNode("img", button, "addTaskIcon", "checkbox")
+            addTaskIconNode.src = addIcon
+            const addTaskText = createNode("div", button, undefined, "taskDescription")
+            addTaskText.textContent = "Add Task"
         }
 
-        return { renderTask, renderUserContent }
+        return { renderTask, renderUserContent, renderAddTaskButton }
     })()
+
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
@@ -101,5 +106,5 @@ export const runApp = () => {
             submitButtonElement.addEventListener("click", function () { submitNewItem() })
         })()
     })()
-
+    Render.renderAddTaskButton()
 }

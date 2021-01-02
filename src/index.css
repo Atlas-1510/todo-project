@@ -196,6 +196,10 @@ body {
     margin-top: var(--topMargin);
 }
 
+#LowerAddTask {
+    width: 100%;
+}
+
 #userContentContainer > li, #userContentContainer > div {
     border: 1px solid grey;
     border-radius: 15px;
@@ -270,7 +274,7 @@ body {
     align-items: baseline;
 }
 
-#newTaskContainer > div > div > button, #newTaskContainer > div > div > input  {
+#newTaskContainer > div > div > button, #newTaskContainer > div > div > input {
     height: 25px;
     margin-right: 8px;
     border-radius: 4px;
@@ -281,6 +285,8 @@ body {
 #dateInput {
     width: 80px;
     text-align: center;
+    height: 25px;
+    padding: 0;
 }
 
 .date::placeholder {
