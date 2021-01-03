@@ -31,7 +31,7 @@ export const runApp = () => {
                 completeBool,
                 title,
                 dueDate,
-                taskID: taskCounter
+                taskID: userData.size + 1,
             }
 
             taskCounter++
@@ -130,8 +130,13 @@ export const runApp = () => {
     const Listeners = (() => {
 
         // Function be to invoked by event listener on delete buttons
-        function deleteTaskNode(taskNode) {
-            taskNode.remove()
+        function deletionListener(taskNode) {
+
+            const button = taskNode.querySelector(".deleteTaskIcon")
+            button.addEventListener("click", function () {
+                Main.deleteTask(`${taskNode.dataset.taskid}`)
+                taskNode.remove()
+            })
         }
 
         const addTaskButtons = (() => {
@@ -166,9 +171,7 @@ export const runApp = () => {
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
                 const taskObject = Main.createTask(false, title, date)
                 const taskNode = Render.renderTask(taskObject)
-                // Get the button, then apply the listener function
-                const deleteButton = taskNode.querySelector(".deleteTaskIcon")
-                deleteButton.addEventListener("click", function () { deleteTaskNode(taskNode) })
+                deletionListener(taskNode)
             }
             const submitButtonElement = document.getElementById("newItemSubmit")
             submitButtonElement.addEventListener("click", function () {
@@ -188,7 +191,7 @@ export const runApp = () => {
 
 
 
-        return { deleteTaskNode }
+        return { deletionListener }
     })()
 
 
@@ -208,11 +211,7 @@ export const runApp = () => {
         const taskNodes = Render.renderUserContent(Main.userData)
         // Apply listeners to rendered tasks
         for (let i = 0; i < taskNodes.length; i++) { // Remember to check other for loops to see if const is working there
-            let button = taskNodes[i].querySelector(".deleteTaskIcon")
-            button.addEventListener("click", function () {
-                Main.deleteTask(`${taskNodes[i].dataset.taskid}`)
-                Listeners.deleteTaskNode(taskNodes[i])
-            })
+            Listeners.deletionListener(taskNodes[i])
         }
 
 
