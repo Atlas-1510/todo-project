@@ -70,22 +70,35 @@ export const runApp = () => {
             }
         }
 
-        // Renders the 'Add Task' button to the DOM
-        function renderAddTaskButton() {
-            // Note: id of the button is 'lower' add task button, because there is a second 'higher' one in the top bar.
-            const button = createNode("li", userContentContainer, "LowerAddTask", ["addTaskButton"])
-            const addTaskIconNode = createNode("img", button, "addTaskIcon", "checkbox")
-            addTaskIconNode.src = addIcon
-            const addTaskText = createNode("div", button, undefined, "taskDescription")
-            addTaskText.textContent = "Add Task"
+        // Show add task form
+        function renderAddTaskForm() {
+
+            const form = document.getElementById("newTaskContainer")
+            form.style.display = "flex"
+            const lowerAddButton = document.getElementById("lowerAddTask")
+            lowerAddButton.style.display = "none"
+            const inputFocus = document.getElementById("newItemTitle")
+            inputFocus.focus()
         }
 
-        return { renderTask, renderUserContent, renderAddTaskButton }
+
+
+        return { renderTask, renderUserContent, renderAddTaskForm }
     })()
 
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
+
+        const addTaskButtonListener = (() => {
+            const addTaskButtons = document.getElementsByClassName("addTaskButton")
+            for (let i = 0; i < addTaskButtons.length; i++) {
+                const button = addTaskButtons[i]
+                button.addEventListener("click", function () { Render.renderAddTaskForm() })
+            }
+        })()
+
+
 
         const datePicker = datepicker('#dateInput', {
             formatter: (input, date) => {
@@ -107,6 +120,4 @@ export const runApp = () => {
         })()
     })()
 
-
-    Render.renderAddTaskButton()
 }

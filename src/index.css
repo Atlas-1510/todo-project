@@ -65,7 +65,7 @@ body {
     margin: 10px;
 }
 
-#addListItemButton {
+#higherAddTask {
     grid-area: first / second / second / third;
     max-width: 30px;
     min-width: 20px;
@@ -239,7 +239,7 @@ body {
 }
 
 #newTaskContainer {
-    display: flex;
+    display: none;
     align-items: center;
     min-height: 30px;
 }
