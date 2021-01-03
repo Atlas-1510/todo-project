@@ -106,5 +106,7 @@ export const runApp = () => {
             submitButtonElement.addEventListener("click", function () { submitNewItem() })
         })()
     })()
+
+
     Render.renderAddTaskButton()
 }
