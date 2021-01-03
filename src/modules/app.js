@@ -17,6 +17,10 @@ export const runApp = () => {
     // 'main' is the main content controller, which CRUDs user tasks and lists
     const Main = (() => {
 
+        // Stores user tasks
+        const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
+
+
         // Creates a task object
         function createTask(completeBool, title, dueDate) {
             const task = {
@@ -24,13 +28,15 @@ export const runApp = () => {
                 title,
                 dueDate,
             }
+            let mapSize = userData.size
+
+            userData.set(`${userData.size + 1}`, task)
             return task
         }
 
-        // Stores user tasks
-        const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
+        function getUserData() {
 
-        userData.set('1', createTask(false, "testTitle4", "testDueDate4"))
+        }
 
         return { createTask, userData }
     })()
@@ -50,14 +56,17 @@ export const runApp = () => {
             taskDescription.textContent = taskObject.title
 
             const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
-            let date = taskObject.dueDate
-            date = format(date, "dd/MM/yy")
-            taskDueDate.textContent = date
-
+            if (taskObject.dueDate) {
+                let date = taskObject.dueDate
+                date = format(date, "dd/MM/yy")
+                taskDueDate.textContent = date
+            }
             const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
             editTaskIcon.src = pencilSquareIcon
             const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
             deleteTaskIcon.src = trashIcon
+
+            document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
 
             return taskNode
         }
@@ -66,22 +75,36 @@ export const runApp = () => {
         function renderUserContent(map) {
             for (const entry of map) {
                 const task = entry[1]
-                renderTask(task.completeBool, task.title, task.dueDate)
+                renderTask(task)
             }
         }
 
         // Show add task form
-        function renderAddTaskForm() {
+        const renderAddTaskForm = (() => {
 
             const form = document.getElementById("newTaskContainer")
-            form.style.display = "flex"
             const lowerAddButton = document.getElementById("lowerAddTask")
-            lowerAddButton.style.display = "none"
             const inputFocus = document.getElementById("newItemTitle")
-            inputFocus.focus()
-        }
 
+            function show() {
+                form.style.display = "flex"
+                lowerAddButton.style.display = "none"
+                inputFocus.focus()
+            }
 
+            function hide() {
+                form.style.display = "none"
+                lowerAddButton.style.display = "flex"
+                // Move the 'Add Task' button to the end of the user content container, after the new task item
+                const newItem = document.getElementById("userContentContainer").lastChild
+                newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
+                // Do the same thing for the 'new task form', so it shows up at the bottom the next time it is opened
+                newItem.parentNode.insertBefore(form, newItem.nextSibling)
+            }
+
+            return { show, hide }
+
+        })()
 
         return { renderTask, renderUserContent, renderAddTaskForm }
     })()
@@ -90,15 +113,13 @@ export const runApp = () => {
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
-        const addTaskButtonListener = (() => {
-            const addTaskButtons = document.getElementsByClassName("addTaskButton")
-            for (let i = 0; i < addTaskButtons.length; i++) {
-                const button = addTaskButtons[i]
-                button.addEventListener("click", function () { Render.renderAddTaskForm() })
+        const addTaskButtons = (() => {
+            const buttons = document.getElementsByClassName("addTaskButton")
+            for (let i = 0; i < buttons.length; i++) {
+                const button = buttons[i]
+                button.addEventListener("click", function () { Render.renderAddTaskForm.show() })
             }
         })()
-
-
 
         const datePicker = datepicker('#dateInput', {
             formatter: (input, date) => {
@@ -109,6 +130,16 @@ export const runApp = () => {
         })
 
         const submitButton = (() => {
+
+            // Function to prevent page from refreshing when new task form is submitted
+            const submitRefreshBlocker = (() => {
+                const form = document.getElementById("newTaskForm")
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault()
+                })
+            })()
+
+            // Function to handle submission of form input into createTask factory function
             function submitNewItem() {
                 const title = document.getElementById("newItemTitle").value
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
@@ -116,8 +147,36 @@ export const runApp = () => {
                 Render.renderTask(newTask)
             }
             const submitButtonElement = document.getElementById("newItemSubmit")
-            submitButtonElement.addEventListener("click", function () { submitNewItem() })
+            submitButtonElement.addEventListener("click", function () {
+                submitNewItem()
+                Render.renderAddTaskForm.hide()
+                document.getElementById("newTaskForm").reset()
+            })
         })()
+
+        const cancelButton = (() => {
+            const button = document.getElementById("newItemAbort")
+            button.addEventListener("click", function () {
+                document.getElementById("newTaskForm").reset()
+                Render.renderAddTaskForm.hide()
+            })
+        })()
+
+        const deleteButtons = () => {
+            const buttons = document.getElementsByClassName("deleteTaskIcon")
+            for (let i = 0; i < buttons.length; i++) {
+                const button = buttons[i]
+                button.addEventListener("click", function () {
+                    // Logic to remove a task here
+                })
+            }
+        }
+
     })()
 
+
+    // MAIN APP LOGIC
+    Render.renderUserContent(Main.userData)
+
+    return { Main, Render, Listeners }
 }

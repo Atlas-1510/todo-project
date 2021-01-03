@@ -259,7 +259,7 @@ body {
     border: 1px solid lightyellow;
 }
 
-#newTaskContainer > div > input {
+#newTaskContainer > div > form > input {
     grid-row: first / second;
     grid-column: first / sixth;
     background-color: lightyellow;
@@ -271,12 +271,12 @@ body {
     outline: none;
 }
 
-#newTaskContainer > div > div {
+#newTaskContainer > div > form > div {
     display: flex;
     align-items: baseline;
 }
 
-#newTaskContainer > div > div > button, #newTaskContainer > div > div > input {
+#newTaskContainer > div > form > div > button, #newTaskContainer > div > form > div > input {
     height: 25px;
     margin-right: 8px;
     border-radius: 4px;
@@ -296,7 +296,7 @@ body {
     text-align: center;
 }
 
-#newTaskContainer > div > div > .flag {
+#newTaskContainer > div > form > div > .flag {
     background: url("./img/flag.svg");
     background-repeat: no-repeat;
     background-position: center;

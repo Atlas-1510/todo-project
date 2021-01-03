@@ -72,32 +72,34 @@
         </div>
         <div id="displaySection">
             <div id="userContentContainer">
-                <li class="task">
+                <!-- <li class="task">
                     <img src="./img/square.svg" class="checkbox"></img>
                     <div class="taskDescription">Decide recipe for dinner</div>
                     <div class="taskDueDate">31/12/2020</div>
                     <img src="./img/pencil-square.svg" class="editTaskIcon"></img>
                     <img class="deleteTaskIcon" src="./img/trash.svg"></img>
-                </li>
-                <div id="newTaskContainer">
-                    <img src="./img/square.svg" class="checkbox"></img>
-                    <div>
-                        <input type="text" placeholder="Title" id="newItemTitle">
-                        <div>
-                            <input id="dateInput" type="text" class="date" placeholder="Add Date">
-                            </input>
-                            <button class="location">Add Location</button>
-                            <button class="priority">Add Priority</button>
-                            <button class="flag"></button>
-                            <button id="newItemSubmit"></button>
-                            <button id="newItemAbort"></button>
-                        </div>
-                    </div>
-                </div>
+                </li> -->
                 <li id="lowerAddTask" class="addTaskButton">
                     <img src="./img/plus-square.svg" id="addTaskIcon" class="checkbox">
                     <div class="taskDescription">Add Task</div>
                 </li>
+                <div id="newTaskContainer">
+                    <img src="./img/square.svg" class="checkbox"></img>
+                    <div>
+                        <form id="newTaskForm">
+                            <input type="text" placeholder="Title" id="newItemTitle">
+                            <div>
+                                <input id="dateInput" type="text" class="date" placeholder="Add Date">
+                                </input>
+                                <button class="location">Add Location</button>
+                                <button class="priority">Add Priority</button>
+                                <button class="flag"></button>
+                                <button id="newItemSubmit"></button>
+                                <button id="newItemAbort"></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
