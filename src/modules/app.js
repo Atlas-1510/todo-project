@@ -17,9 +17,13 @@ export const runApp = () => {
     // 'main' is the main content controller, which CRUDs user tasks and lists
     const Main = (() => {
 
+        // taskCounter is used to assign a data property to each task object in dataObject, as well as a data attribute to
+        // the rendered node element which displays the list. This enables a link between the two, so a function to delete the DOM node
+        // can also delete the relevent task object. Note that taskCounter must start from 1, not 0, as Map object entried are numbered from 1 onwards.
+        let taskCounter = 1;
+
         // Stores user tasks
         const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
-
 
         // Creates a task object
         function createTask(completeBool, title, dueDate) {
@@ -27,18 +31,24 @@ export const runApp = () => {
                 completeBool,
                 title,
                 dueDate,
+                taskID: taskCounter
             }
+
+            taskCounter++
+
             let mapSize = userData.size
 
             userData.set(`${userData.size + 1}`, task)
             return task
         }
 
-        function getUserData() {
-
+        function deleteTask(taskID) {
+            console.log("Main deleteTask invoked, delete target:")
+            console.log(taskID)
+            userData.delete(`${taskID}`)
         }
 
-        return { createTask, userData }
+        return { createTask, deleteTask, userData }
     })()
 
     // 'render' controls the publication of information to the DOM
@@ -52,6 +62,7 @@ export const runApp = () => {
             } else {
                 checkbox.src = filledSquareIcon
             }
+
             const taskDescription = createNode("div", taskNode, "", "taskDescription")
             taskDescription.textContent = taskObject.title
 
@@ -66,6 +77,9 @@ export const runApp = () => {
             const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
             deleteTaskIcon.src = trashIcon
 
+            taskNode.setAttribute("data-taskID", taskObject.taskID)
+
+
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
 
             return taskNode
@@ -73,10 +87,12 @@ export const runApp = () => {
 
         // Renders userData Map to DOM
         function renderUserContent(map) {
+            let taskNodesArray = []
             for (const entry of map) {
-                const task = entry[1]
-                renderTask(task)
+                const taskNode = renderTask(entry[1])
+                taskNodesArray.push(taskNode)
             }
+            return taskNodesArray
         }
 
         // Show add task form
@@ -113,6 +129,11 @@ export const runApp = () => {
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
+        // Function be to invoked by event listener on delete buttons
+        function deleteTaskNode(taskNode) {
+            taskNode.remove()
+        }
+
         const addTaskButtons = (() => {
             const buttons = document.getElementsByClassName("addTaskButton")
             for (let i = 0; i < buttons.length; i++) {
@@ -143,8 +164,11 @@ export const runApp = () => {
             function submitNewItem() {
                 const title = document.getElementById("newItemTitle").value
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
-                const newTask = Main.createTask(false, title, date)
-                Render.renderTask(newTask)
+                const taskObject = Main.createTask(false, title, date)
+                const taskNode = Render.renderTask(taskObject)
+                // Get the button, then apply the listener function
+                const deleteButton = taskNode.querySelector(".deleteTaskIcon")
+                deleteButton.addEventListener("click", function () { deleteTaskNode(taskNode) })
             }
             const submitButtonElement = document.getElementById("newItemSubmit")
             submitButtonElement.addEventListener("click", function () {
@@ -162,21 +186,36 @@ export const runApp = () => {
             })
         })()
 
-        const deleteButtons = () => {
-            const buttons = document.getElementsByClassName("deleteTaskIcon")
-            for (let i = 0; i < buttons.length; i++) {
-                const button = buttons[i]
-                button.addEventListener("click", function () {
-                    // Logic to remove a task here
-                })
-            }
-        }
 
+
+        return { deleteTaskNode }
     })()
 
 
     // MAIN APP LOGIC
-    Render.renderUserContent(Main.userData)
+    const App = (() => {
 
-    return { Main, Render, Listeners }
+        // Dev tools to be deleted when production ready
+        const devStuff = (() => {
+            Main.createTask(false, "Demo Task", new Date())
+
+            document.getElementById("topBar").addEventListener("click", function () {
+                console.log(Main.userData)
+            })
+        })()
+
+        // Render stored tasks from stored data for this user
+        const taskNodes = Render.renderUserContent(Main.userData)
+        // Apply listeners to rendered tasks
+        for (let i = 0; i < taskNodes.length; i++) { // Remember to check other for loops to see if const is working there
+            let button = taskNodes[i].querySelector(".deleteTaskIcon")
+            button.addEventListener("click", function () {
+                Main.deleteTask(`${taskNodes[i].dataset.taskid}`)
+                Listeners.deleteTaskNode(taskNodes[i])
+            })
+        }
+
+
+    })()
 }
+
