@@ -2,7 +2,7 @@
 // The class methods enable two-way communication between the front-end DOM element, and the backend data object, when either is changed.
 
 
-export default class NodeObjBinder {
+export default class NodeObjBundle {
     constructor(element, obj) {
         this.element = element
         this.obj = obj

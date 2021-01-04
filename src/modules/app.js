@@ -4,6 +4,7 @@ import format from 'date-fns/format'
 import datepicker from 'js-datepicker'
 // Helper home-made modules
 import createNode from "./createNode"
+import NodeObjBundle from "./NodeObjBundleClass"
 // Images
 import emptySquareIcon from "../img/square.svg"
 import filledSquareIcon from "../img/square-fill.svg"
@@ -17,11 +18,6 @@ export const runApp = () => {
     // 'main' is the main content controller, which CRUDs user tasks and lists
     const Main = (() => {
 
-        // taskCounter is used to assign a data property to each task object in dataObject, as well as a data attribute to
-        // the rendered node element which displays the list. This enables a link between the two, so a function to delete the DOM node
-        // can also delete the relevent task object. Note that taskCounter must start from 1, not 0, as Map object entried are numbered from 1 onwards.
-        let taskCounter = 1;
-
         // Stores user tasks
         const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
 
@@ -31,12 +27,7 @@ export const runApp = () => {
                 completeBool,
                 title,
                 dueDate,
-                taskID: userData.size + 1,
             }
-
-            taskCounter++
-
-            let mapSize = userData.size
 
             userData.set(`${userData.size + 1}`, task)
             return task
@@ -48,11 +39,12 @@ export const runApp = () => {
             userData.delete(`${taskID}`)
         }
 
-        return { createTask, deleteTask, userData }
+        return { newBinder, createTask, deleteTask, userData }
     })()
 
     // 'render' controls the publication of information to the DOM
     const Render = (() => {
+
         // Renders a task object to the DOM
         function renderTask(taskObject) {
             const taskNode = createNode("li", userContentContainer, "", "task")
@@ -83,6 +75,12 @@ export const runApp = () => {
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
 
             return taskNode
+        }
+
+        // Create an object to bind together a DOM element and a task object, enabling 2-way communication
+        function newBinder(element, taskObject) {
+            const binder = new NodeObjBundle(element, taskObject)
+            return binder
         }
 
         // Renders userData Map to DOM
