@@ -125,7 +125,6 @@ export const runApp = () => {
         return { renderTask, renderUserContent, renderAddTaskForm }
     })()
 
-
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
@@ -189,11 +188,8 @@ export const runApp = () => {
             })
         })()
 
-
-
         return { deletionListener }
     })()
-
 
     // MAIN APP LOGIC
     const App = (() => {
