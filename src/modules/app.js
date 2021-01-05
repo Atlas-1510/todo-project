@@ -4,7 +4,7 @@ import format from 'date-fns/format'
 import datepicker from 'js-datepicker'
 // Helper home-made modules
 import createNode from "./createNode"
-import NodeObjBundle from "./NodeObjBundleClass"
+import NodeObjectBinder from "./NodeObjBinderClass"
 // Images
 import emptySquareIcon from "../img/square.svg"
 import filledSquareIcon from "../img/square-fill.svg"
@@ -33,13 +33,7 @@ export const runApp = () => {
             return task
         }
 
-        function deleteTask(taskID) {
-            console.log("Main deleteTask invoked, delete target:")
-            console.log(taskID)
-            userData.delete(`${taskID}`)
-        }
-
-        return { newBinder, createTask, deleteTask, userData }
+        return { newBinder, createTask, userData }
     })()
 
     // 'render' controls the publication of information to the DOM
@@ -47,6 +41,7 @@ export const runApp = () => {
 
         // Renders a task object to the DOM
         function renderTask(taskObject) {
+
             const taskNode = createNode("li", userContentContainer, "", "task")
             const checkbox = createNode("img", taskNode, "", "checkbox")
             if (!taskObject.completeBool) {
@@ -77,22 +72,6 @@ export const runApp = () => {
             return taskNode
         }
 
-        // Create an object to bind together a DOM element and a task object, enabling 2-way communication
-        function newBinder(element, taskObject) {
-            const binder = new NodeObjBundle(element, taskObject)
-            return binder
-        }
-
-        // Renders userData Map to DOM
-        function renderUserContent(map) {
-            let taskNodesArray = []
-            for (const entry of map) {
-                const taskNode = renderTask(entry[1])
-                taskNodesArray.push(taskNode)
-            }
-            return taskNodesArray
-        }
-
         // Show add task form
         const renderAddTaskForm = (() => {
 
@@ -120,19 +99,18 @@ export const runApp = () => {
 
         })()
 
-        return { renderTask, renderUserContent, renderAddTaskForm }
+        return { renderTask, renderAddTaskForm }
     })()
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
         // Function be to invoked by event listener on delete buttons
-        function deletionListener(taskNode) {
+        function deletionListener(taskBinder) {
 
-            const button = taskNode.querySelector(".deleteTaskIcon")
+            const button = taskBinder.node.querySelector(".deleteTaskIcon")
             button.addEventListener("click", function () {
-                Main.deleteTask(`${taskNode.dataset.taskid}`)
-                taskNode.remove()
+                Main.deleteTask(taskBinder)
             })
         }
 
@@ -201,11 +179,20 @@ export const runApp = () => {
             })
         })()
 
-        // Render stored tasks from stored data for this user
-        const taskNodes = Render.renderUserContent(Main.userData)
+        // Custom event for NodeObjectBinder class
+        const publish = new Event('publish');
+
+        // Render stored tasks from stored data for this user, and bind each rendered node with its task object,
+        // and store the binder object in an array
+        const taskBinders = []
+        for (let taskObject of Main.userData.values()) {
+            const taskNode = Render.renderTask(taskObject)
+            const taskBinder = new NodeObjectBinder(taskNode, taskObject)
+            taskBinders.push(taskBinder)
+        }
         // Apply listeners to rendered tasks
-        for (let i = 0; i < taskNodes.length; i++) { // Remember to check other for loops to see if const is working there
-            Listeners.deletionListener(taskNodes[i])
+        for (let i = 0; i < taskBinders.length; i++) {
+            // Add listeners here
         }
 
 
