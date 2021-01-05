@@ -1,23 +1,24 @@
-// This class produces objects that link together a node element, and a data storage object.
-// The class methods enable two-way communication between the front-end DOM element, and the backend data object, when either is changed.
+export default class NodeObjectBinder {
+    constructor(node, obj) {
 
-
-export default class NodeObjBundle {
-    constructor(element, obj) {
-        this.element = element
+        this.node = node
         this.obj = obj
-        element.value = obj
-        element.addEventListener("change", this)
+        node.addEventListener("publish", this)
+
+        // The publish listener sits on the parent, and will be fired when any children are changed.
+        // Note: may need to define publish event in the main app.
     }
 
-    handleEvent(event) {
-        switch (event.type) {
-            case "change": this.change(this.element.value)
-        }
+    handleEvent() {
+        // When children are changed, they will need to first update the dataset properties before firing "publish"
+        // The object specified by the binder will update its values to match those within the node specified by the binder
+        this.obj.completeBool = this.node.dataset.completeBool
+        obj.title = this.node.dataset.title
+        obj.dueDate = this.node.dataset.dueDate
     }
 
-    change(value) {
-        this.element.value = value
-        this.obj = value
-    }
 }
+
+
+
+// When the child changes, update the data-attribute on the parent, and then call "publish" on the parent
