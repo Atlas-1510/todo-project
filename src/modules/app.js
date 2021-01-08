@@ -114,24 +114,43 @@ export const runApp = () => {
 
     // Main allocates commands to the DataController and Render sub-modules
     const Main = (() => {
+
+        function createTaskBinder(taskNode, taskObject) {
+            const taskBinder = new NodeObjectBinder(taskNode, taskObject)
+            return taskBinder
+        }
+
+
         function deleteTaskBinder(taskBinder) {
             DataController.deleteTaskObject(taskBinder.obj)
             Render.deleteTaskNode(taskBinder.node)
+
+            console.log(DataController.userData)
         }
-        return { deleteTaskBinder }
+        return { createTaskBinder, deleteTaskBinder }
     })()
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
-        // Function be to invoked by event listener on delete buttons
-        function addDeletionListener(taskBinder) {
+        function applyTaskListeners(taskBinder) {
 
-            const button = taskBinder.node.querySelector(".deleteTaskIcon")
-            button.addEventListener("click", function () {
-                Main.deleteTaskBinder(taskBinder)
-            })
+            function _addDeletionListener(taskBinder) {
+
+                const button = taskBinder.node.querySelector(".deleteTaskIcon")
+                button.addEventListener("click", function () {
+                    Main.deleteTaskBinder(taskBinder)
+                })
+            }
+
+            function _addEditListener(taskBinder) {
+                // Logic to edit task here
+            }
+
+            _addDeletionListener(taskBinder)
+            _addEditListener(taskBinder)
         }
+
 
         const addTaskButtons = (() => {
             const buttons = document.getElementsByClassName("addTaskButton")
@@ -165,8 +184,10 @@ export const runApp = () => {
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
                 const taskObject = DataController.createTask(false, title, date)
                 const taskNode = Render.renderTask(taskObject)
-                deletionListener(taskNode)
+                const newTaskBinder = Main.createTaskBinder(taskNode, taskObject)
+                Listeners.applyTaskListeners(newTaskBinder)
             }
+
             const submitButtonElement = document.getElementById("newItemSubmit")
             submitButtonElement.addEventListener("click", function () {
                 submitNewItem()
@@ -183,7 +204,7 @@ export const runApp = () => {
             })
         })()
 
-        return { addDeletionListener }
+        return { applyTaskListeners }
     })()
 
 
@@ -207,14 +228,15 @@ export const runApp = () => {
         const taskBinders = []
         for (let taskObject of DataController.userData.values()) {
             const taskNode = Render.renderTask(taskObject)
-            const taskBinder = new NodeObjectBinder(taskNode, taskObject)
+            const taskBinder = Main.createTaskBinder(taskNode, taskObject)
             taskBinders.push(taskBinder)
         }
         // Apply listeners to rendered tasks
         for (let i = 0; i < taskBinders.length; i++) {
-            Listeners.addDeletionListener(taskBinders[i])
+            Listeners.applyTaskListeners(taskBinders[i])
         }
 
+        return { taskBinders }
     })()
 }
 
