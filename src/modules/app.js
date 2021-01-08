@@ -15,8 +15,8 @@ import addIcon from "../img/plus-square.svg"
 
 export const runApp = () => {
 
-    // 'main' is the main content controller, which CRUDs user tasks and lists
-    const Main = (() => {
+    // 'DataController' is the content controller, which CRUDs user tasks and lists
+    const DataController = (() => {
 
         // Stores user tasks
         const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
@@ -33,7 +33,12 @@ export const runApp = () => {
             return task
         }
 
-        return { newBinder, createTask, userData }
+        // Deletes a task object
+        function deleteTaskObject(task) {
+            userData.delete(task)
+        }
+
+        return { createTask, deleteTaskObject, userData }
     })()
 
     // 'render' controls the publication of information to the DOM
@@ -72,6 +77,11 @@ export const runApp = () => {
             return taskNode
         }
 
+        // Deletes a task node from the DOM
+        function deleteTaskNode(node) {
+            node.remove()
+        }
+
         // Show add task form
         const renderAddTaskForm = (() => {
 
@@ -99,18 +109,27 @@ export const runApp = () => {
 
         })()
 
-        return { renderTask, renderAddTaskForm }
+        return { renderTask, deleteTaskNode, renderAddTaskForm }
+    })()
+
+    // Main allocates commands to the DataController and Render sub-modules
+    const Main = (() => {
+        function deleteTaskBinder(taskBinder) {
+            DataController.deleteTaskObject(taskBinder.obj)
+            Render.deleteTaskNode(taskBinder.node)
+        }
+        return { deleteTaskBinder }
     })()
 
     // 'Listeners' adds functionality to DOM buttons
     const Listeners = (() => {
 
         // Function be to invoked by event listener on delete buttons
-        function deletionListener(taskBinder) {
+        function addDeletionListener(taskBinder) {
 
             const button = taskBinder.node.querySelector(".deleteTaskIcon")
             button.addEventListener("click", function () {
-                Main.deleteTask(taskBinder)
+                Main.deleteTaskBinder(taskBinder)
             })
         }
 
@@ -144,7 +163,7 @@ export const runApp = () => {
             function submitNewItem() {
                 const title = document.getElementById("newItemTitle").value
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
-                const taskObject = Main.createTask(false, title, date)
+                const taskObject = DataController.createTask(false, title, date)
                 const taskNode = Render.renderTask(taskObject)
                 deletionListener(taskNode)
             }
@@ -164,18 +183,19 @@ export const runApp = () => {
             })
         })()
 
-        return { deletionListener }
+        return { addDeletionListener }
     })()
 
-    // MAIN APP LOGIC
+
+    // APP LOGIC
     const App = (() => {
 
         // Dev tools to be deleted when production ready
         const devStuff = (() => {
-            Main.createTask(false, "Demo Task", new Date())
+            DataController.createTask(false, "Demo Task", new Date())
 
             document.getElementById("topBar").addEventListener("click", function () {
-                console.log(Main.userData)
+                console.log(DataController.userData)
             })
         })()
 
@@ -185,16 +205,15 @@ export const runApp = () => {
         // Render stored tasks from stored data for this user, and bind each rendered node with its task object,
         // and store the binder object in an array
         const taskBinders = []
-        for (let taskObject of Main.userData.values()) {
+        for (let taskObject of DataController.userData.values()) {
             const taskNode = Render.renderTask(taskObject)
             const taskBinder = new NodeObjectBinder(taskNode, taskObject)
             taskBinders.push(taskBinder)
         }
         // Apply listeners to rendered tasks
         for (let i = 0; i < taskBinders.length; i++) {
-            // Add listeners here
+            Listeners.addDeletionListener(taskBinders[i])
         }
-
 
     })()
 }
