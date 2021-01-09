@@ -12,7 +12,6 @@ import pencilSquareIcon from "../img/pencil-square.svg"
 import trashIcon from "../img/trash.svg"
 import addIcon from "../img/plus-square.svg"
 
-
 export const runApp = () => {
 
     // 'DataController' is the content controller, which CRUDs user tasks and lists
@@ -23,19 +22,28 @@ export const runApp = () => {
 
         // Creates a task object
         function createTask(completeBool, title, dueDate) {
+
+            // Assigns a unique identifying hash to each task object based on task title and the time it was created.
+            // This hash is used to identify objects for deletion.
+            function _makeTaskHash(title) {
+                const hash = title + new Date()
+                return hash
+            }
+
             const task = {
                 completeBool,
                 title,
                 dueDate,
+                hash: _makeTaskHash(title),
             }
 
-            userData.set(`${userData.size + 1}`, task)
+            userData.set(task.hash, task)
             return task
         }
 
         // Deletes a task object
-        function deleteTaskObject(task) {
-            userData.delete(task)
+        function deleteTaskObject(taskObject) {
+            userData.delete(taskObject.hash)
         }
 
         return { createTask, deleteTaskObject, userData }
@@ -120,14 +128,25 @@ export const runApp = () => {
             return taskBinder
         }
 
-
         function deleteTaskBinder(taskBinder) {
+
             DataController.deleteTaskObject(taskBinder.obj)
             Render.deleteTaskNode(taskBinder.node)
 
-            console.log(DataController.userData)
         }
-        return { createTaskBinder, deleteTaskBinder }
+
+        function editTaskBinder(taskBinder) {
+            // Make the existing task div disappear
+            taskBinder.node.style.display = "none"
+            // Make the new task form appear in place of the div
+            Render.renderAddTaskForm.show()
+            // Load the existing task div into the new task form
+            // When the new task form is submitted, load the form data into the existing task using the hash identifier
+            // Make the new task form disappear
+
+        }
+
+        return { createTaskBinder, deleteTaskBinder, editTaskBinder }
     })()
 
     // 'Listeners' adds functionality to DOM buttons
@@ -136,7 +155,6 @@ export const runApp = () => {
         function applyTaskListeners(taskBinder) {
 
             function _addDeletionListener(taskBinder) {
-
                 const button = taskBinder.node.querySelector(".deleteTaskIcon")
                 button.addEventListener("click", function () {
                     Main.deleteTaskBinder(taskBinder)
@@ -144,13 +162,15 @@ export const runApp = () => {
             }
 
             function _addEditListener(taskBinder) {
-                // Logic to edit task here
+                const button = taskBinder.node.querySelector(".editTaskIcon")
+                button.addEventListener("click", () => {
+                    Main.editTaskBinder(taskBinder)
+                })
             }
 
             _addDeletionListener(taskBinder)
             _addEditListener(taskBinder)
         }
-
 
         const addTaskButtons = (() => {
             const buttons = document.getElementsByClassName("addTaskButton")
