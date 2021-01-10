@@ -118,24 +118,21 @@ export const runApp = () => {
         })()
 
         const renderEditTaskForm = (taskBinder) => {
-            // Logic to generate edit task form in place of node here.
-            const editTaskContainer = createNode("div", userContentContainer, "editTaskContainer")
-            const checkbox = createNode("img", editTaskContainer, undefined, "checkbox")
-            checkbox.setAttribute.src = "./img/square.svg"
-            const editFormHolder = createNode("div", editTaskContainer, "editFormHolder")
-            const editTaskForm = createNode("form", editFormHolder, "editTaskForm")
-            const editItemTitle = createNode("input", editTaskForm, "editItemTitle")
-            editItemTitle.setAttribute.type = "text"
-            editItemTitle.setAttribute.placeholder = taskBinder.obj.title
-            const editFormButtonHolder = createNode("div", editTaskForm, "editFormButtonHolder")
-            const editDateInput = createNode("input", editFormButtonHolder, "dateInput", "date")
-            editDateInput.placeholder = taskBinder.obj.dueDate
-            const locationButton = createNode("button", editFormButtonHolder, undefined, "location")
-            const priorityButton = createNode("button", editFormButtonHolder, undefined, "priority")
-            const flag = createNode("button", editFormButtonHolder, undefined, "flag")
-            const editItemSubmit = createNode("button", editFormButtonHolder, "editItemSubmit")
-            const editItemAbort = createNode("button", editFormButtonHolder, "editItemAbort")
+            const editTaskContainer = document.getElementById("editTaskContainer")
             userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+
+            // Title
+            const titleSelector = editTaskContainer.querySelector
+
+            // Date
+            const dateSelector = editTaskContainer.querySelector("#editDateInput")
+            const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+            dateSelector.setAttribute("placeholder", priorDate)
+
+
+
+
+            editTaskContainer.style.display = "flex"
         }
 
         return { renderTask, deleteTaskNode, renderAddTaskForm, renderEditTaskForm }
@@ -150,10 +147,8 @@ export const runApp = () => {
         }
 
         function deleteTaskBinder(taskBinder) {
-
             DataController.deleteTaskObject(taskBinder.obj)
             Render.deleteTaskNode(taskBinder.node)
-
         }
 
         function editTaskBinder(taskBinder) {
@@ -202,13 +197,18 @@ export const runApp = () => {
             }
         })()
 
-        const datePicker = datepicker('#dateInput', {
-            formatter: (input, date) => {
-                input.value = format(date, "eee d/M/yy")
-                const node = document.getElementById("dateInput")
-                node.setAttribute("data-date", date)
-            },
-        })
+        const datePickers = (() => {
+            const dateInputs = document.querySelectorAll(".date")
+            dateInputs.forEach(function (dateNode) {
+                const datePicker = datepicker(dateNode, {
+                    formatter: (input, date) => {
+                        input.value = format(date, "eee d/M/yy")
+                        const node = document.getElementById("dateInput")
+                        node.setAttribute("data-date", date)
+                    },
+                })
+            })
+        })()
 
         const submitButton = (() => {
 

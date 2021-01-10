@@ -238,18 +238,18 @@ body {
     margin-right: 15px;
 }
 
-#newTaskContainer {
+.taskInputContainer {
     display: none;
     align-items: center;
     min-height: 30px;
 }
 
-#newTaskContainer > .checkbox {
+.taskInputContainer > .checkbox {
     align-self: flex-start;
     margin-top: 10px;
 }
 
-#newTaskContainer > div {
+.taskInputContainer > div {
     margin-left: 25px;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -259,7 +259,7 @@ body {
     border: 1px solid lightyellow;
 }
 
-#newTaskContainer > div > form > input {
+.taskInputContainer > div > form > input {
     grid-row: first / second;
     grid-column: first / sixth;
     background-color: lightyellow;
@@ -271,12 +271,12 @@ body {
     outline: none;
 }
 
-#newTaskContainer > div > form > div {
+.taskInputContainer > div > form > div {
     display: flex;
     align-items: baseline;
 }
 
-#newTaskContainer > div > form > div > button, #newTaskContainer > div > form > div > input {
+.taskInputContainer > div > form > div > button, .taskInputContainer > div > form > div > input {
     height: 25px;
     margin-right: 8px;
     border-radius: 4px;
@@ -284,7 +284,7 @@ body {
     background-color: lightgray;
 }
 
-#dateInput {
+.date {
     width: 80px;
     text-align: center;
     height: 25px;
@@ -296,7 +296,7 @@ body {
     text-align: center;
 }
 
-#newTaskContainer > div > form > div > .flag {
+.taskInputContainer > div > form > div > .flag {
     background: url("./img/flag.svg");
     background-repeat: no-repeat;
     background-position: center;
@@ -309,7 +309,7 @@ body {
     background-color: lightgray;
 }
 
-#newItemSubmit {
+.submitButton {
     align-self: flex-end;
     margin: 0 auto;
     background-image: url("./img/check-circle.svg");
@@ -323,7 +323,7 @@ body {
     bottom: 2px;
 }
 
-#newItemAbort {
+.abortButton {
     background-image: url("./img/x-circle.svg");
     background-repeat: no-repeat;
     background-position: center;
