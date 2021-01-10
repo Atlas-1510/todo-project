@@ -117,7 +117,28 @@ export const runApp = () => {
 
         })()
 
-        return { renderTask, deleteTaskNode, renderAddTaskForm }
+        const renderEditTaskForm = (taskBinder) => {
+            // Logic to generate edit task form in place of node here.
+            const editTaskContainer = createNode("div", userContentContainer, "editTaskContainer")
+            const checkbox = createNode("img", editTaskContainer, undefined, "checkbox")
+            checkbox.setAttribute.src = "./img/square.svg"
+            const editFormHolder = createNode("div", editTaskContainer, "editFormHolder")
+            const editTaskForm = createNode("form", editFormHolder, "editTaskForm")
+            const editItemTitle = createNode("input", editTaskForm, "editItemTitle")
+            editItemTitle.setAttribute.type = "text"
+            editItemTitle.setAttribute.placeholder = taskBinder.obj.title
+            const editFormButtonHolder = createNode("div", editTaskForm, "editFormButtonHolder")
+            const editDateInput = createNode("input", editFormButtonHolder, "dateInput", "date")
+            editDateInput.placeholder = taskBinder.obj.dueDate
+            const locationButton = createNode("button", editFormButtonHolder, undefined, "location")
+            const priorityButton = createNode("button", editFormButtonHolder, undefined, "priority")
+            const flag = createNode("button", editFormButtonHolder, undefined, "flag")
+            const editItemSubmit = createNode("button", editFormButtonHolder, "editItemSubmit")
+            const editItemAbort = createNode("button", editFormButtonHolder, "editItemAbort")
+            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+        }
+
+        return { renderTask, deleteTaskNode, renderAddTaskForm, renderEditTaskForm }
     })()
 
     // Main allocates commands to the DataController and Render sub-modules
@@ -139,7 +160,8 @@ export const runApp = () => {
             // Make the existing task div disappear
             taskBinder.node.style.display = "none"
             // Make the new task form appear in place of the div
-            Render.renderAddTaskForm.show()
+            Render.renderEditTaskForm(taskBinder)
+
             // Load the existing task div into the new task form
             // When the new task form is submitted, load the form data into the existing task using the hash identifier
             // Make the new task form disappear
