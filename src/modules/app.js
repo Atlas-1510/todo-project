@@ -24,7 +24,7 @@ export const runApp = () => {
         function createTask(completeBool, title, dueDate) {
 
             // Assigns a unique identifying hash to each task object based on task title and the time it was created.
-            // This hash is used to identify objects for deletion.
+            // This hash is used to identify objects for deletion at a later point, if requested by a user.
             function _makeTaskHash(title) {
                 const hash = title + new Date()
                 return hash
@@ -118,18 +118,25 @@ export const runApp = () => {
         })()
 
         const renderEditTaskForm = (taskBinder) => {
-            const editTaskContainer = document.getElementById("editTaskContainer")
+            const editTaskContainer = document.querySelector("#editTaskContainer")
             userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
 
             // Title
-            const titleSelector = editTaskContainer.querySelector
+            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
+            const priorTitle = taskBinder.obj.title
+            titleSelector.setAttribute("placeholder", priorTitle)
 
             // Date
             const dateSelector = editTaskContainer.querySelector("#editDateInput")
-            const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
-            dateSelector.setAttribute("placeholder", priorDate)
+            if (taskBinder.obj.dueDate) {
+                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+                dateSelector.setAttribute("placeholder", priorDate)
+            }
 
+            // Add other task parameters here
 
+            // Assigns hash from original task to the form, so on submission the form can use the hash to identify and update the correct task object
+            editTaskContainer.setAttribute("data-hash", taskBinder.obj.hash)
 
 
             editTaskContainer.style.display = "flex"
@@ -141,8 +148,12 @@ export const runApp = () => {
     // Main allocates commands to the DataController and Render sub-modules
     const Main = (() => {
 
+        // Stores task binders, the objects that link together a DOM task node and a stored task object
+        const taskBinders = []
+
         function createTaskBinder(taskNode, taskObject) {
             const taskBinder = new NodeObjectBinder(taskNode, taskObject)
+            taskBinders.push(taskBinder)
             return taskBinder
         }
 
@@ -152,18 +163,20 @@ export const runApp = () => {
         }
 
         function editTaskBinder(taskBinder) {
+            // Give the node being updated a designator, so that it can be found and updated with the new values later
+            taskBinder.node.setAttribute("id", "beingEdited")
             // Make the existing task div disappear
             taskBinder.node.style.display = "none"
             // Make the new task form appear in place of the div
             Render.renderEditTaskForm(taskBinder)
-
-            // Load the existing task div into the new task form
+            // Load the existing task div into the new task form <-- Done
             // When the new task form is submitted, load the form data into the existing task using the hash identifier
+
             // Make the new task form disappear
 
         }
 
-        return { createTaskBinder, deleteTaskBinder, editTaskBinder }
+        return { taskBinders, createTaskBinder, deleteTaskBinder, editTaskBinder }
     })()
 
     // 'Listeners' adds functionality to DOM buttons
@@ -203,19 +216,23 @@ export const runApp = () => {
                 const datePicker = datepicker(dateNode, {
                     formatter: (input, date) => {
                         input.value = format(date, "eee d/M/yy")
-                        const node = document.getElementById("dateInput")
-                        node.setAttribute("data-date", date)
+                        dateNode.setAttribute("data-date", date)
                     },
                 })
             })
         })()
 
-        const submitButton = (() => {
+        const submitButtons = (() => {
 
             // Function to prevent page from refreshing when new task form is submitted
             const submitRefreshBlocker = (() => {
-                const form = document.getElementById("newTaskForm")
-                form.addEventListener("submit", (e) => {
+                const newTaskForm = document.getElementById("newTaskForm")
+                newTaskForm.addEventListener("submit", (e) => {
+                    e.preventDefault()
+                })
+
+                const editTaskForm = document.getElementById("editTaskForm")
+                editTaskForm.addEventListener("submit", (e) => {
                     e.preventDefault()
                 })
             })()
@@ -230,12 +247,58 @@ export const runApp = () => {
                 Listeners.applyTaskListeners(newTaskBinder)
             }
 
-            const submitButtonElement = document.getElementById("newItemSubmit")
-            submitButtonElement.addEventListener("click", function () {
+            const newTaskSubmitButton = document.getElementById("newItemSubmit")
+            newTaskSubmitButton.addEventListener("click", function () {
                 submitNewItem()
                 Render.renderAddTaskForm.hide()
                 document.getElementById("newTaskForm").reset()
             })
+
+            // Function to handle submissions of edit task form and supply form input into editTask factory function
+            function editItemSubmit() {
+
+                const editTaskContainer = document.getElementById("editTaskContainer")
+                console.log(editTaskContainer.dataset.hash)
+
+                // const taskBinder = 
+                console.log("OLD")
+                console.log(Main.taskBinders)
+                // Get the new form data
+                const title = document.getElementById("editItemTitle").value
+                const date = Date.parse(document.getElementById("editDateInput").dataset.date)
+                // Update the task object with the new form data
+                const hash = editTaskContainer.dataset.hash
+                const taskObject = DataController.userData.get(hash)
+                taskObject.title = title
+                taskObject.dueDate = date
+
+                // Render an updated task node with the new object values, in place of the old one
+                const newTaskNode = Render.renderTask(taskObject)
+                const oldTaskNode = document.getElementById("beingEdited")
+                userContentContainer.insertBefore(newTaskNode, oldTaskNode)
+                oldTaskNode.remove()
+
+                // Remove the old task binder, and add a new one
+                // const oldTaskBinder =
+                Main.createTaskBinder(newTaskNode, taskObject)
+
+                // Listeners.applyTaskListeners(newTaskBinder)
+            }
+
+            const editTaskSubmitButton = document.querySelector("#editItemSubmit")
+            editTaskSubmitButton.addEventListener("click", function (e) {
+
+                editItemSubmit(e)
+                console.log("NEW")
+                console.log(Main.taskBinders)
+            })
+
+
+
+
+
+
+
         })()
 
         const cancelButton = (() => {
@@ -267,18 +330,15 @@ export const runApp = () => {
 
         // Render stored tasks from stored data for this user, and bind each rendered node with its task object,
         // and store the binder object in an array
-        const taskBinders = []
+
         for (let taskObject of DataController.userData.values()) {
             const taskNode = Render.renderTask(taskObject)
-            const taskBinder = Main.createTaskBinder(taskNode, taskObject)
-            taskBinders.push(taskBinder)
+            Main.createTaskBinder(taskNode, taskObject)
         }
         // Apply listeners to rendered tasks
-        for (let i = 0; i < taskBinders.length; i++) {
-            Listeners.applyTaskListeners(taskBinders[i])
+        for (let i = 0; i < Main.taskBinders.length; i++) {
+            Listeners.applyTaskListeners(Main.taskBinders[i])
         }
-
-        return { taskBinders }
     })()
 }
 
