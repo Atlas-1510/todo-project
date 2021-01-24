@@ -14,83 +14,33 @@ import addIcon from "../img/plus-square.svg"
 
 export const runApp = () => {
 
-    // 'DataController' is the content controller, which CRUDs user tasks and lists
-    const DataController = (() => {
+    // List stores and creates/edits/deletes objects that hold groups of TaskBinders. i.e "Grocery List"
+    const List = (() => {
 
-        // Stores user tasks
-        const userData = new Map() // Note: need to figure out how to configure this to operate with lists as buckets for the Map
+        // This is the list of lists
+        const ListStorage = new Map()
 
-        // Creates a task object
-        function createTask(completeBool, title, dueDate) {
 
-            // Assigns a unique identifying hash to each task object based on task title and the time it was created.
-            // This hash is used to identify objects for deletion at a later point, if requested by a user.
-            function _makeTaskHash(title) {
-                const hash = title + new Date()
-                return hash
-            }
-
-            const task = {
-                completeBool,
-                title,
-                dueDate,
-                hash: _makeTaskHash(title),
-            }
-
-            userData.set(task.hash, task)
-            return task
+        // Add a new list to ListStorage 
+        function createList(name) {
+            const newList = new Map()
+            const hash = name + new Date()
+            ListStorage.set(hash, newList)
+            return hash
         }
 
-        // Deletes a task object
-        function deleteTaskObject(taskObject) {
-            userData.delete(taskObject.hash)
+        // Remove a list from ListStorage
+        function deleteList(name) {
+            ListStorage.delete(name)
         }
 
-        return { createTask, deleteTaskObject, userData }
+        return { ListStorage, createList, deleteList }
     })()
 
-    // 'render' controls the publication of information to the DOM
+    // Render inserts interactable DOM elements, such as forms and buttons
     const Render = (() => {
 
-        // Renders a task object to the DOM
-        function renderTask(taskObject) {
-
-            const taskNode = createNode("li", userContentContainer, "", "task")
-            const checkbox = createNode("img", taskNode, "", "checkbox")
-            if (!taskObject.completeBool) {
-                checkbox.src = emptySquareIcon
-            } else {
-                checkbox.src = filledSquareIcon
-            }
-
-            const taskDescription = createNode("div", taskNode, "", "taskDescription")
-            taskDescription.textContent = taskObject.title
-
-            const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
-            if (taskObject.dueDate) {
-                let date = taskObject.dueDate
-                date = format(date, "dd/MM/yy")
-                taskDueDate.textContent = date
-            }
-            const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
-            editTaskIcon.src = pencilSquareIcon
-            const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
-            deleteTaskIcon.src = trashIcon
-
-            taskNode.setAttribute("data-taskID", taskObject.taskID)
-
-
-            document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
-
-            return taskNode
-        }
-
-        // Deletes a task node from the DOM
-        function deleteTaskNode(node) {
-            node.remove()
-        }
-
-        // Show add task form
+        // Form for adding new tasks
         const renderAddTaskForm = (() => {
 
             const form = document.getElementById("newTaskContainer")
@@ -118,83 +68,50 @@ export const runApp = () => {
         })()
 
         const renderEditTaskForm = (taskBinder) => {
-            const editTaskContainer = document.querySelector("#editTaskContainer")
-            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+            // const editTaskContainer = document.querySelector("#editTaskContainer")
+            // userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
 
-            // Title
-            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
-            const priorTitle = taskBinder.obj.title
-            titleSelector.setAttribute("placeholder", priorTitle)
+            // // Title
+            // const titleSelector = editTaskContainer.querySelector("#editItemTitle")
+            // const priorTitle = taskBinder.obj.title
+            // titleSelector.setAttribute("placeholder", priorTitle)
 
-            // Date
-            const dateSelector = editTaskContainer.querySelector("#editDateInput")
-            if (taskBinder.obj.dueDate) {
-                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
-                dateSelector.setAttribute("placeholder", priorDate)
-            }
+            // // Date
+            // const dateSelector = editTaskContainer.querySelector("#editDateInput")
+            // if (taskBinder.obj.dueDate) {
+            //     const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+            //     dateSelector.setAttribute("placeholder", priorDate)
+            // }
 
-            // Add other task parameters here
+            // // Add other task parameters here
 
-            // Assigns hash from original task to the form, so on submission the form can use the hash to identify and update the correct task object
-            editTaskContainer.setAttribute("data-hash", taskBinder.obj.hash)
+            // // Assigns hash from original task to the form, so on submission the form can use the hash to identify and update the correct task object
+            // editTaskContainer.setAttribute("data-hash", taskBinder.obj.hash)
 
 
-            editTaskContainer.style.display = "flex"
+            // editTaskContainer.style.display = "flex"
         }
 
-        return { renderTask, deleteTaskNode, renderAddTaskForm, renderEditTaskForm }
+
+        return { renderAddTaskForm }
     })()
 
-    // Main allocates commands to the DataController and Render sub-modules
-    const Main = (() => {
-
-        // Stores task binders, the objects that link together a DOM task node and a stored task object
-        const taskBinders = []
-
-        function createTaskBinder(taskNode, taskObject) {
-            const taskBinder = new NodeObjectBinder(taskNode, taskObject)
-            taskBinders.push(taskBinder)
-            return taskBinder
-        }
-
-        function deleteTaskBinder(taskBinder) {
-            DataController.deleteTaskObject(taskBinder.obj)
-            Render.deleteTaskNode(taskBinder.node)
-        }
-
-        function editTaskBinder(taskBinder) {
-            // Give the node being updated a designator, so that it can be found and updated with the new values later
-            taskBinder.node.setAttribute("id", "beingEdited")
-            // Make the existing task div disappear
-            taskBinder.node.style.display = "none"
-            // Make the new task form appear in place of the div
-            Render.renderEditTaskForm(taskBinder)
-            // Load the existing task div into the new task form <-- Done
-            // When the new task form is submitted, load the form data into the existing task using the hash identifier
-
-            // Make the new task form disappear
-
-        }
-
-        return { taskBinders, createTaskBinder, deleteTaskBinder, editTaskBinder }
-    })()
-
-    // 'Listeners' adds functionality to DOM buttons
+    // Listeners applies functionality to buttons in DOM elements
     const Listeners = (() => {
 
+        // Edit and Delete buttons for task nodes
         function applyTaskListeners(taskBinder) {
-
             function _addDeletionListener(taskBinder) {
                 const button = taskBinder.node.querySelector(".deleteTaskIcon")
                 button.addEventListener("click", function () {
-                    Main.deleteTaskBinder(taskBinder)
+                    TaskBinder.deleteTaskBinder(taskBinder)
                 })
             }
 
             function _addEditListener(taskBinder) {
                 const button = taskBinder.node.querySelector(".editTaskIcon")
                 button.addEventListener("click", () => {
-                    Main.editTaskBinder(taskBinder)
+                    TaskBinder.editTaskBinder(taskBinder)
                 })
             }
 
@@ -202,6 +119,7 @@ export const runApp = () => {
             _addEditListener(taskBinder)
         }
 
+        // Add task buttons
         const addTaskButtons = (() => {
             const buttons = document.getElementsByClassName("addTaskButton")
             for (let i = 0; i < buttons.length; i++) {
@@ -222,85 +140,6 @@ export const runApp = () => {
             })
         })()
 
-        const submitButtons = (() => {
-
-            // Function to prevent page from refreshing when new task form is submitted
-            const submitRefreshBlocker = (() => {
-                const newTaskForm = document.getElementById("newTaskForm")
-                newTaskForm.addEventListener("submit", (e) => {
-                    e.preventDefault()
-                })
-
-                const editTaskForm = document.getElementById("editTaskForm")
-                editTaskForm.addEventListener("submit", (e) => {
-                    e.preventDefault()
-                })
-            })()
-
-            // Function to handle submission of form input into createTask factory function
-            function submitNewItem() {
-                const title = document.getElementById("newItemTitle").value
-                const date = Date.parse(document.getElementById("dateInput").dataset.date)
-                const taskObject = DataController.createTask(false, title, date)
-                const taskNode = Render.renderTask(taskObject)
-                const newTaskBinder = Main.createTaskBinder(taskNode, taskObject)
-                Listeners.applyTaskListeners(newTaskBinder)
-            }
-
-            const newTaskSubmitButton = document.getElementById("newItemSubmit")
-            newTaskSubmitButton.addEventListener("click", function () {
-                submitNewItem()
-                Render.renderAddTaskForm.hide()
-                document.getElementById("newTaskForm").reset()
-            })
-
-            // Function to handle submissions of edit task form and supply form input into editTask factory function
-            function editItemSubmit() {
-
-                const editTaskContainer = document.getElementById("editTaskContainer")
-                console.log(editTaskContainer.dataset.hash)
-
-                // const taskBinder = 
-                console.log("OLD")
-                console.log(Main.taskBinders)
-                // Get the new form data
-                const title = document.getElementById("editItemTitle").value
-                const date = Date.parse(document.getElementById("editDateInput").dataset.date)
-                // Update the task object with the new form data
-                const hash = editTaskContainer.dataset.hash
-                const taskObject = DataController.userData.get(hash)
-                taskObject.title = title
-                taskObject.dueDate = date
-
-                // Render an updated task node with the new object values, in place of the old one
-                const newTaskNode = Render.renderTask(taskObject)
-                const oldTaskNode = document.getElementById("beingEdited")
-                userContentContainer.insertBefore(newTaskNode, oldTaskNode)
-                oldTaskNode.remove()
-
-                // Remove the old task binder, and add a new one
-                // const oldTaskBinder =
-                Main.createTaskBinder(newTaskNode, taskObject)
-
-                // Listeners.applyTaskListeners(newTaskBinder)
-            }
-
-            const editTaskSubmitButton = document.querySelector("#editItemSubmit")
-            editTaskSubmitButton.addEventListener("click", function (e) {
-
-                editItemSubmit(e)
-                console.log("NEW")
-                console.log(Main.taskBinders)
-            })
-
-
-
-
-
-
-
-        })()
-
         const cancelButton = (() => {
             const button = document.getElementById("newItemAbort")
             button.addEventListener("click", function () {
@@ -309,36 +148,262 @@ export const runApp = () => {
             })
         })()
 
+
         return { applyTaskListeners }
+
     })()
 
+    // BinderComponents creates task objects and nodes, which are then paired in a TaskBinder
+    const BinderComponents = (() => {
+        function createTaskObject(completeBool, title, dueDate, hash) {
+
+            const task = {
+                completeBool,
+                title,
+                dueDate,
+                hash,
+            }
+
+            return task
+        }
+
+        function createTaskNode(taskObject) {
+
+            const taskNode = createNode("li", userContentContainer, "", "task")
+            const checkbox = createNode("img", taskNode, "", "checkbox")
+            if (!taskObject.completeBool) {
+                checkbox.src = emptySquareIcon
+            } else {
+                checkbox.src = filledSquareIcon
+            }
+
+            const taskDescription = createNode("div", taskNode, "", "taskDescription")
+            taskDescription.textContent = taskObject.title
+
+            const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
+            if (taskObject.dueDate) {
+                let date = taskObject.dueDate
+                date = format(date, "dd/MM/yy")
+                taskDueDate.textContent = date
+            }
+            const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
+            editTaskIcon.src = pencilSquareIcon
+            const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
+            deleteTaskIcon.src = trashIcon
+
+            document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
+            taskNode.setAttribute("data-hash", taskObject.hash)
+
+            return taskNode
+        }
+
+        return { createTaskObject, createTaskNode }
+
+    })()
+
+    // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
+    const TaskBinder = (() => {
+        function createTaskBinder(taskNode, taskObject, listHash) {
+            const hash = taskObject.title + new Date()
+            const taskBinder = new NodeObjectBinder(taskNode, taskObject, hash)
+            const ParentList = List.ListStorage.get(listHash)
+            ParentList.set(hash, taskBinder)
+        }
+
+        function deleteTaskBinder(taskBinder) {
+            taskBinder.node.remove()
+            taskBinder.obj = null
+            List.ListStorage.list.delete(taskBinder.hash)
+        }
+
+        function editTaskBinder(taskBinder) {
+            //
+        }
+
+        return { createTaskBinder, deleteTaskBinder, editTaskBinder }
+    })()
 
     // APP LOGIC
     const App = (() => {
 
         // Dev tools to be deleted when production ready
         const devStuff = (() => {
-            DataController.createTask(false, "Demo Task", new Date())
+
+            // Demo list
+            const demoListHash = List.createList("demoList")
+
+            // Demo task
+            const demoTask = BinderComponents.createTaskObject(false, "Demo Task", new Date())
+            const demoNode = BinderComponents.createTaskNode(demoTask)
+            demoNode.parentNode.removeChild(demoNode) // removing to be readded via taskBinder storage
+            TaskBinder.createTaskBinder(demoNode, demoTask, demoListHash)
 
             document.getElementById("topBar").addEventListener("click", function () {
-                console.log(DataController.userData)
+                console.log(List.ListStorage)
             })
         })()
 
         // Custom event for NodeObjectBinder class
         const publish = new Event('publish');
 
-        // Render stored tasks from stored data for this user, and bind each rendered node with its task object,
-        // and store the binder object in an array
+        // Render stored tasks from stored data for this user
+        for (let list of List.ListStorage.values()) {
+            for (let taskBinder of list.values()) {
 
-        for (let taskObject of DataController.userData.values()) {
-            const taskNode = Render.renderTask(taskObject)
-            Main.createTaskBinder(taskNode, taskObject)
+            }
         }
-        // Apply listeners to rendered tasks
-        for (let i = 0; i < Main.taskBinders.length; i++) {
+
+        // // Apply listeners to rendered tasks
+        for () {
+
+
+
             Listeners.applyTaskListeners(Main.taskBinders[i])
         }
     })()
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//         const submitButtons = (() => {
+
+//             // Function to prevent page from refreshing when new task form is submitted
+//             const submitRefreshBlocker = (() => {
+//                 const newTaskForm = document.getElementById("newTaskForm")
+//                 newTaskForm.addEventListener("submit", (e) => {
+//                     e.preventDefault()
+//                 })
+
+//                 const editTaskForm = document.getElementById("editTaskForm")
+//                 editTaskForm.addEventListener("submit", (e) => {
+//                     e.preventDefault()
+//                 })
+//             })()
+
+//             // Function to handle submission of form input into createTask factory function
+//             function submitNewItem() {
+//                 const title = document.getElementById("newItemTitle").value
+//                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
+//                 const taskObject = DataController.createTask(false, title, date)
+//                 const taskNode = Render.renderTask(taskObject)
+//                 const newTaskBinder = Main.createTaskBinder(taskNode, taskObject)
+//                 Listeners.applyTaskListeners(newTaskBinder)
+//             }
+
+//             const newTaskSubmitButton = document.getElementById("newItemSubmit")
+//             newTaskSubmitButton.addEventListener("click", function () {
+//                 submitNewItem()
+//                 Render.renderAddTaskForm.hide()
+//                 document.getElementById("newTaskForm").reset()
+//             })
+
+//             // Function to handle submissions of edit task form and supply form input into editTask factory function
+//             function editItemSubmit() {
+
+//                 const editTaskContainer = document.getElementById("editTaskContainer")
+//                 const oldTaskBinderHash = editTaskContainer.dataset.hash
+//                 console.log(oldTaskBinderHash) 
+//                 console.log("OLD")
+//                 console.log(Main.taskBinders)
+
+//                 // Get the new form data
+//                 const completeBool = false // make this changeable later
+//                 const title = document.getElementById("editItemTitle").value
+//                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
+
+
+//                 // Create new object and node, create new taskBinder
+//                 const newObject = DataController.createTask(completeBool, title, date)
+//                 const newNode = Render.renderTask(newObject)
+//                 const newBinder = Main.createTaskBinder(newNode, newObject)
+
+//                 // Insert new node where the old one was
+//                 const oldTaskNode = document.getElementById("beingEdited")
+//                 userContentContainer.insertBefore(newNode, oldTaskNode)
+
+//                 // Delete the old taskBinder
+
+
+
+
+
+//                 // Update the task object with the new form data
+//                 const hash = editTaskContainer.dataset.hash
+//                 const taskObject = DataController.userData.get(hash)
+//                 taskObject.title = title
+//                 taskObject.dueDate = date
+
+//                 // Render an updated task node with the new object values, in place of the old one
+//                 const newTaskNode = Render.renderTask(taskObject)
+//                 const oldTaskNode = document.getElementById("beingEdited")
+//                 userContentContainer.insertBefore(newTaskNode, oldTaskNode)
+//                 oldTaskNode.remove()
+
+//                 // Remove the old task binder, and add a new one
+//                 const oldTaskBinder =
+//                 Main.createTaskBinder(newTaskNode, taskObject)
+
+//                 // Listeners.applyTaskListeners(newTaskBinder)
+//             }
+
+//             const editTaskSubmitButton = document.querySelector("#editItemSubmit")
+//             editTaskSubmitButton.addEventListener("click", function (e) {
+
+//                 editItemSubmit(e)
+//                 console.log("NEW")
+//                 console.log(Main.taskBinders)
+//             })
+
+
+
+
+
+
+
+//         })()
+
+
+
+//         return { applyTaskListeners }
+//     })()
+
+
+
 
