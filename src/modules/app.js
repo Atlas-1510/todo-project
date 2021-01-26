@@ -156,7 +156,7 @@ export const runApp = () => {
         }
 
         function createTaskBinder(taskNode, taskObject, listHash) {
-            const taskHash = taskObject.title + new Date()
+            const taskHash = taskObject.taskHash
             const taskBinder = new NodeObjectBinder(taskNode, taskObject, listHash, taskHash)
             return taskBinder
         }
@@ -169,6 +169,11 @@ export const runApp = () => {
         }
 
         function editTaskBinder(taskBinder, newTaskObject) {
+            // Old hash from original taskObject has already been copied into taskBinder.
+            // The old hash is then copied from the taskBinder into the new taskObject.
+            // The object pointed to by the taskBinder is updated to the new taskObject.
+            // The object pointed to by the list is updated to the new taskObject.
+            newTaskObject.taskHash = taskBinder.taskHash
             taskBinder.obj = newTaskObject
             const list = List.ListStorage.get(taskBinder.listHash)
             list.set(taskBinder.taskHash, newTaskObject)

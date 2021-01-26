@@ -19,6 +19,10 @@ export default class NodeObjectBinder {
         obj.dueDate = this.node.dataset.dueDate
     }
 
+    change() {
+
+    }
+
 }
 
 
