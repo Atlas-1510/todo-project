@@ -57,3 +57,4 @@ Temporary Items
 
 node_modules/
 example_project/
+src/modules/test.js

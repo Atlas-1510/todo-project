@@ -1,9 +1,10 @@
 export default class NodeObjectBinder {
-    constructor(node, obj, hash) {
+    constructor(node, obj, listHash, taskHash) {
 
         this.node = node
         this.obj = obj
-        this.hash = hash
+        this.listHash = listHash
+        this.taskHash = taskHash
         node.addEventListener("publish", this)
 
         // The publish listener sits on the parent, and will be fired when any children are changed.
