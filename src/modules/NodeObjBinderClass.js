@@ -1,3 +1,6 @@
+// Custom event for NodeObjectBinder class.
+const publish = new Event('publish');
+
 export default class NodeObjectBinder {
     constructor(node, obj, listHash, taskHash) {
 
@@ -7,22 +10,21 @@ export default class NodeObjectBinder {
         this.taskHash = taskHash
         node.addEventListener("publish", this)
 
-        // The publish listener sits on the parent, and will be fired when any children are changed.
-        // Note: may need to define publish event in the main app.
-    }
-
-    handleEvent() {
-        // When children are changed, they will need to first update the dataset properties before firing "publish"
-        // The object specified by the binder will update its values to match those within the node specified by the binder
-        this.obj.completeBool = this.node.dataset.completeBool
-        obj.title = this.node.dataset.title
-        obj.dueDate = this.node.dataset.dueDate
-    }
-
-    change() {
+        // DEMO THING
+        node.addEventListener("click", function () { node.dispatchEvent(publish) })
 
     }
 
+    handleEvent(thing) {
+
+        console.log(this)
+        const nodeTitle = this.node.dataset.title
+        const nodeDueDate = this.node.dataset.duedate
+
+        this.obj.title = nodeTitle
+        this.obj.dueDate = nodeDueDate
+
+    }
 }
 
 

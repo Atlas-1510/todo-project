@@ -139,6 +139,9 @@ export const runApp = () => {
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
             taskNode.setAttribute("data-hash", taskObject.hash)
 
+            taskNode.setAttribute("data-title", taskObject.title)
+            taskNode.setAttribute("data-duedate", taskObject.dueDate)
+
             return taskNode
         }
 
@@ -158,6 +161,7 @@ export const runApp = () => {
         function createTaskBinder(taskNode, taskObject, listHash) {
             const taskHash = taskObject.taskHash
             const taskBinder = new NodeObjectBinder(taskNode, taskObject, listHash, taskHash)
+
             return taskBinder
         }
 
@@ -260,6 +264,12 @@ export const runApp = () => {
                 const title = document.getElementById("editItemTitle").value
                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
 
+                // Update the node data attributes with the edited form data (note, revealed textcontent to user hasn't changed yet)
+                taskBinder.node.dataset.title = title
+                taskBinder.node.dataset.duedate = date
+
+                // Update the revealed text content 
+
                 // Create an updated task object
                 const newTaskObject = BinderComponents.createTaskObject(completeBool, title, date)
 
@@ -287,6 +297,8 @@ export const runApp = () => {
     // APP LOGIC
     const App = (() => {
 
+
+
         // Dev tools to be deleted when production ready.
         const devStuff = (() => {
 
@@ -306,8 +318,7 @@ export const runApp = () => {
             })
         })()
 
-        // Custom event for NodeObjectBinder class.
-        const publish = new Event('publish');
+
 
         // Render stored tasks from stored data for this user, and generate taskBinders.
         let listIterator = List.ListStorage.entries()
