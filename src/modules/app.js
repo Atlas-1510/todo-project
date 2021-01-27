@@ -5,6 +5,7 @@ import datepicker from 'js-datepicker'
 // Helper home-made modules
 import createNode from "./createNode"
 import NodeObjectBinder from "./NodeObjBinderClass"
+import publish from "./publishEvent"
 // Images
 import emptySquareIcon from "../img/square.svg"
 import filledSquareIcon from "../img/square-fill.svg"
@@ -172,15 +173,14 @@ export const runApp = () => {
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
         }
 
-        function editTaskBinder(taskBinder, newTaskObject) {
-            // Old hash from original taskObject has already been copied into taskBinder.
-            // The old hash is then copied from the taskBinder into the new taskObject.
-            // The object pointed to by the taskBinder is updated to the new taskObject.
-            // The object pointed to by the list is updated to the new taskObject.
-            newTaskObject.taskHash = taskBinder.taskHash
-            taskBinder.obj = newTaskObject
-            const list = List.ListStorage.get(taskBinder.listHash)
-            list.set(taskBinder.taskHash, newTaskObject)
+        function editTaskBinder(taskBinder, newTitle, newDate) {
+
+            // Update the task object with the newly edited data
+            taskBinder.obj.title = newTitle
+            taskBinder.obj.dueDate = newDate
+
+            // Update the node with the newly edited data in the task object
+            taskBinder.change()
         }
 
         return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder }
@@ -264,17 +264,8 @@ export const runApp = () => {
                 const title = document.getElementById("editItemTitle").value
                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
 
-                // Update the node data attributes with the edited form data (note, revealed textcontent to user hasn't changed yet)
-                taskBinder.node.dataset.title = title
-                taskBinder.node.dataset.duedate = date
-
-                // Update the revealed text content 
-
-                // Create an updated task object
-                const newTaskObject = BinderComponents.createTaskObject(completeBool, title, date)
-
-                // Replace the old task object
-                TaskBinder.editTaskBinder(taskBinder, newTaskObject)
+                // Update the taskBinder
+                TaskBinder.editTaskBinder(taskBinder, title, date)
 
                 // Reset and hide the form
                 document.getElementById("editTaskForm").reset()
