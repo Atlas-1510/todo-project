@@ -157,6 +157,7 @@ export const runApp = () => {
 
         function storeTaskBinder(taskBinder) {
             TaskBinderStorage.set(taskBinder.taskHash, taskBinder)
+            List.ListStorage.get(taskBinder.listHash).set(taskBinder.taskHash, taskBinder)
         }
 
         function createTaskBinder(taskNode, taskObject, listHash) {
@@ -279,6 +280,26 @@ export const runApp = () => {
             editTaskSubmitButton.addEventListener("click", function () {
                 editItemSubmit()
             })
+
+            // Function to handle submission of form input into createTask factory function
+            function submitNewItem() {
+                const title = document.getElementById("newItemTitle").value
+                const date = Date.parse(document.getElementById("dateInput").dataset.date)
+                const completeBool = false // make this changeable later
+                const taskObject = BinderComponents.createTaskObject(completeBool, title, date)
+                const taskNode = BinderComponents.createTaskNode(taskObject)
+                const listHash = userContentContainer.dataset.activelist
+                const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
+                TaskBinder.storeTaskBinder(taskBinder)
+                Listeners.applyTaskListeners(taskBinder)
+            }
+
+            const newTaskSubmitButton = document.getElementById("newItemSubmit")
+            newTaskSubmitButton.addEventListener("click", function () {
+                submitNewItem()
+                Render.renderAddTaskForm.hide()
+                document.getElementById("newTaskForm").reset()
+            })
         })()
 
         return { applyTaskListeners }
@@ -295,6 +316,10 @@ export const runApp = () => {
 
             // Demo list
             const demoListHash = List.createList("demoList")
+
+            // Make the Demo list the one that is currently loaded in the userContent area (so when new tasks are created, 
+            // they know to be added to this list)
+            userContentContainer.setAttribute("data-activeList", demoListHash)
 
             // Demo task
             const demoTask = BinderComponents.createTaskObject(false, "Demo Task", new Date(), demoListHash)
@@ -334,25 +359,3 @@ export const runApp = () => {
 
     })()
 }
-
-
-// const submitButtons = (() => {
-
-//     // Function to handle submission of form input into createTask factory function
-//     function submitNewItem() {
-//         const title = document.getElementById("newItemTitle").value
-//         const date = Date.parse(document.getElementById("dateInput").dataset.date)
-//         const taskObject = DataController.createTask(false, title, date)
-//         const taskNode = Render.renderTask(taskObject)
-//         const newTaskBinder = Main.createTaskBinder(taskNode, taskObject)
-//         Listeners.applyTaskListeners(newTaskBinder)
-//     }
-
-//     const newTaskSubmitButton = document.getElementById("newItemSubmit")
-//     newTaskSubmitButton.addEventListener("click", function () {
-//         submitNewItem()
-//         Render.renderAddTaskForm.hide()
-//         document.getElementById("newTaskForm").reset()
-//     })
-
-// }
