@@ -7,6 +7,7 @@ import createNode from "./createNode"
 import NodeObjectBinder from "./NodeObjBinderClass"
 import publish from "./publishEvent"
 // Images
+import emptyAppIcon from "../img/app.svg"
 import emptySquareIcon from "../img/square.svg"
 import filledSquareIcon from "../img/square-fill.svg"
 import pencilSquareIcon from "../img/pencil-square.svg"
@@ -15,26 +16,44 @@ import addIcon from "../img/plus-square.svg"
 
 export const runApp = () => {
 
+
     // List stores and creates/edits/deletes objects that hold groups of task objects. i.e "Grocery List".
+    // List also creates list node elements in the DOM
     const List = (() => {
 
         // This is the list of lists
         const ListStorage = new Map()
 
         // Add a new list to ListStorage 
-        function createList(name) {
+        function createListObject(name) {
             const newList = new Map()
             const hash = name + new Date()
-            ListStorage.set(hash, newList)
+            const listContainer = {
+                listName: name,
+                list: newList,
+            }
+
+            ListStorage.set(hash, listContainer)
             return hash
         }
 
         // Remove a list from ListStorage
-        function deleteList(name) {
-            ListStorage.delete(name)
+        function deleteListObject(name) {
+
         }
 
-        return { ListStorage, createList, deleteList }
+        function createListNode(listObject) {
+            const listNode = createNode("div", listsContainer, "", "sideBarList")
+            const listIcon = createNode("img", listNode, "", "listIcon")
+            listIcon.src = emptyAppIcon
+            const listName = createNode("div", listNode, "", "listName")
+            listName.textContent = listObject.listName
+            const listCount = createNode("div", listNode, "", "listCount")
+            listCount.textContent = listObject.list.size
+            return listNode
+        }
+
+        return { ListStorage, createListObject, deleteListObject, createListNode }
     })()
 
     // Render inserts interactable DOM elements, such as forms and buttons.
@@ -97,8 +116,8 @@ export const runApp = () => {
         return { renderAddTaskForm, renderEditTaskForm }
     })()
 
-    // BinderComponents creates task objects and nodes, which are then paired in a TaskBinder.
-    const BinderComponents = (() => {
+    // TaskBinderComponents creates task objects and nodes, which are then paired in a TaskBinder.
+    const TaskBinderComponents = (() => {
         function createTaskObject(completeBool, title, dueDate) {
 
             const taskHash = title + new Date()
@@ -157,7 +176,7 @@ export const runApp = () => {
 
         function storeTaskBinder(taskBinder) {
             TaskBinderStorage.set(taskBinder.taskHash, taskBinder)
-            List.ListStorage.get(taskBinder.listHash).set(taskBinder.taskHash, taskBinder)
+            List.ListStorage.get(taskBinder.listHash).list.set(taskBinder.taskHash, taskBinder)
         }
 
         function createTaskBinder(taskNode, taskObject, listHash) {
@@ -170,7 +189,7 @@ export const runApp = () => {
         function deleteTaskBinder(taskBinder) {
             taskBinder.node.remove()
             taskBinder.obj = null
-            List.ListStorage.get(taskBinder.listHash).delete(taskBinder.taskHash)
+            List.ListStorage.get(taskBinder.listHash).list.delete(taskBinder.taskHash)
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
         }
 
@@ -286,8 +305,8 @@ export const runApp = () => {
                 const title = document.getElementById("newItemTitle").value
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
                 const completeBool = false // make this changeable later
-                const taskObject = BinderComponents.createTaskObject(completeBool, title, date)
-                const taskNode = BinderComponents.createTaskNode(taskObject)
+                const taskObject = TaskBinderComponents.createTaskObject(completeBool, title, date)
+                const taskNode = TaskBinderComponents.createTaskNode(taskObject)
                 const listHash = userContentContainer.dataset.activelist
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 TaskBinder.storeTaskBinder(taskBinder)
@@ -309,21 +328,20 @@ export const runApp = () => {
     // APP LOGIC
     const App = (() => {
 
-
-
         // Dev tools to be deleted when production ready.
         const devStuff = (() => {
 
             // Demo list
-            const demoListHash = List.createList("demoList")
+            const demoListHash = List.createListObject("demoList")
+            const demoListNode = List.createListNode(List.ListStorage.get(demoListHash))
 
             // Make the Demo list the one that is currently loaded in the userContent area (so when new tasks are created, 
             // they know to be added to this list)
             userContentContainer.setAttribute("data-activeList", demoListHash)
 
             // Demo task
-            const demoTask = BinderComponents.createTaskObject(false, "Demo Task", new Date(), demoListHash)
-            List.ListStorage.get(demoListHash).set(demoTask.taskHash, demoTask)
+            const demoTask = TaskBinderComponents.createTaskObject(false, "Demo Task", new Date(), demoListHash)
+            List.ListStorage.get(demoListHash).list.set(demoTask.taskHash, demoTask)
 
             // Easy check
             document.getElementById("topBar").addEventListener("click", function () {
@@ -341,12 +359,12 @@ export const runApp = () => {
 
         for (let i = 0; i < List.ListStorage.size; i++) {
             let listInfo = listIterator.next().value
-            console.log(listInfo)
+            // console.log(listInfo)
             let listHash = listInfo[0]
-            let list = listInfo[1]
+            let list = listInfo[1].list
             for (let taskObject of list.values()) {
                 console.log("dan Carlin")
-                let taskNode = BinderComponents.createTaskNode(taskObject)
+                let taskNode = TaskBinderComponents.createTaskNode(taskObject)
                 let newTaskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 TaskBinder.storeTaskBinder(newTaskBinder)
             }
