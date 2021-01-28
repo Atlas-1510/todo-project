@@ -188,6 +188,54 @@ body {
     margin-top: auto;
 }
 
+#newListContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin: 10px 0px 10px 0px;
+}
+
+#newListContainer > form > div {
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.listButton {
+    height: 20px;
+    width: 20px;
+    padding: 0;
+    margin-left: 5px;
+}
+
+#newListTitleContainer {
+    box-sizing: border-box;
+    min-height: 20px;
+    width: max-content;
+    border-radius: 10px;
+    border: 1px solid black;
+    overflow: hidden;
+    background-color: white;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    outline: none;
+}
+
+#newListTitle {
+    margin-left: 5px;
+    padding: 0;
+    border: 0;
+    outline: none;
+}
+
+#newListTitleContainer:focus-within {
+    box-shadow: 0 0 5px 1px cyan;
+}
+
+
+/* USER CONTENT CONTAINER */
+
 #userContentContainer {
     flex-grow: 2;
     margin: 0 auto;

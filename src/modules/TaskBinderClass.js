@@ -1,7 +1,7 @@
 import publish from "./publishEvent"
 import format from 'date-fns/format'
 
-export default class NodeObjectBinder {
+export default class TaskBinder {
     constructor(node, obj, listHash, taskHash) {
 
         this.node = node
