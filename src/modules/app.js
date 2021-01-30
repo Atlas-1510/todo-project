@@ -65,8 +65,7 @@ export const runApp = () => {
     // Render inserts interactable DOM elements, such as forms and buttons.
     const Render = (() => {
 
-        // Form for adding new tasks
-
+        // Form for adding new lists
         const renderAddListForm = (() => {
 
             const form = document.getElementById("newListContainer")
@@ -88,6 +87,7 @@ export const runApp = () => {
 
         })()
 
+        // Form for adding new tasks
         const renderAddTaskForm = (() => {
 
             const form = document.getElementById("newTaskContainer")
@@ -289,18 +289,15 @@ export const runApp = () => {
 
             // Function to prevent page from refreshing when new task form is submitted
             const _submitRefreshBlocker = (() => {
-                const newTaskForm = document.getElementById("newTaskForm")
-                newTaskForm.addEventListener("submit", (e) => {
-                    e.preventDefault()
-                })
-
-                const editTaskForm = document.getElementById("editTaskForm")
-                editTaskForm.addEventListener("submit", (e) => {
-                    e.preventDefault()
+                const buttons = document.querySelectorAll(".submitRefreshBlocker")
+                buttons.forEach(function (button) {
+                    button.addEventListener("submit", (e) => {
+                        e.preventDefault()
+                    })
                 })
             })()
 
-            function editItemSubmit() {
+            function editTaskSubmit() {
 
                 const editTaskContainer = document.getElementById("editTaskContainer")
                 const taskHash = editTaskContainer.dataset.taskhash
@@ -322,13 +319,13 @@ export const runApp = () => {
                 taskBinder.node.style.display = "flex"
             }
 
-            const editTaskSubmitButton = document.querySelector("#editItemSubmit")
+            const editTaskSubmitButton = document.querySelector("#editTaskSubmit")
             editTaskSubmitButton.addEventListener("click", function () {
-                editItemSubmit()
+                editTaskSubmit()
             })
 
-            // Function to handle submission of form input into createTask factory function
-            function submitNewItem() {
+            // Function to handle submission of form input into new task binder
+            function submitNewTask() {
                 const title = document.getElementById("newItemTitle").value
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
                 const completeBool = false // make this changeable later
@@ -342,10 +339,27 @@ export const runApp = () => {
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
             newTaskSubmitButton.addEventListener("click", function () {
-                submitNewItem()
+                submitNewTask()
                 Render.renderAddTaskForm.hide()
                 document.getElementById("newTaskForm").reset()
             })
+
+
+            // Function to handle of submission of form input into new list
+            function submitNewList() {
+                const listTitle = document.getElementById("newListTitle").value
+                const listObjectHash = List.createListObject(listTitle)
+                const listObject = List.ListStorage.get(listObjectHash)
+                const listNode = List.createListNode(listObject)
+                const listBinder = List.createListBinder(listObject, listNode)
+                Render.renderAddListForm.hide()
+            }
+
+            const newListSubmitButton = document.getElementById("newListSubmit")
+            newListSubmitButton.addEventListener("click", function () {
+                submitNewList()
+            })
+
         })()
 
         return { applyTaskListeners }
@@ -361,6 +375,7 @@ export const runApp = () => {
             // Demo list
             const demoListHash = List.createListObject("demoList")
             const demoListNode = List.createListNode(List.ListStorage.get(demoListHash))
+
 
             // Make the Demo list the one that is currently loaded in the userContent area (so when new tasks are created, 
             // they know to be added to this list)

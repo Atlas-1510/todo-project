@@ -5,7 +5,7 @@ export default class ListBinder {
 
         this.node = node
         this.obj = obj
-        this.listHash = listHash
+        this.listHash = hash
         node.addEventListener("publish", this)
 
     }

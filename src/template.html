@@ -47,13 +47,13 @@
                 </div>
                 <div id="listsContainer">
                     <div class="sideBarList">
-                        <img class="listIcon" src="./img/app.svg">
+                        <!-- <img class="listIcon" src="./img/app.svg">
                         <div class="listName">Reminders</div>
-                        <div class="listCount">36</div>
+                        <div class="listCount">36</div> -->
                     </div>
                     <div id="newListContainer" class="listInputContainer">
                         <img src="./img/app.svg" class="listIcon"></img>
-                        <form id="newListForm" class="listInputForm">
+                        <form id="newListForm" class="listInputForm submitRefreshBlocker">
                             <div>
                                 <div id="newListTitleContainer">
                                     <input type="text" placeholder="Title" id="newListTitle" class="inputListTitle">
@@ -83,7 +83,7 @@
                 <div id="newTaskContainer" class="taskInputContainer">
                     <img src="./img/square.svg" class="checkbox"></img>
                     <div>
-                        <form id="newTaskForm" class="taskInputForm">
+                        <form id="newTaskForm" class="taskInputForm submitRefreshBlocker">
                             <input type="text" placeholder="Title" id="newItemTitle" class="inputItemTitle">
                             <div>
                                 <input id="dateInput" type="text" class="date" placeholder="Add Date">
@@ -100,7 +100,7 @@
                 <div id="editTaskContainer" class="taskInputContainer">
                     <img src="./img/square.svg" class="checkbox"></img>
                     <div>
-                        <form id="editTaskForm" class="taskInputForm">
+                        <form id="editTaskForm" class="taskInputForm submitRefreshBlocker">
                             <input type="text" placeholder="Title" id="editItemTitle" class="inputItemTitle">
                             <div>
                                 <input id="editDateInput" type="text" class="date" placeholder="Add Date">
@@ -108,8 +108,8 @@
                                 <button class="location">Add Location</button>
                                 <button class="priority">Add Priority</button>
                                 <button class="flag"></button>
-                                <button id="editItemSubmit" class="submitButton"></button>
-                                <button id="editItemAbort" class="abortButton"></button>
+                                <button id="editTaskSubmit" class="submitButton"></button>
+                                <button id="editTaskAbort" class="abortButton"></button>
                             </div>
                         </form>
                     </div>

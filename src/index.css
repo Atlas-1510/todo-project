@@ -189,7 +189,7 @@ body {
 }
 
 #newListContainer {
-    display: flex;
+    display: none;
     justify-content: flex-start;
     margin: 10px 0px 10px 0px;
 }
@@ -233,6 +233,28 @@ body {
     box-shadow: 0 0 5px 1px cyan;
 }
 
+#newListSubmit {
+    background-image: url("./img/check-circle.svg");
+    background-repeat: no-repeat;
+    background-size: 20px;
+    background-position: center;
+}
+
+#newListAbort {
+    background-image: url("./img/x-circle.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px;
+}
+
+.listButton {
+    width: 20px;
+    padding: 10px;
+    height: auto;
+    position: relative;
+    bottom: 2px;
+    border: 0;
+}
 
 /* USER CONTENT CONTAINER */
 
