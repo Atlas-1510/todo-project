@@ -264,7 +264,6 @@ export const runApp = () => {
         function applyListListeners(listBinder) {
             const node = listBinder.node
             node.addEventListener("click", function () {
-                console.log("clicked")
                 contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
             })
@@ -403,6 +402,8 @@ export const runApp = () => {
 
         // Load tasks from a list into the user content container
         function loadList(listHash) {
+
+            userContentContainer.setAttribute("data-activeList", listHash)
 
             const listContainer = List.ListStorage.get(listHash)
             listContainer.list.forEach(function (taskObject) {
