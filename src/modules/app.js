@@ -22,8 +22,12 @@ export const runApp = () => {
     // List also creates list node elements in the DOM
     const List = (() => {
 
-        // This is the list of lists
+        // This is the list of list objects
         const ListStorage = new Map()
+
+        // This is a storage object for list binders. Used to keep references to pairs of list nodes and list objects.
+        // Can be used to enable list nodes & object pairs to be renamed by the user (not implemented yet)
+        const ListBinderStorage = new Map()
 
         // Add a new list to ListStorage 
         function createListObject(name) {
@@ -39,109 +43,30 @@ export const runApp = () => {
             return hash
         }
 
-        function createListNode(listObject) {
+        function createListNode(listContainer) {
             const listNode = createNode("div", listsContainer, "", "sideBarList")
             const listIcon = createNode("img", listNode, "", "listIcon")
             listIcon.src = emptyAppIcon
             const listName = createNode("div", listNode, "", "listName")
-            listName.textContent = listObject.listName
+            listName.textContent = listContainer.listName
             const listCount = createNode("div", listNode, "", "listCount")
-            listCount.textContent = listObject.list.size
+            listCount.textContent = listContainer.size
             return listNode
         }
 
-        function createListBinder(listObject, listNode) {
-            const listHash = listObject.hash
+        function createListBinder(listContainer, listNode) {
+            const listObject = listContainer.list
+            const listHash = listContainer.hash
             const listBinder = new ListBinderInstance(listNode, listObject, listHash)
-
+            ListBinderStorage.set(listHash, listBinder)
             return listBinder
         }
 
-
-
-        return { ListStorage, createListObject, createListNode, createListBinder }
-    })()
-
-    // Render inserts interactable DOM elements, such as forms and buttons.
-    const Render = (() => {
-
-        // Form for adding new lists
-        const renderAddListForm = (() => {
-
-            const form = document.getElementById("newListContainer")
-            const inputFocus = document.getElementById("newListTitle")
-
-            function show() {
-                form.style.display = "flex"
-                inputFocus.focus()
-            }
-
-            function hide() {
-                form.style.display = "none"
-                // Move the add list form container, so it shows up at the bottom the next time it is opened
-                const newItem = document.getElementById("listsContainer").lastChild
-                newItem.parentNode.insertBefore(form, newItem.nextSibling)
-            }
-
-            return { show, hide }
-
-        })()
-
-        // Form for adding new tasks
-        const renderAddTaskForm = (() => {
-
-            const form = document.getElementById("newTaskContainer")
-            const lowerAddButton = document.getElementById("lowerAddTask")
-            const inputFocus = document.getElementById("newItemTitle")
-
-            function show() {
-                form.style.display = "flex"
-                lowerAddButton.style.display = "none"
-                inputFocus.focus()
-            }
-
-            function hide() {
-                form.style.display = "none"
-                lowerAddButton.style.display = "flex"
-                // Move the 'Add Task' button to the end of the user content container, after the new task item
-                const newItem = document.getElementById("userContentContainer").lastChild
-                newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
-                // Do the same thing for the 'new task form', so it shows up at the bottom the next time it is opened
-                newItem.parentNode.insertBefore(form, newItem.nextSibling)
-            }
-
-            return { show, hide }
-
-        })()
-
-        const renderEditTaskForm = (taskBinder) => {
-            const editTaskContainer = document.querySelector("#editTaskContainer")
-            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
-
-            // Title
-            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
-            const priorTitle = taskBinder.obj.title
-            titleSelector.setAttribute("placeholder", priorTitle)
-
-            // Date
-            const dateSelector = editTaskContainer.querySelector("#editDateInput")
-            if (taskBinder.obj.dueDate) {
-                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
-                dateSelector.setAttribute("placeholder", priorDate)
-            }
-
-            // Add other task parameters here
-
-            // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
-            // identify and update the correct task object
-            editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
-            editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
-
-            editTaskContainer.style.display = "flex"
+        function editListBinder(listHash, newName) {
+            // Not implemented yet. Relies on listBinderStorage above.
         }
 
-
-        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm }
+        return { ListStorage, createListObject, createListNode, createListBinder }
     })()
 
     // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
@@ -228,6 +153,87 @@ export const runApp = () => {
         return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode }
     })()
 
+    // Render loads interactable DOM elements such as forms and buttons.
+    const Render = (() => {
+
+        // Form for adding new lists
+        const renderAddListForm = (() => {
+
+            const form = document.getElementById("newListContainer")
+            const inputFocus = document.getElementById("newListTitle")
+
+            function show() {
+                form.style.display = "flex"
+                inputFocus.focus()
+            }
+
+            function hide() {
+                form.style.display = "none"
+                // Move the add list form container, so it shows up at the bottom the next time it is opened
+                const newItem = document.getElementById("listsContainer").lastChild
+                newItem.parentNode.insertBefore(form, newItem.nextSibling)
+            }
+
+            return { show, hide }
+
+        })()
+
+        // Form for adding new tasks
+        const renderAddTaskForm = (() => {
+
+            const form = document.getElementById("newTaskContainer")
+            const lowerAddButton = document.getElementById("lowerAddTask")
+            const inputFocus = document.getElementById("newItemTitle")
+
+            function show() {
+                form.style.display = "flex"
+                lowerAddButton.style.display = "none"
+                inputFocus.focus()
+            }
+
+            function hide() {
+                form.style.display = "none"
+                lowerAddButton.style.display = "flex"
+                // Move the 'Add Task' button to the end of the user content container, after the new task item
+                const newItem = document.getElementById("userContentContainer").lastChild
+                newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
+                // Do the same thing for the 'new task form', so it shows up at the bottom the next time it is opened
+                newItem.parentNode.insertBefore(form, newItem.nextSibling)
+            }
+
+            return { show, hide }
+
+        })()
+
+        const renderEditTaskForm = (taskBinder) => {
+            const editTaskContainer = document.querySelector("#editTaskContainer")
+            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+
+            // Title
+            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
+            const priorTitle = taskBinder.obj.title
+            titleSelector.setAttribute("placeholder", priorTitle)
+
+            // Date
+            const dateSelector = editTaskContainer.querySelector("#editDateInput")
+            if (taskBinder.obj.dueDate) {
+                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+                dateSelector.setAttribute("placeholder", priorDate)
+            }
+
+            // Add other task parameters here
+
+            // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
+            // identify and update the correct task object
+            editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
+            editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
+
+            editTaskContainer.style.display = "flex"
+        }
+
+        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm }
+    })()
+
     // Listeners applies functionality to buttons in DOM elements.
     const Listeners = (() => {
 
@@ -250,6 +256,15 @@ export const runApp = () => {
 
             _addDeletionListener(taskBinder)
             _addEditListener(taskBinder)
+        }
+
+        function applyListListeners(listBinder) {
+            console.log("listener applied")
+            const node = listBinder.node
+            node.addEventListener("click", function () {
+                console.log("clicked list")
+                contentController.loadList(listBinder.listHash)
+            })
         }
 
         const addListButton = (() => {
@@ -362,8 +377,58 @@ export const runApp = () => {
 
         })()
 
-        return { applyTaskListeners }
+        return { applyTaskListeners, applyListListeners }
 
+    })()
+
+    // contentController loads/unloads stored user content into the DOM.
+    const contentController = (() => {
+
+        // Render list of lists in sidebar
+        const loadListsIntoSideBar = () => {
+            let listIterator = List.ListStorage.values()
+
+            for (let i = 0; i < List.ListStorage.size; i++) {
+                let listContainer = listIterator.next().value
+                console.log("LIST CONTAINER 392")
+                console.log(listContainer)
+                let listNode = List.createListNode(listContainer)
+                let listBinder = List.createListBinder(listContainer, listNode)
+                console.log("LIST BINDER")
+                console.log(listBinder)
+                console.log("about to apply listener")
+                Listeners.applyListListeners(listBinder)
+            }
+
+        }
+
+        // Load tasks from a list into the user content container
+        function loadList(listHash) {
+            console.log("LIST HASH")
+            console.log(listHash)
+            const listContainer = List.ListStorage.get(listHash)
+            console.log("LIST CONTAINER")
+            console.log(listContainer)
+
+            // Render stored tasks from stored data for this user, and generate taskBinders.
+            for (let taskObject of listContainer.list.values()) {
+                console.log(`Loading list ${listContainer.listName}`)
+                let taskNode = TaskBinder.createTaskNode(taskObject)
+                let newTaskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
+                TaskBinder.storeTaskBinder(newTaskBinder)
+            }
+
+            // Apply listeners to rendered tasks.
+            for (let taskBinder of TaskBinder.TaskBinderStorage.values()) {
+                Listeners.applyTaskListeners(taskBinder)
+            }
+        }
+
+        function unloadList(listHash) {
+
+        }
+
+        return { loadList, loadListsIntoSideBar }
     })()
 
     // APP LOGIC
@@ -372,18 +437,21 @@ export const runApp = () => {
         // Dev tools to be deleted when production ready.
         const devStuff = (() => {
 
-            // Demo list
-            const demoListHash = List.createListObject("demoList")
-            const demoListNode = List.createListNode(List.ListStorage.get(demoListHash))
+            function createDemo(title) {
 
+                // Demo list
+                const demoListHash = List.createListObject(title)
+                // const demoListNode = List.createListNode(List.ListStorage.get(demoListHash))
 
-            // Make the Demo list the one that is currently loaded in the userContent area (so when new tasks are created, 
-            // they know to be added to this list)
-            userContentContainer.setAttribute("data-activeList", demoListHash)
+                // Demo task
+                const demoTask = TaskBinder.createTaskObject(false, `demo task ${title}`, new Date(), demoListHash)
+                List.ListStorage.get(demoListHash).list.set(demoTask.taskHash, demoTask)
 
-            // Demo task
-            const demoTask = TaskBinder.createTaskObject(false, "Demo Task", new Date(), demoListHash)
-            List.ListStorage.get(demoListHash).list.set(demoTask.taskHash, demoTask)
+                return demoListHash
+            }
+
+            const demoLoader = createDemo("first")
+            createDemo("second")
 
             // Easy check
             document.getElementById("topBar").addEventListener("click", function () {
@@ -392,30 +460,12 @@ export const runApp = () => {
                 console.log("TASK BINDER STORAGE")
                 console.log(TaskBinder.TaskBinderStorage)
             })
+
+            contentController.loadListsIntoSideBar()
+            contentController.loadList(demoLoader)
+
         })()
 
-
-
-        // Render stored tasks from stored data for this user, and generate taskBinders.
-        let listIterator = List.ListStorage.entries()
-
-        for (let i = 0; i < List.ListStorage.size; i++) {
-            let listInfo = listIterator.next().value
-            // console.log(listInfo)
-            let listHash = listInfo[0]
-            let list = listInfo[1].list
-            for (let taskObject of list.values()) {
-                console.log("dan Carlin")
-                let taskNode = TaskBinder.createTaskNode(taskObject)
-                let newTaskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
-                TaskBinder.storeTaskBinder(newTaskBinder)
-            }
-        }
-
-        // Apply listeners to rendered tasks.
-        for (let taskBinder of TaskBinder.TaskBinderStorage.values()) {
-            Listeners.applyTaskListeners(taskBinder)
-        }
 
     })()
 }
