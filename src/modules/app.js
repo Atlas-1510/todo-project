@@ -26,7 +26,8 @@ export const runApp = () => {
         const ListStorage = new Map()
 
         // This is a storage object for list binders. Used to keep references to pairs of list nodes and list objects.
-        // Can be used to enable list nodes & object pairs to be renamed by the user (not implemented yet), and to update task count within a list.
+        // Can be used to enable list nodes & object pairs to be renamed by the user (not implemented yet), 
+        // and to update side bar count of tasks within a list.
         const ListBinderStorage = new Map()
 
         // Add a new list to ListStorage 
@@ -160,87 +161,6 @@ export const runApp = () => {
         }
 
         return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode }
-    })()
-
-    // Render loads interactable DOM elements such as forms and buttons.
-    const Render = (() => {
-
-        // Form for adding new lists
-        const renderAddListForm = (() => {
-
-            const form = document.getElementById("newListContainer")
-            const inputFocus = document.getElementById("newListTitle")
-
-            function show() {
-                form.style.display = "flex"
-                inputFocus.focus()
-            }
-
-            function hide() {
-                form.style.display = "none"
-                // Move the add list form container, so it shows up at the bottom the next time it is opened
-                const newItem = document.getElementById("listsContainer").lastChild
-                newItem.parentNode.insertBefore(form, newItem.nextSibling)
-            }
-
-            return { show, hide }
-
-        })()
-
-        // Form for adding new tasks
-        const renderAddTaskForm = (() => {
-
-            const form = document.getElementById("newTaskContainer")
-            const lowerAddButton = document.getElementById("lowerAddTask")
-            const inputFocus = document.getElementById("newItemTitle")
-
-            function show() {
-                form.style.display = "flex"
-                lowerAddButton.style.display = "none"
-                inputFocus.focus()
-            }
-
-            function hide() {
-                form.style.display = "none"
-                lowerAddButton.style.display = "flex"
-                // Move the 'Add Task' button to the end of the user content container, after the new task item
-                const newItem = document.getElementById("userContentContainer").lastChild
-                newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
-                // Do the same thing for the 'new task form', so it shows up at the bottom the next time it is opened
-                newItem.parentNode.insertBefore(form, newItem.nextSibling)
-            }
-
-            return { show, hide }
-
-        })()
-
-        const renderEditTaskForm = (taskBinder) => {
-            const editTaskContainer = document.querySelector("#editTaskContainer")
-            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
-
-            // Title
-            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
-            const priorTitle = taskBinder.obj.title
-            titleSelector.setAttribute("placeholder", priorTitle)
-
-            // Date
-            const dateSelector = editTaskContainer.querySelector("#editDateInput")
-            if (taskBinder.obj.dueDate) {
-                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
-                dateSelector.setAttribute("placeholder", priorDate)
-            }
-
-            // Add other task parameters here
-
-            // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
-            // identify and update the correct task object
-            editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
-            editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
-
-            editTaskContainer.style.display = "flex"
-        }
-
-        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm }
     })()
 
     // Listeners applies functionality to buttons in DOM elements.
@@ -378,7 +298,9 @@ export const runApp = () => {
                 const listObject = List.ListStorage.get(listObjectHash)
                 const listNode = List.createListNode(listObject)
                 const listBinder = List.createListBinder(listObject, listNode)
+                applyListListeners(listBinder)
                 Render.renderAddListForm.hide()
+                document.getElementById("newListForm").reset()
             }
 
             const newListSubmitButton = document.getElementById("newListSubmit")
@@ -396,7 +318,7 @@ export const runApp = () => {
     const contentController = (() => {
 
         // Render list of lists in sidebar
-        const loadListsIntoSideBar = () => {
+        const loadListsIntoSideBar = (() => {
             let listIterator = List.ListStorage.values()
 
             for (let i = 0; i < List.ListStorage.size; i++) {
@@ -407,7 +329,7 @@ export const runApp = () => {
                 let listBinder = List.createListBinder(listContainer, listNode)
                 Listeners.applyListListeners(listBinder)
             }
-        }
+        })()
 
 
 
@@ -435,6 +357,87 @@ export const runApp = () => {
         }
 
         return { loadList, unloadLists, loadListsIntoSideBar }
+    })()
+
+    // Render loads interactable DOM elements such as forms and buttons.
+    const Render = (() => {
+
+        // Form for adding new lists
+        const renderAddListForm = (() => {
+
+            const form = document.getElementById("newListContainer")
+            const inputFocus = document.getElementById("newListTitle")
+
+            function show() {
+                form.style.display = "flex"
+                inputFocus.focus()
+            }
+
+            function hide() {
+                form.style.display = "none"
+                // Move the add list form container, so it shows up at the bottom the next time it is opened
+                const newItem = document.getElementById("listsContainer").lastChild
+                newItem.parentNode.insertBefore(form, newItem.nextSibling)
+            }
+
+            return { show, hide }
+
+        })()
+
+        // Form for adding new tasks
+        const renderAddTaskForm = (() => {
+
+            const form = document.getElementById("newTaskContainer")
+            const lowerAddButton = document.getElementById("lowerAddTask")
+            const inputFocus = document.getElementById("newItemTitle")
+
+            function show() {
+                form.style.display = "flex"
+                lowerAddButton.style.display = "none"
+                inputFocus.focus()
+            }
+
+            function hide() {
+                form.style.display = "none"
+                lowerAddButton.style.display = "flex"
+                // Move the 'Add Task' button to the end of the user content container, after the new task item
+                const newItem = document.getElementById("userContentContainer").lastChild
+                newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
+                // Do the same thing for the 'new task form', so it shows up at the bottom the next time it is opened
+                newItem.parentNode.insertBefore(form, newItem.nextSibling)
+            }
+
+            return { show, hide }
+
+        })()
+
+        const renderEditTaskForm = (taskBinder) => {
+            const editTaskContainer = document.querySelector("#editTaskContainer")
+            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+
+            // Title
+            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
+            const priorTitle = taskBinder.obj.title
+            titleSelector.setAttribute("placeholder", priorTitle)
+
+            // Date
+            const dateSelector = editTaskContainer.querySelector("#editDateInput")
+            if (taskBinder.obj.dueDate) {
+                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+                dateSelector.setAttribute("placeholder", priorDate)
+            }
+
+            // Add other task parameters here
+
+            // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
+            // identify and update the correct task object
+            editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
+            editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
+
+            editTaskContainer.style.display = "flex"
+        }
+
+        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm }
     })()
 
     // APP LOGIC
@@ -467,8 +470,6 @@ export const runApp = () => {
                 console.log("TASK BINDER STORAGE")
                 console.log(TaskBinder.TaskBinderStorage)
             })
-
-            contentController.loadListsIntoSideBar()
             contentController.loadList(demoLoader)
 
         })()
