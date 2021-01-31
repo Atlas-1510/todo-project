@@ -121,14 +121,17 @@ export const runApp = () => {
             return taskNode
         }
 
+        // Stores a newly created task object in the list storage object
         function storeTaskBinder(taskBinder) {
-            TaskBinderStorage.set(taskBinder.taskHash, taskBinder)
-            List.ListStorage.get(taskBinder.listHash).list.set(taskBinder.taskHash, taskBinder)
+            console.log("storing task Binder")
+            console.log(taskBinder)
+            List.ListStorage.get(taskBinder.listHash).list.set(taskBinder.taskHash, taskBinder.obj)
         }
 
         function createTaskBinder(taskNode, taskObject, listHash) {
             const taskHash = taskObject.taskHash
             const taskBinder = new TaskBinderInstance(taskNode, taskObject, listHash, taskHash)
+            TaskBinderStorage.set(taskBinder.taskHash, taskBinder)
 
             return taskBinder
         }
@@ -259,10 +262,10 @@ export const runApp = () => {
         }
 
         function applyListListeners(listBinder) {
-            console.log("listener applied")
             const node = listBinder.node
             node.addEventListener("click", function () {
-                console.log("clicked list")
+                console.log("clicked")
+                contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
             })
         }
@@ -346,7 +349,8 @@ export const runApp = () => {
                 const completeBool = false // make this changeable later
                 const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
                 const taskNode = TaskBinder.createTaskNode(taskObject)
-                const listHash = userContentContainer.dataset.activelist
+                const listHash = userContentContainer.dataset.activelist // THIS IS THE THING THAT WAS DELETED THAT I NEED TO PUT BACK!!!
+                console.log(`listHash: ${listHash}`)
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 TaskBinder.storeTaskBinder(taskBinder)
                 Listeners.applyTaskListeners(taskBinder)
@@ -390,13 +394,8 @@ export const runApp = () => {
 
             for (let i = 0; i < List.ListStorage.size; i++) {
                 let listContainer = listIterator.next().value
-                console.log("LIST CONTAINER 392")
-                console.log(listContainer)
                 let listNode = List.createListNode(listContainer)
                 let listBinder = List.createListBinder(listContainer, listNode)
-                console.log("LIST BINDER")
-                console.log(listBinder)
-                console.log("about to apply listener")
                 Listeners.applyListListeners(listBinder)
             }
 
@@ -404,31 +403,26 @@ export const runApp = () => {
 
         // Load tasks from a list into the user content container
         function loadList(listHash) {
-            console.log("LIST HASH")
-            console.log(listHash)
+
             const listContainer = List.ListStorage.get(listHash)
-            console.log("LIST CONTAINER")
-            console.log(listContainer)
-
-            // Render stored tasks from stored data for this user, and generate taskBinders.
-            for (let taskObject of listContainer.list.values()) {
-                console.log(`Loading list ${listContainer.listName}`)
+            listContainer.list.forEach(function (taskObject) {
                 let taskNode = TaskBinder.createTaskNode(taskObject)
-                let newTaskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
-                TaskBinder.storeTaskBinder(newTaskBinder)
-            }
-
-            // Apply listeners to rendered tasks.
-            for (let taskBinder of TaskBinder.TaskBinderStorage.values()) {
+                let taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 Listeners.applyTaskListeners(taskBinder)
-            }
+            })
         }
 
-        function unloadList(listHash) {
-
+        function unloadLists() {
+            // For every taskBinder in task binder storage
+            TaskBinder.TaskBinderStorage.forEach(function (taskBinder) {
+                // delete the node, but retain the task object
+                taskBinder.node.remove()
+                // delete the task binder
+                TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
+            })
         }
 
-        return { loadList, loadListsIntoSideBar }
+        return { loadList, unloadLists, loadListsIntoSideBar }
     })()
 
     // APP LOGIC
@@ -452,6 +446,7 @@ export const runApp = () => {
 
             const demoLoader = createDemo("first")
             createDemo("second")
+            createDemo("third")
 
             // Easy check
             document.getElementById("topBar").addEventListener("click", function () {
