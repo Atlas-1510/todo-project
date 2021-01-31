@@ -26,7 +26,7 @@ export const runApp = () => {
         const ListStorage = new Map()
 
         // This is a storage object for list binders. Used to keep references to pairs of list nodes and list objects.
-        // Can be used to enable list nodes & object pairs to be renamed by the user (not implemented yet)
+        // Can be used to enable list nodes & object pairs to be renamed by the user (not implemented yet), and to update task count within a list.
         const ListBinderStorage = new Map()
 
         // Add a new list to ListStorage 
@@ -50,7 +50,7 @@ export const runApp = () => {
             const listName = createNode("div", listNode, "", "listName")
             listName.textContent = listContainer.listName
             const listCount = createNode("div", listNode, "", "listCount")
-            listCount.textContent = listContainer.size
+            listCount.textContent = listContainer.list.size
             return listNode
         }
 
@@ -66,7 +66,15 @@ export const runApp = () => {
             // Not implemented yet. Relies on listBinderStorage above.
         }
 
-        return { ListStorage, createListObject, createListNode, createListBinder }
+        function updateTaskCounters() {
+
+            ListBinderStorage.forEach(function (listBinder) {
+                const taskCount = listBinder.node.querySelector(".listCount")
+                taskCount.textContent = listBinder.obj.size
+            })
+        }
+
+        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters }
     })()
 
     // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
@@ -123,8 +131,6 @@ export const runApp = () => {
 
         // Stores a newly created task object in the list storage object
         function storeTaskBinder(taskBinder) {
-            console.log("storing task Binder")
-            console.log(taskBinder)
             List.ListStorage.get(taskBinder.listHash).list.set(taskBinder.taskHash, taskBinder.obj)
         }
 
@@ -246,6 +252,7 @@ export const runApp = () => {
                 const button = taskBinder.node.querySelector(".deleteTaskIcon")
                 button.addEventListener("click", function () {
                     TaskBinder.deleteTaskBinder(taskBinder)
+                    List.updateTaskCounters()
                 })
             }
 
@@ -348,11 +355,12 @@ export const runApp = () => {
                 const completeBool = false // make this changeable later
                 const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
                 const taskNode = TaskBinder.createTaskNode(taskObject)
-                const listHash = userContentContainer.dataset.activelist // THIS IS THE THING THAT WAS DELETED THAT I NEED TO PUT BACK!!!
-                console.log(`listHash: ${listHash}`)
+                const listHash = userContentContainer.dataset.activelist
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 TaskBinder.storeTaskBinder(taskBinder)
                 Listeners.applyTaskListeners(taskBinder)
+
+                List.updateTaskCounters()
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -393,12 +401,15 @@ export const runApp = () => {
 
             for (let i = 0; i < List.ListStorage.size; i++) {
                 let listContainer = listIterator.next().value
+                console.log("list container")
+                console.log(listContainer)
                 let listNode = List.createListNode(listContainer)
                 let listBinder = List.createListBinder(listContainer, listNode)
                 Listeners.applyListListeners(listBinder)
             }
-
         }
+
+
 
         // Load tasks from a list into the user content container
         function loadList(listHash) {
@@ -461,7 +472,5 @@ export const runApp = () => {
             contentController.loadList(demoLoader)
 
         })()
-
-
     })()
 }
