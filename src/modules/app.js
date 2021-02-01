@@ -154,7 +154,9 @@ export const runApp = () => {
 
             // Update the task object with the newly edited data
             taskBinder.obj.title = newTitle
-            taskBinder.obj.dueDate = newDate
+            if (!isNaN(newDate)) {
+                taskBinder.obj.dueDate = newDate
+            }
 
             // Update the node with the newly edited data in the task object
             taskBinder.change()
@@ -193,6 +195,7 @@ export const runApp = () => {
             node.addEventListener("click", function () {
                 contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
+                contentController.refreshTopBar(listBinder.listHash)
             })
         }
 
@@ -281,6 +284,7 @@ export const runApp = () => {
                 Listeners.applyTaskListeners(taskBinder)
 
                 List.updateTaskCounters()
+                contentController.refreshTopBar(listHash)
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -323,8 +327,6 @@ export const runApp = () => {
 
             for (let i = 0; i < List.ListStorage.size; i++) {
                 let listContainer = listIterator.next().value
-                console.log("list container")
-                console.log(listContainer)
                 let listNode = List.createListNode(listContainer)
                 let listBinder = List.createListBinder(listContainer, listNode)
                 Listeners.applyListListeners(listBinder)
@@ -332,6 +334,14 @@ export const runApp = () => {
         })()
 
 
+        function refreshTopBar(listHash) {
+            // Update TopBar information
+            const listContainer = List.ListStorage.get(listHash)
+            const topBarTitle = document.getElementById("listTitle")
+            topBarTitle.textContent = listContainer.listName
+            const topBarCount = document.getElementById("topBarListCount")
+            topBarCount.textContent = listContainer.list.size
+        }
 
         // Load tasks from a list into the user content container
         function loadList(listHash) {
@@ -344,6 +354,10 @@ export const runApp = () => {
                 let taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 Listeners.applyTaskListeners(taskBinder)
             })
+
+
+
+
         }
 
         function unloadLists() {
@@ -356,7 +370,7 @@ export const runApp = () => {
             })
         }
 
-        return { loadList, unloadLists, loadListsIntoSideBar }
+        return { loadList, unloadLists, loadListsIntoSideBar, refreshTopBar }
     })()
 
     // Render loads interactable DOM elements such as forms and buttons.
@@ -467,10 +481,13 @@ export const runApp = () => {
             document.getElementById("topBar").addEventListener("click", function () {
                 console.log("LIST STORAGE")
                 console.log(List.ListStorage)
+                console.log("LIST BINDER STORAGE")
+                console.log(List.ListBinderStorage)
                 console.log("TASK BINDER STORAGE")
                 console.log(TaskBinder.TaskBinderStorage)
             })
             contentController.loadList(demoLoader)
+            contentController.refreshTopBar(demoLoader)
 
         })()
     })()
