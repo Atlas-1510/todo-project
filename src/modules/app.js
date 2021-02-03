@@ -92,6 +92,7 @@ export const runApp = () => {
                 title,
                 dueDate,
                 taskHash,
+                scheduled: false,
             }
 
             return task
@@ -163,6 +164,58 @@ export const runApp = () => {
         }
 
         return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode }
+    })()
+
+    // Search uses the sidebar interface to allow a user to search through all tasks
+    const Search = (() => {
+        const toggles = {
+            scheduled: false,
+            flagged: false,
+            today: false,
+            all: false,
+        }
+
+        function runSearch() {
+            const searchParameters = []
+
+            for (const [key, value] of Object.entries(toggles)) {
+                if (value) {
+                    searchParameters.push(key)
+                }
+            }
+
+            // Get a list of all the task objects that fit the search requirements
+            const searchResultObjects = []
+            // Iterate over each list in listStorage
+            List.ListStorage.forEach((listContainer) => {
+                const list = listContainer.list
+                // Iterate over each task in list
+                list.forEach((task) => {
+                    let shouldAddThisOne = true
+                    // Iterate over each search parameter
+                    for (let i = 0; i < searchParameters.length; i++) {
+                        if (task[searchParameters[i]] != true) {
+                            shouldAddThisOne = false
+                        }
+                    }
+
+                    if (shouldAddThisOne) {
+                        searchResultObjects.push(task)
+                    }
+                })
+            })
+
+            searchResultObjects.forEach((taskObject) => {
+                const listHash = 'searchResults'
+                const taskNode = TaskBinder.createTaskNode(taskObject)
+                const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
+                Listeners.applyTaskListeners(taskBinder)
+            })
+
+            return searchResultObjects
+        }
+
+        return { toggles, runSearch }
     })()
 
     // Listeners applies functionality to buttons in DOM elements.
@@ -277,6 +330,10 @@ export const runApp = () => {
                 const date = Date.parse(document.getElementById("dateInput").dataset.date)
                 const completeBool = false // make this changeable later
                 const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
+                if (!isNaN(date)) {
+                    taskObject.scheduled = true
+                }
+                document.getElementById("dateInput").setAttribute("data-date", NaN)
                 const taskNode = TaskBinder.createTaskNode(taskObject)
                 const listHash = userContentContainer.dataset.activelist
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
@@ -303,6 +360,12 @@ export const runApp = () => {
                 const listNode = List.createListNode(listObject)
                 const listBinder = List.createListBinder(listObject, listNode)
                 applyListListeners(listBinder)
+
+                userContentContainer.setAttribute("data-activelist", listBinder.listHash)
+                contentController.unloadLists()
+                contentController.loadList(listBinder.listHash)
+                contentController.refreshTopBar(listBinder.listHash)
+                // userContentContainer.dataset.activelist
                 Render.renderAddListForm.hide()
                 document.getElementById("newListForm").reset()
             }
@@ -312,6 +375,17 @@ export const runApp = () => {
                 submitNewList()
             })
 
+        })()
+
+        const scheduledToggle = (() => {
+            const button = document.getElementById("scheduledToggle")
+            button.addEventListener("click", () => {
+                contentController.unloadLists()
+                document.getElementById("listTitle").textContent = "Search"
+                Search.toggles.scheduled = true
+                const searchResults = Search.runSearch()
+                // document.getElementById("topBarListCount").textContent = searchResults.length()
+            })
         })()
 
         return { applyTaskListeners, applyListListeners }
@@ -354,10 +428,6 @@ export const runApp = () => {
                 let taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
                 Listeners.applyTaskListeners(taskBinder)
             })
-
-
-
-
         }
 
         function unloadLists() {
@@ -463,19 +533,19 @@ export const runApp = () => {
             function createDemo(title) {
 
                 // Demo list
-                const demoListHash = List.createListObject(title)
+                // const demoListHash = List.createListObject(title)
                 // const demoListNode = List.createListNode(List.ListStorage.get(demoListHash))
 
                 // Demo task
-                const demoTask = TaskBinder.createTaskObject(false, `demo task ${title}`, new Date(), demoListHash)
-                List.ListStorage.get(demoListHash).list.set(demoTask.taskHash, demoTask)
+                // const demoTask = TaskBinder.createTaskObject(false, `demo task ${title}`, new Date(), demoListHash)
+                // List.ListStorage.get(demoListHash).list.set(demoTask.taskHash, demoTask)
 
-                return demoListHash
+                // return demoListHash
             }
 
-            const demoLoader = createDemo("first")
-            createDemo("second")
-            createDemo("third")
+            // const demoLoader = createDemo("first")
+            // createDemo("second")
+            // createDemo("third")
 
             // Easy check
             document.getElementById("topBar").addEventListener("click", function () {
@@ -486,8 +556,8 @@ export const runApp = () => {
                 console.log("TASK BINDER STORAGE")
                 console.log(TaskBinder.TaskBinderStorage)
             })
-            contentController.loadList(demoLoader)
-            contentController.refreshTopBar(demoLoader)
+            // contentController.loadList(demoLoader)
+            // contentController.refreshTopBar(demoLoader)
 
         })()
     })()
