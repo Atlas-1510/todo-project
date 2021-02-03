@@ -381,10 +381,18 @@ export const runApp = () => {
             const button = document.getElementById("scheduledToggle")
             button.addEventListener("click", () => {
                 contentController.unloadLists()
-                document.getElementById("listTitle").textContent = "Search"
-                Search.toggles.scheduled = true
+                if (button.classList.contains("scheduledToggleActive")) {
+                    button.classList.remove("scheduledToggleActive")
+                    Search.toggles.scheduled = false
+
+                } else {
+                    button.classList.add("scheduledToggleActive")
+                    document.getElementById("listTitle").textContent = "Search"
+                    Search.toggles.scheduled = true
+                }
+
                 const searchResults = Search.runSearch()
-                // document.getElementById("topBarListCount").textContent = searchResults.length()
+                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
             })
         })()
 
