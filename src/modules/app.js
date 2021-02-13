@@ -283,6 +283,14 @@ export const runApp = () => {
                         input.value = format(date, "eee d/M/yy")
                         dateNode.setAttribute("data-date", date)
                     },
+                    onSelect: (instance, date) => {
+                        const dateDeleteButton = document.getElementById("dateDeleteButton")
+                        console.log(dateDeleteButton)
+                        if (dateDeleteButton) {
+                            dateDeleteButton.disabled = false
+                            dateDeleteButton.checked = true
+                        }
+                    }
                 })
             })
         })()
@@ -334,6 +342,10 @@ export const runApp = () => {
                 // Date
                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
 
+                if (document.getElementById("dateDeleteButton")) {
+                    document.getElementById("dateDeleteButton").remove()
+                }
+
                 // Flag
                 const flagButton = document.getElementById("editItemFlag")
                 if (flagButton.dataset.flagged) {
@@ -381,7 +393,9 @@ export const runApp = () => {
                 List.updateTaskCounters()
                 contentController.refreshTopBar(listHash)
                 const datePickerActiveSquare = document.getElementsByClassName("qs-active")
-                datePickerActiveSquare[0].classList.remove("qs-active")
+                if (datePickerActiveSquare[0]) {
+                    datePickerActiveSquare[0].classList.remove("qs-active")
+                }
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -573,9 +587,22 @@ export const runApp = () => {
 
             // Date
             const dateSelector = editTaskContainer.querySelector("#editDateInput")
-            if (taskBinder.obj.dueDate) {
+            if (taskBinder.obj.dueDate != undefined) {
                 const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
                 dateSelector.setAttribute("placeholder", priorDate)
+                // Optional button to remove date entirely
+                const dateDeleteButton = document.createElement("input")
+                dateDeleteButton.setAttribute("id", "dateDeleteButton")
+                dateDeleteButton.type = "checkbox"
+                dateDeleteButton.setAttribute("checked", "true")
+                const editTaskSubContainer = document.getElementById("editTaskSubContainer")
+                editTaskSubContainer.insertBefore(dateDeleteButton, document.getElementById("editDateInput"))
+                dateDeleteButton.addEventListener("click", () => {
+                    taskBinder.obj.dueDate = undefined
+                    editTaskContainer.removeAttribute("data-date")
+                    dateSelector.setAttribute("placeholder", "")
+                    dateDeleteButton.disabled = true
+                })
             }
 
             // Add other task parameters here
