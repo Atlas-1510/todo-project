@@ -380,6 +380,8 @@ export const runApp = () => {
 
                 List.updateTaskCounters()
                 contentController.refreshTopBar(listHash)
+                const datePickerActiveSquare = document.getElementsByClassName("qs-active")
+                datePickerActiveSquare[0].classList.remove("qs-active")
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
