@@ -29,7 +29,11 @@ export default class TaskBinder {
     // CHANGE handles transfer of data from object to node
     change() {
         const objectTitle = this.obj.title
-        const objectDueDate = format(this.obj.dueDate, "dd/MM/yy")
+        let objectDueDate
+        if (this.obj.dueDate) {
+            objectDueDate = format(this.obj.dueDate, "dd/MM/yy")
+        }
+
 
         this.node.querySelector(".taskDescription").textContent = objectTitle
         this.node.querySelector(".taskDueDate").textContent = objectDueDate

@@ -170,6 +170,10 @@ body {
     background-color: red;
 }
 
+.flaggedToggleActive {
+    background-color: blue;
+}
+
 
 #listsContainer {
     margin: 20px 10px 10px 10px;
@@ -371,7 +375,7 @@ body {
     text-align: center;
 }
 
-.taskInputContainer > div > form > div > .flag {
+.flagButton {
     background: url("./img/flag.svg");
     background-repeat: no-repeat;
     background-position: center;

@@ -92,6 +92,7 @@ export const runApp = () => {
                 title,
                 dueDate,
                 taskHash,
+                flagged: false,
                 scheduled: false,
             }
 
@@ -154,9 +155,14 @@ export const runApp = () => {
         function editTaskBinder(taskBinder, newTitle, newDate) {
 
             // Update the task object with the newly edited data
-            taskBinder.obj.title = newTitle
+            if (newTitle !== "") {
+                taskBinder.obj.title = newTitle
+                console.log(`NEW TITLE IS ${newTitle}`)
+            }
+
             if (!isNaN(newDate)) {
                 taskBinder.obj.dueDate = newDate
+                console.log(`NEW DATE IS ${newDate}`)
             }
 
             // Update the node with the newly edited data in the task object
@@ -277,6 +283,20 @@ export const runApp = () => {
             })
         })()
 
+        const flaggedButton = (() => {
+            const buttons = document.getElementsByClassName("flagButton")
+            for (let i = 0; i < buttons.length; i++) {
+                let button = buttons[i]
+                button.addEventListener("click", () => {
+                    if (button.dataset.flagged = false) {
+                        button.setAttribute("data-flagged", true)
+                    } else {
+                        button.setAttribute("data-flagged", false)
+                    }
+                })
+            }
+        })()
+
         const cancelButton = (() => {
             const button = document.getElementById("newItemAbort")
             button.addEventListener("click", function () {
@@ -306,7 +326,16 @@ export const runApp = () => {
                 // Get the edited form data
                 const completeBool = false // make this changeable later
                 const title = document.getElementById("editItemTitle").value
+
+                // Date
                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
+
+                // Flag
+                const flagButton = document.getElementById("editItemFlag")
+                if (flagButton.dataset.flagged) {
+                    taskBinder.obj.flagged = true
+                }
+                flagButton.removeAttribute("data-flagged")
 
                 // Update the taskBinder
                 TaskBinder.editTaskBinder(taskBinder, title, date)
@@ -334,6 +363,11 @@ export const runApp = () => {
                     taskObject.scheduled = true
                 }
                 document.getElementById("dateInput").setAttribute("data-date", NaN)
+                const flagButton = document.getElementById("newItemFlag")
+                if (flagButton.dataset.flagged) {
+                    taskObject.flagged = true
+                }
+                flagButton.removeAttribute("data-flagged")
                 const taskNode = TaskBinder.createTaskNode(taskObject)
                 const listHash = userContentContainer.dataset.activelist
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
@@ -389,6 +423,25 @@ export const runApp = () => {
                     button.classList.add("scheduledToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
                     Search.toggles.scheduled = true
+                }
+
+                const searchResults = Search.runSearch()
+                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
+            })
+        })()
+
+        const flaggedToggle = (() => {
+            const button = document.getElementById("flaggedToggle")
+            button.addEventListener("click", () => {
+                contentController.unloadLists()
+                if (button.classList.contains("flaggedToggleActive")) {
+                    button.classList.remove("flaggedToggleActive")
+                    Search.toggles.flagged = false
+
+                } else {
+                    button.classList.add("flaggedToggleActive")
+                    document.getElementById("listTitle").textContent = "Search"
+                    Search.toggles.flagged = true
                 }
 
                 const searchResults = Search.runSearch()
