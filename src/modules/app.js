@@ -218,6 +218,10 @@ export const runApp = () => {
                 Listeners.applyTaskListeners(taskBinder)
             })
 
+            // Hide the add task form
+
+            document.getElementById("lowerAddTask").style.display = "none"
+
             return searchResultObjects
         }
 
