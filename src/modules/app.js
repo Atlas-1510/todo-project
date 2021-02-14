@@ -310,70 +310,85 @@ export const runApp = () => {
                 const datePicker = datepicker(dateNode, {
                     formatter: (input, date) => {
                         input.value = format(date, "eee d/M/yy")
-                        dateNode.setAttribute("data-date", date)
                     },
                     onSelect: (instance, date) => {
 
                         // If in new task form or edit task form
                         const formType = instance.parent.parentNode.id
                         if (formType == "newTaskForm") {
-                            let dateDeleteButton = document.getElementById("dateDeleteButton")
-                            if (dateDeleteButton) {
-                                dateDeleteButton.disabled = false
-                                dateDeleteButton.checked = true
-                            } else {
-                                dateDeleteButton = document.createElement("input")
-                                dateDeleteButton.setAttribute("id", "dateDeleteButton")
-                                dateDeleteButton.type = "checkbox"
-                                dateDeleteButton.setAttribute("checked", "true")
-                                const newTaskSubContainer = document.getElementById("newTaskSubContainer")
-                                newTaskSubContainer.insertBefore(dateDeleteButton, document.getElementById("dateInput"))
-                                dateDeleteButton.addEventListener("click", () => {
-                                    console.log("click event on checkbox in NEW TASK FORM")
 
-                                    // get rid of stored date info
-                                    dateNode.removeAttribute("data-date")
-
-                                    // Reset the date picker
-                                    dateNode.value = "Add Date"
-                                    dateNode.setAttribute("placeholder", "")
-
-                                    // deactivate the checkbox
-                                    dateDeleteButton.checked = false
-                                    dateDeleteButton.disabled = true
-                                })
-                            }
-                        } else if (formType == "editTaskForm") {
-                            let dateDeleteButton = document.getElementById("dateDeleteButton")
-                            if (dateDeleteButton) {
-                                dateDeleteButton.disabled = false
-                                dateDeleteButton.checked = true
-                            } else {
-                                dateDeleteButton = document.createElement("input")
-                                dateDeleteButton.setAttribute("id", "dateDeleteButton")
-                                dateDeleteButton.type = "checkbox"
-                                dateDeleteButton.setAttribute("checked", "true")
-                                const editTaskSubContainer = document.getElementById("editTaskSubContainer")
-                                editTaskSubContainer.insertBefore(dateDeleteButton, document.getElementById("editDateInput"))
-                                dateDeleteButton.addEventListener("click", () => {
-                                    console.log("click event on checkbox activated")
-                                    // Need to get the task binder
-                                    const editTaskContainer = document.getElementById("editTaskContainer")
-                                    const taskHash = editTaskContainer.dataset.taskhash
-                                    console.log(`taskHash: ${taskHash}`)
-                                    const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
-                                    console.log(`taskBinder:`)
-                                    console.log(taskBinderInstance)
-                                    taskBinderInstance.obj.dueDate = NaN
-                                    console.log(`stored date is ${taskBinderInstance.obj.dueDate}`)
-                                    const dateSelector = document.getElementById("editDateInput")
-                                    dateSelector.removeAttribute("data-date")
-                                    dateSelector.value = ""
-                                    dateSelector.setAttribute("placeholder", "Add Date")
-                                    dateDeleteButton.disabled = true
-                                })
-                            }
+                            // Not clicking on the box, clicking on the date selector menu
+                            // If first click, there shouldn't be a data date attribute yet. toggle date on
+                            const newFormDateCheckBox = document.getElementById("newFormDateCheckBox")
+                            newFormDateCheckBox.style.display = "flex"
+                            newFormDateCheckBox.checked = true
+                            dateNode.setAttribute("data-date", date)
                         }
+
+
+
+                        // if (dateDeleteButton) {
+                        //     dateDeleteButton.disabled = false
+                        //     dateDeleteButton.checked = true
+                        // } else {
+                        //     dateDeleteButton = document.createElement("input")
+                        //     dateDeleteButton.setAttribute("id", "dateDeleteButton")
+                        //     dateDeleteButton.type = "checkbox"
+                        //     dateDeleteButton.setAttribute("checked", "true")
+                        //     const newTaskSubContainer = document.getElementById("newTaskSubContainer")
+                        //     newTaskSubContainer.insertBefore(dateDeleteButton, document.getElementById("dateInput"))
+                        //     dateDeleteButton.addEventListener("click", () => {
+                        //         console.log("click event on checkbox in NEW TASK FORM")
+
+                        //         // get rid of stored date info
+                        //         dateNode.removeAttribute("data-date")
+
+                        //         // Reset the date picker
+                        //         dateNode.value = "Add Date"
+                        //         dateNode.setAttribute("placeholder", "")
+
+                        //         // deactivate the checkbox
+                        //         dateDeleteButton.checked = false
+                        //         dateDeleteButton.disabled = true
+                        //     })
+                        // }
+                        // } else if (formType == "editTaskForm") {
+                        //     let dateDeleteButton = document.getElementById("dateDeleteButton")
+                        //     if (dateDeleteButton) {
+                        //         dateDeleteButton.disabled = false
+                        //         dateDeleteButton.checked = true
+                        //     } else {
+                        //         dateDeleteButton = document.createElement("input")
+                        //         dateDeleteButton.setAttribute("id", "dateDeleteButton")
+                        //         dateDeleteButton.type = "checkbox"
+                        //         dateDeleteButton.setAttribute("checked", "true")
+                        //         const editTaskSubContainer = document.getElementById("editTaskSubContainer")
+                        //         editTaskSubContainer.insertBefore(dateDeleteButton, document.getElementById("editDateInput"))
+                        //         dateDeleteButton.addEventListener("click", () => {
+                        //             console.log("click event on checkbox activated")
+                        //             // Need to get the task binder
+                        //             const editTaskContainer = document.getElementById("editTaskContainer")
+                        //             const taskHash = editTaskContainer.dataset.taskhash
+                        //             console.log(`taskHash: ${taskHash}`)
+                        //             const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
+                        //             console.log(`taskBinder:`)
+                        //             console.log(taskBinderInstance)
+                        //             taskBinderInstance.obj.dueDate = NaN
+                        //             taskBinderInstance.obj.scheduled = false
+                        //             console.log("taskbinder object:")
+                        //             console.log(taskBinderInstance.obj)
+                        //             console.log(`stored date is ${taskBinderInstance.obj.dueDate}`)
+                        //             const dateSelector = document.getElementById("editDateInput")
+                        //             dateSelector.removeAttribute("data-date")
+                        //             dateSelector.value = ""
+                        //             dateSelector.setAttribute("placeholder", "Add Date")
+                        //             dateDeleteButton.disabled = true
+                        //         })
+                        // }
+                        // }
+
+
+
                     }
                 })
             })
@@ -443,10 +458,11 @@ export const runApp = () => {
 
                 // Date
                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
+                removeEditFormCheckBoxListener
 
-                if (document.getElementById("dateDeleteButton")) {
-                    document.getElementById("dateDeleteButton").remove()
-                }
+                // if (document.getElementById("dateDeleteButton")) {
+                //     document.getElementById("dateDeleteButton").remove()
+                // }
 
                 // Flag
                 const flagButton = document.getElementById("editItemFlag")
@@ -481,6 +497,7 @@ export const runApp = () => {
                     taskObject.scheduled = true
                 }
                 document.getElementById("dateInput").setAttribute("data-date", NaN)
+                document.getElementById("newFormDateCheckBox").style.display = "none"
                 const flagButton = document.getElementById("newItemFlag")
                 if (flagButton.dataset.flagged) {
                     taskObject.flagged = true
@@ -598,6 +615,63 @@ export const runApp = () => {
                 document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
             })
         })()
+
+        const dateCheckBox = (() => {
+
+            // Listener for the date deselector checkbox in the new task form
+            // This listener is activated when clicked on to remove a previously selected date
+            const newForm = (() => {
+                const newFormDateCheckBox = document.getElementById("newFormDateCheckBox")
+                const newFormDateSelector = document.getElementById("dateInput")
+                newFormDateCheckBox.addEventListener("click", () => {
+                    newFormDateSelector.value = ""
+                    newFormDateSelector.setAttribute("placeholder", "Add Date")
+                    newFormDateSelector.removeAttribute("data-date")
+                    newFormDateCheckBox.style.display = "none"
+                })
+            })()
+        })()
+
+
+
+
+        //     const loadEditFormCheckBox = (taskbinder, dateSelector) => {
+
+        //         const dateDeleteButton = document.getElementById("editFormDateDeleteButton")
+        //         dateDeleteButton.style.display = "flex"
+        //         dateDeleteButton.checked = true
+        //         dateDeleteButton.addEventListener("click", () => {
+
+        //             taskbinder.obj.dueDate = NaN
+        //             taskbinder.obj.scheduled = false
+        //             dateSelector.removeAttribute("data-date")
+        //             dateSelector.value = ""
+        //             dateSelector.setAttribute("placeholder", "Add Date")
+        //             dateDeleteButton.style.display = "none"
+
+
+        //             // dateDeleteButton.addEventListener("click", () => {
+        //             //     console.log("click event on checkbox activated")
+        //             //     dateDeleteButton.style.display = "none"
+        //             //     taskBinder.obj.dueDate = NaN
+        //             //     taskBinder.obj.scheduled = false
+        //             //     console.log(`stored date is ${taskBinder.obj.dueDate}`)
+        //             //     dateSelector.removeAttribute("data-date")
+        //             //     dateSelector.value = ""
+        //             //     dateSelector.setAttribute("placeholder", "Add Date")
+        //             //     dateDeleteButton.disabled = true
+        //             // })
+
+        //         })
+        //     }
+
+        //     const removeEditFormCheckBoxListener = () => {
+        //         const dateDeleteButton = document.getElementById("editFormDateDeleteButton")
+        //         dateDeleteButton.removeEventListener("click")
+        //     }
+
+        //     return { loadEditFormCheckBox, removeEditFormCheckBoxListener }
+        // })()
 
         return { applyTaskListeners, applyListListeners }
 
@@ -721,21 +795,7 @@ export const runApp = () => {
                 const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
                 dateSelector.setAttribute("placeholder", priorDate)
                 // Optional button to remove date entirely
-                const dateDeleteButton = document.createElement("input")
-                dateDeleteButton.setAttribute("id", "dateDeleteButton")
-                dateDeleteButton.type = "checkbox"
-                dateDeleteButton.setAttribute("checked", "true")
-                const editTaskSubContainer = document.getElementById("editTaskSubContainer")
-                editTaskSubContainer.insertBefore(dateDeleteButton, document.getElementById("editDateInput"))
-                dateDeleteButton.addEventListener("click", () => {
-                    console.log("click event on checkbox activated")
-                    taskBinder.obj.dueDate = NaN
-                    console.log(`stored date is ${taskBinder.obj.dueDate}`)
-                    dateSelector.removeAttribute("data-date")
-                    dateSelector.value = ""
-                    dateSelector.setAttribute("placeholder", "Add Date")
-                    dateDeleteButton.disabled = true
-                })
+                Listeners.dateCheckBox.loadEditFormCheckBox(taskBinder, dateSelector)
             }
 
             // Flag
