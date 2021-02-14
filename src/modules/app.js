@@ -182,34 +182,48 @@ export const runApp = () => {
         }
 
         function runSearch() {
-            const searchParameters = []
-
-            for (const [key, value] of Object.entries(toggles)) {
-                if (value) {
-                    searchParameters.push(key)
-                }
-            }
 
             // Get a list of all the task objects that fit the search requirements
             const searchResultObjects = []
-            // Iterate over each list in listStorage
-            List.ListStorage.forEach((listContainer) => {
-                const list = listContainer.list
-                // Iterate over each task in list
-                list.forEach((task) => {
-                    let shouldAddThisOne = true
-                    // Iterate over each search parameter
-                    for (let i = 0; i < searchParameters.length; i++) {
-                        if (task[searchParameters[i]] != true) {
-                            shouldAddThisOne = false
-                        }
-                    }
 
-                    if (shouldAddThisOne) {
+            if (toggles.all) {
+                // Iterate over each list in listStorage
+                List.ListStorage.forEach((listContainer) => {
+                    const list = listContainer.list
+                    // Iterate over each task in list
+                    list.forEach((task) => {
                         searchResultObjects.push(task)
-                    }
+                    })
                 })
-            })
+            }
+            else {
+                const searchParameters = []
+
+                for (const [key, value] of Object.entries(toggles)) {
+                    if (value) {
+                        searchParameters.push(key)
+                    }
+                }
+
+                // Iterate over each list in listStorage
+                List.ListStorage.forEach((listContainer) => {
+                    const list = listContainer.list
+                    // Iterate over each task in list
+                    list.forEach((task) => {
+                        let shouldAddThisOne = true
+                        // Iterate over each search parameter
+                        for (let i = 0; i < searchParameters.length; i++) {
+                            if (task[searchParameters[i]] != true) {
+                                shouldAddThisOne = false
+                            }
+                        }
+
+                        if (shouldAddThisOne) {
+                            searchResultObjects.push(task)
+                        }
+                    })
+                })
+            }
 
             searchResultObjects.forEach((taskObject) => {
                 const listHash = 'searchResults'
@@ -525,6 +539,25 @@ export const runApp = () => {
                     button.classList.add("flaggedToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
                     Search.toggles.flagged = true
+                }
+
+                const searchResults = Search.runSearch()
+                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
+            })
+        })()
+
+        const allToggle = (() => {
+            const button = document.getElementById("allToggle")
+            button.addEventListener("click", () => {
+                contentController.unloadLists()
+                if (button.classList.contains("allToggleActive")) {
+                    button.classList.remove("allToggleActive")
+                    Search.toggles.all = false
+                }
+                else {
+                    button.classList.add("allToggleActive")
+                    document.getElementById("listTitle").textContent = "Search"
+                    Search.toggles.all = true
                 }
 
                 const searchResults = Search.runSearch()
