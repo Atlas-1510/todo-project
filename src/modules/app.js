@@ -14,6 +14,7 @@ import filledSquareIcon from "../img/square-fill.svg"
 import pencilSquareIcon from "../img/pencil-square.svg"
 import trashIcon from "../img/trash.svg"
 import addIcon from "../img/plus-square.svg"
+import flagIcon from "../img/flag.svg"
 
 export const runApp = () => {
 
@@ -118,10 +119,18 @@ export const runApp = () => {
                 date = format(date, "dd/MM/yy")
                 taskDueDate.textContent = date
             }
+
             const editTaskIcon = createNode("img", taskNode, "", "editTaskIcon")
             editTaskIcon.src = pencilSquareIcon
             const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
             deleteTaskIcon.src = trashIcon
+
+            if (taskObject.flagged) {
+                // Create a flag icon on the task here
+                const flagNode = createNode("img", taskNode, "", "taskFlagIcon")
+                flagNode.src = flagIcon
+                taskNode.insertBefore(flagNode, editTaskIcon)
+            }
 
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
             taskNode.setAttribute("data-hash", taskObject.hash)
@@ -152,7 +161,7 @@ export const runApp = () => {
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
         }
 
-        function editTaskBinder(taskBinder, newTitle, newDate) {
+        function editTaskBinder(taskBinder, newTitle, newDate, flagToggle) {
 
             // Update the task object with the newly edited data
             if (newTitle !== "") {
@@ -163,6 +172,11 @@ export const runApp = () => {
             if (!isNaN(newDate)) {
                 taskBinder.obj.dueDate = newDate
                 console.log(`NEW DATE IS ${newDate}`)
+            }
+
+            if (taskBinder.obj.flagged != flagToggle) {
+                taskBinder.obj.flagged = flagToggle
+                console.log(`NEW FLAG IS ${flagToggle}`)
             }
 
             // Update the node with the newly edited data in the task object
@@ -374,15 +388,24 @@ export const runApp = () => {
             })
         })()
 
-        const flaggedButton = (() => {
+        const flagButtons = (() => {
             const buttons = document.getElementsByClassName("flagButton")
             for (let i = 0; i < buttons.length; i++) {
                 let button = buttons[i]
                 button.addEventListener("click", () => {
-                    if (button.dataset.flagged = false) {
-                        button.setAttribute("data-flagged", true)
+                    console.log("FLAGBUTTONS SECTION")
+                    console.log(`data-flagged: ${button.dataset.flagged}`)
+                    console.log(`typeof data-flagged: ${typeof button.dataset.flagged}`)
+                    if (button.dataset.flagged == undefined) {
+                        button.setAttribute("data-flagged", "true")
+                        console.log("this task has been flagged")
+                        button.classList.add("flagActive")
+                    } else if (button.dataset.flagged == "true") {
+                        button.removeAttribute("data-flagged")
+                        button.classList.remove("flagActive")
+                        console.log("this task has been un-flagged")
                     } else {
-                        button.setAttribute("data-flagged", false)
+                        console.log("flag error")
                     }
                 })
             }
@@ -427,13 +450,13 @@ export const runApp = () => {
 
                 // Flag
                 const flagButton = document.getElementById("editItemFlag")
-                if (flagButton.dataset.flagged) {
-                    taskBinder.obj.flagged = true
-                }
+                const flagToggle = (flagButton.dataset.flagged == "true")
+                console.log(`editTaskSubmit - flagToggle: ${flagToggle}`)
                 flagButton.removeAttribute("data-flagged")
+                flagButton.classList.remove("flagActive")
 
                 // Update the taskBinder
-                TaskBinder.editTaskBinder(taskBinder, title, date)
+                TaskBinder.editTaskBinder(taskBinder, title, date, flagToggle)
 
                 // Reset and hide the form
                 document.getElementById("editTaskForm").reset()
@@ -463,6 +486,8 @@ export const runApp = () => {
                     taskObject.flagged = true
                 }
                 flagButton.removeAttribute("data-flagged")
+                flagButton.classList.remove("flagActive")
+
                 const taskNode = TaskBinder.createTaskNode(taskObject)
                 const listHash = userContentContainer.dataset.activelist
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
@@ -711,6 +736,13 @@ export const runApp = () => {
                     dateSelector.setAttribute("placeholder", "Add Date")
                     dateDeleteButton.disabled = true
                 })
+            }
+
+            // Flag
+            if (taskBinder.obj.flagged) {
+                const flagButton = document.getElementById("editItemFlag")
+                flagButton.setAttribute("data-flagged", true)
+                flagButton.classList.add("flagActive")
             }
 
             // Add other task parameters here

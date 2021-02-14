@@ -364,7 +364,14 @@ body {
     margin-right: 8px;
     border-radius: 4px;
     border: 0;
+}
+
+.formInput {
     background-color: lightgray;
+}
+
+.formInput:focus {
+    outline: none;
 }
 
 #dateDeleteButton {
@@ -388,13 +395,17 @@ body {
     background: url("./img/flag.svg");
     background-repeat: no-repeat;
     background-position: center;
+    background-color: lightgray;
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
     position: relative;
     bottom: 2px;
-    background-color: lightgray;
+}
+
+.flagActive {
+    background-color: orange;
 }
 
 .submitButton {
