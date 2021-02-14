@@ -259,6 +259,7 @@ export const runApp = () => {
                 contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
                 contentController.refreshTopBar(listBinder.listHash)
+                document.getElementById("lowerAddTask").style.display = "flex"
             })
         }
 
@@ -452,9 +453,12 @@ export const runApp = () => {
                     datePickerActiveSquare[0].classList.remove("qs-active")
                 }
 
-                document.getElementById("dateDeleteButton").remove()
-
-
+                if (document.getElementById("dateDeleteButton")) {
+                    document.getElementById("dateDeleteButton").remove()
+                }
+                document.getElementById("dateInput").value = ""
+                document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
+                console.log(document.getElementById("dateInput"))
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")

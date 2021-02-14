@@ -363,6 +363,11 @@ body {
     background-color: lightgray;
 }
 
+#dateDeleteButton {
+    position: relative;
+    top: 6px;
+}
+
 .date {
     width: 80px;
     text-align: center;
