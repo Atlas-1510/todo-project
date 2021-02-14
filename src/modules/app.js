@@ -338,10 +338,10 @@ export const runApp = () => {
                                     console.log(taskBinderInstance)
                                     taskBinderInstance.obj.dueDate = NaN
                                     console.log(`stored date is ${taskBinderInstance.obj.dueDate}`)
-                                    const dateSelector = editTaskContainer.querySelector("#editDateInput")
+                                    const dateSelector = document.getElementById("editDateInput")
                                     dateSelector.removeAttribute("data-date")
                                     dateSelector.value = ""
-                                    dateSelector.setAttribute("placeholder", "")
+                                    dateSelector.setAttribute("placeholder", "Add Date")
                                     dateDeleteButton.disabled = true
                                 })
                             }
