@@ -415,26 +415,49 @@ export const runApp = () => {
         })()
 
         const flagButtons = (() => {
+
             const buttons = document.getElementsByClassName("flagButton")
             for (let i = 0; i < buttons.length; i++) {
                 let button = buttons[i]
                 button.addEventListener("click", () => {
-                    console.log("FLAGBUTTONS SECTION")
-                    console.log(`data-flagged: ${button.dataset.flagged}`)
-                    console.log(`typeof data-flagged: ${typeof button.dataset.flagged}`)
-                    if (button.dataset.flagged == undefined) {
-                        button.setAttribute("data-flagged", "true")
-                        console.log("this task has been flagged")
-                        button.classList.add("flagActive")
-                    } else if (button.dataset.flagged == "true") {
-                        button.removeAttribute("data-flagged")
+                    // get current state in BOOLEAN
+                    const priorFlagState = (button.dataset.flagged == "true")
+                    // swap to new state
+                    if (priorFlagState) {
+                        // If it was already flagged, turn flag off
                         button.classList.remove("flagActive")
-                        console.log("this task has been un-flagged")
-                    } else {
-                        console.log("flag error")
-                    }
+                        button.setAttribute("data-flagged", false)
+                    } else if (!priorFlagState) {
+                        // If it wasn't flagged
+                        button.classList.add("flagActive")
+                        button.setAttribute("data-flagged", true)
+                    } else (
+                        console.log("FLAG ERROR")
+                    )
                 })
             }
+
+
+            // const buttons = document.getElementsByClassName("flagButton")
+            // for (let i = 0; i < buttons.length; i++) {
+            //     let button = buttons[i]
+            //     button.addEventListener("click", () => {
+            //         console.log("FLAGBUTTONS SECTION")
+            //         console.log(`data-flagged: ${button.dataset.flagged}`)
+            //         console.log(`typeof data-flagged: ${typeof button.dataset.flagged}`)
+            //         if (button.dataset.flagged == undefined) {
+            //             button.setAttribute("data-flagged", "true")
+            //             console.log("this task has been flagged")
+            //             button.classList.add("flagActive")
+            //         } else if (button.dataset.flagged == "true") {
+            //             button.removeAttribute("data-flagged")
+            //             button.classList.remove("flagActive")
+            //             console.log("this task has been un-flagged")
+            //         } else {
+            //             console.log("flag error")
+            //         }
+            //     })
+            // }
         })()
 
         const cancelButton = (() => {

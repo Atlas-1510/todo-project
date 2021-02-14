@@ -374,7 +374,7 @@ body {
     outline: none;
 }
 
-#dateDeleteButton {
+.dateCheckBox {
     position: relative;
     top: 6px;
 }
@@ -406,6 +406,10 @@ body {
 
 .flagActive {
     background-color: orange;
+}
+
+.taskFlagIcon {
+    margin-left: 5px;
 }
 
 .submitButton {
