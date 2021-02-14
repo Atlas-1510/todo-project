@@ -169,9 +169,13 @@ export const runApp = () => {
                 console.log(`NEW TITLE IS ${newTitle}`)
             }
 
+            taskBinder.obj.dueDate = newDate
+
             if (!isNaN(newDate)) {
-                taskBinder.obj.dueDate = newDate
+                taskBinder.obj.scheduled = true
                 console.log(`NEW DATE IS ${newDate}`)
+            } else {
+                taskBinder.obj.scheduled = false
             }
 
             if (taskBinder.obj.flagged != flagToggle) {
@@ -317,12 +321,19 @@ export const runApp = () => {
                         const formType = instance.parent.parentNode.id
                         if (formType == "newTaskForm") {
 
-                            // Not clicking on the box, clicking on the date selector menu
+                            // Not clicking on the checkbox, clicking on the date selector menu
                             // If first click, there shouldn't be a data date attribute yet. toggle date on
+                            dateNode.setAttribute("data-date", date)
                             const newFormDateCheckBox = document.getElementById("newFormDateCheckBox")
                             newFormDateCheckBox.style.display = "flex"
                             newFormDateCheckBox.checked = true
+                        }
+
+                        else if (formType == "editTaskForm") {
                             dateNode.setAttribute("data-date", date)
+                            const editFormDateCheckBox = document.getElementById("editFormDateDeleteButton")
+                            editFormDateCheckBox.style.display = "flex"
+                            editFormDateCheckBox.checked = true
                         }
 
 
@@ -458,11 +469,8 @@ export const runApp = () => {
 
                 // Date
                 const date = Date.parse(document.getElementById("editDateInput").dataset.date)
-                removeEditFormCheckBoxListener
-
-                // if (document.getElementById("dateDeleteButton")) {
-                //     document.getElementById("dateDeleteButton").remove()
-                // }
+                console.log(`edit task submit - value passed to editTaskBinder is: ${date} `)
+                console.log(`typeof: ${typeof date}`)
 
                 // Flag
                 const flagButton = document.getElementById("editItemFlag")
@@ -498,6 +506,9 @@ export const runApp = () => {
                 }
                 document.getElementById("dateInput").setAttribute("data-date", NaN)
                 document.getElementById("newFormDateCheckBox").style.display = "none"
+
+
+
                 const flagButton = document.getElementById("newItemFlag")
                 if (flagButton.dataset.flagged) {
                     taskObject.flagged = true
@@ -629,6 +640,18 @@ export const runApp = () => {
                     newFormDateSelector.removeAttribute("data-date")
                     newFormDateCheckBox.style.display = "none"
                 })
+            })()
+
+            const editForm = (() => {
+                const editFormDateCheckBox = document.getElementById("editFormDateDeleteButton")
+                const editDateInput = document.getElementById("editDateInput")
+                editFormDateCheckBox.addEventListener("click", () => {
+                    editDateInput.value = ""
+                    editDateInput.setAttribute("placeholder", "Add Date")
+                    editDateInput.removeAttribute("data-date")
+                    editFormDateCheckBox.style.display = "none"
+                })
+
             })()
         })()
 
@@ -794,8 +817,10 @@ export const runApp = () => {
             if (!isNaN(taskBinder.obj.dueDate)) {
                 const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
                 dateSelector.setAttribute("placeholder", priorDate)
-                // Optional button to remove date entirely
-                Listeners.dateCheckBox.loadEditFormCheckBox(taskBinder, dateSelector)
+                dateSelector.setAttribute("data-date", taskBinder.obj.dueDate)
+                const editDateCheckBox = document.getElementById("editFormDateDeleteButton")
+                editDateCheckBox.style.display = "flex"
+                editDateCheckBox.checked = true
             }
 
             // Flag
