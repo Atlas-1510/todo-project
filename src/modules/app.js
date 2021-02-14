@@ -365,6 +365,15 @@ export const runApp = () => {
             })
         })()
 
+        const locationButton = (() => {
+            const buttons = document.querySelectorAll(".location")
+            buttons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    alert("The location feature has not yet been implemented. Try choosing a date or flagging this task instead :)")
+                })
+            })
+        })()
+
         const flaggedButton = (() => {
             const buttons = document.getElementsByClassName("flagButton")
             for (let i = 0; i < buttons.length; i++) {
