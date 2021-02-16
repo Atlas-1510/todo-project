@@ -289,10 +289,8 @@ export const runApp = () => {
                     }
                     if (Render.renderAddTaskForm.newFormActive) {
                         Render.renderAddTaskForm.hide()
-                        Render.renderAddTaskForm.newFormActive = false
                     }
                     Render.renderEditTaskForm.show(taskBinder)
-                    Render.renderEditTaskForm.editFormActive = true
                     Render.renderAddListForm.hide()
                 })
             }
@@ -305,6 +303,8 @@ export const runApp = () => {
             const node = listBinder.node
             node.addEventListener("click", function () {
                 Render.renderAddListForm.hide()
+                Render.renderAddTaskForm.hide()
+                Render.renderEditTaskForm.hide()
                 contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
                 contentController.refreshTopBar(listBinder.listHash)
@@ -336,14 +336,12 @@ export const runApp = () => {
 
                     if (Render.renderEditTaskForm.editFormActive) {
                         Render.renderEditTaskForm.hide()
-                        Render.renderEditTaskForm.editFormActive = false
                     }
 
                     if (Render.newFormActive) {
                         Render.renderAddTaskForm.hide()
                     }
                     Render.renderAddTaskForm.show()
-                    Render.renderAddTaskForm.newFormActive = true
                     Render.renderAddListForm.hide()
                 })
             }
@@ -758,9 +756,11 @@ export const runApp = () => {
                 form.style.display = "flex"
                 lowerAddButton.style.display = "none"
                 inputFocus.focus()
+                newFormActive = true
             }
 
             function hide() {
+                newFormActive = false
                 form.style.display = "none"
                 lowerAddButton.style.display = "flex"
                 // Move the 'Add Task' button to the end of the user content container, after the new task item
@@ -819,15 +819,16 @@ export const runApp = () => {
 
             function hide() {
 
-                editFormActive = false
+                if (editFormActive) {
+                    editFormActive = false
+                    const taskHash = editTaskContainer.dataset.taskhash
+                    const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
+                    taskBinderInstance.node.style.display = "flex"
 
-                const taskHash = editTaskContainer.dataset.taskhash
-                const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
-                taskBinderInstance.node.style.display = "flex"
-
-                editTaskContainer.style.display = "none"
-                editTaskContainer.removeAttribute("data-taskHash")
-                editTaskContainer.removeAttribute("data-listHash")
+                    editTaskContainer.style.display = "none"
+                    editTaskContainer.removeAttribute("data-taskHash")
+                    editTaskContainer.removeAttribute("data-listHash")
+                }
             }
 
             return { show, hide, editFormActive }
