@@ -319,18 +319,19 @@ export const runApp = () => {
 
                         // If in new task form or edit task form
                         const formType = instance.parent.parentNode.id
+                        const parsedDate = Date.parse(date)
                         if (formType == "newTaskForm") {
 
                             // Not clicking on the checkbox, clicking on the date selector menu
                             // If first click, there shouldn't be a data date attribute yet. toggle date on
-                            dateNode.setAttribute("data-date", date)
+                            dateNode.setAttribute("data-date", parsedDate)
                             const newFormDateCheckBox = document.getElementById("newFormDateCheckBox")
                             newFormDateCheckBox.style.display = "flex"
                             newFormDateCheckBox.checked = true
                         }
 
                         else if (formType == "editTaskForm") {
-                            dateNode.setAttribute("data-date", date)
+                            dateNode.setAttribute("data-date", parsedDate)
                             const editFormDateCheckBox = document.getElementById("editFormDateDeleteButton")
                             editFormDateCheckBox.style.display = "flex"
                             editFormDateCheckBox.checked = true
@@ -491,9 +492,12 @@ export const runApp = () => {
                 const title = document.getElementById("editItemTitle").value
 
                 // Date
-                const date = Date.parse(document.getElementById("editDateInput").dataset.date)
-                console.log(`edit task submit - value passed to editTaskBinder is: ${date} `)
-                console.log(`typeof: ${typeof date}`)
+                const dateInput = document.getElementById("editDateInput")
+                const date = parseInt(dateInput.dataset.date)
+                dateInput.removeAttribute("data-date")
+                dateInput.setAttribute("placeholder", "Add Date")
+                document.getElementById("editFormDateDeleteButton").style.display = "none"
+
 
                 // Flag
                 const flagButton = document.getElementById("editItemFlag")
@@ -521,7 +525,8 @@ export const runApp = () => {
             // Function to handle submission of form input into new task binder
             function submitNewTask() {
                 const title = document.getElementById("newItemTitle").value
-                const date = Date.parse(document.getElementById("dateInput").dataset.date)
+                const storedDateValue = parseInt(document.getElementById("dateInput").dataset.date)
+                const date = storedDateValue
                 const completeBool = false // make this changeable later
                 const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
                 if (!isNaN(date)) {
