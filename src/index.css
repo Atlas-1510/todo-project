@@ -178,6 +178,10 @@ body {
     background-color: orange;
 }
 
+.todayToggleActive {
+    background-color: lightgreen;
+}
+
 
 #listsContainer {
     margin: 20px 10px 10px 10px;

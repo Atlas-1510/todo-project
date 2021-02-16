@@ -1,6 +1,7 @@
 // Foreign modules
 import add from 'date-fns/add'
 import format from 'date-fns/format'
+import isToday from 'date-fns/isToday'
 import datepicker from 'js-datepicker'
 // Helper home-made modules
 import createNode from "./createNode"
@@ -214,6 +215,9 @@ export const runApp = () => {
                     })
                 })
             }
+
+            // today search goes here. But how to fit in If/Else logic?
+
             else {
                 const searchParameters = []
 
@@ -231,7 +235,16 @@ export const runApp = () => {
                         let shouldAddThisOne = true
                         // Iterate over each search parameter
                         for (let i = 0; i < searchParameters.length; i++) {
-                            if (task[searchParameters[i]] != true) {
+
+                            // If the search parameter is 'today', do something different
+                            if (searchParameters[i] == "today") {
+                                // get number of milliseconds today
+                                console.log(task.dueDate)
+                                console.log(isToday(task.dueDate))
+                                if (!isToday(task.dueDate)) {
+                                    shouldAddThisOne = false
+                                }
+                            } else if (task[searchParameters[i]] != true) {
                                 shouldAddThisOne = false
                             }
                         }
@@ -561,6 +574,25 @@ export const runApp = () => {
                     button.classList.add("allToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
                     Search.toggles.all = true
+                }
+
+                const searchResults = Search.runSearch()
+                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
+            })
+        })()
+
+        const todayToggle = (() => {
+            const button = document.getElementById("todayToggle")
+            button.addEventListener("click", () => {
+                contentController.unloadLists()
+                if (button.classList.contains("todayToggleActive")) {
+                    button.classList.remove("todayToggleActive")
+                    Search.toggles.today = false
+                }
+                else {
+                    button.classList.add("todayToggleActive")
+                    document.getElementById("listTitle").textContent = "Search"
+                    Search.toggles.today = true
                 }
 
                 const searchResults = Search.runSearch()
