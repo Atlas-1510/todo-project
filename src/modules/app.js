@@ -167,21 +167,18 @@ export const runApp = () => {
             // Update the task object with the newly edited data
             if (newTitle !== "") {
                 taskBinder.obj.title = newTitle
-                console.log(`NEW TITLE IS ${newTitle}`)
             }
 
             taskBinder.obj.dueDate = newDate
 
             if (!isNaN(newDate)) {
                 taskBinder.obj.scheduled = true
-                console.log(`NEW DATE IS ${newDate}`)
             } else {
                 taskBinder.obj.scheduled = false
             }
 
             if (taskBinder.obj.flagged != flagToggle) {
                 taskBinder.obj.flagged = flagToggle
-                console.log(`NEW FLAG IS ${flagToggle}`)
             }
 
             // Update the node with the newly edited data in the task object
@@ -238,9 +235,6 @@ export const runApp = () => {
 
                             // If the search parameter is 'today', do something different
                             if (searchParameters[i] == "today") {
-                                // get number of milliseconds today
-                                console.log(task.dueDate)
-                                console.log(isToday(task.dueDate))
                                 if (!isToday(task.dueDate)) {
                                     shouldAddThisOne = false
                                 }
@@ -290,7 +284,16 @@ export const runApp = () => {
                 const button = taskBinder.node.querySelector(".editTaskIcon")
                 button.addEventListener("click", () => {
                     taskBinder.node.style.display = "none"
-                    Render.renderEditTaskForm(taskBinder)
+                    if (Render.renderEditTaskForm.editFormActive) {
+                        Render.renderEditTaskForm.hide()
+                    }
+                    if (Render.renderAddTaskForm.newFormActive) {
+                        Render.renderAddTaskForm.hide()
+                        Render.renderAddTaskForm.newFormActive = false
+                    }
+                    Render.renderEditTaskForm.show(taskBinder)
+                    Render.renderEditTaskForm.editFormActive = true
+                    Render.renderAddListForm.hide()
                 })
             }
 
@@ -301,6 +304,7 @@ export const runApp = () => {
         function applyListListeners(listBinder) {
             const node = listBinder.node
             node.addEventListener("click", function () {
+                Render.renderAddListForm.hide()
                 contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
                 contentController.refreshTopBar(listBinder.listHash)
@@ -310,14 +314,38 @@ export const runApp = () => {
 
         const addListButton = (() => {
             const button = document.getElementById("addListButton")
-            button.addEventListener("click", function () { Render.renderAddListForm.show() })
+            button.addEventListener("click", function () {
+                Render.renderAddListForm.show()
+                if (Render.renderEditTaskForm.editFormActive) {
+                    Render.renderEditTaskForm.hide()
+                    Render.renderEditTaskForm.editFormActive = false
+                }
+                if (Render.renderAddTaskForm.newFormActive) {
+                    Render.renderAddTaskForm.hide()
+                    Render.renderAddTaskForm.newFormActive = false
+                }
+
+            })
         })()
 
         const addTaskButtons = (() => {
             const buttons = document.getElementsByClassName("addTaskButton")
             for (let i = 0; i < buttons.length; i++) {
                 const button = buttons[i]
-                button.addEventListener("click", function () { Render.renderAddTaskForm.show() })
+                button.addEventListener("click", function () {
+
+                    if (Render.renderEditTaskForm.editFormActive) {
+                        Render.renderEditTaskForm.hide()
+                        Render.renderEditTaskForm.editFormActive = false
+                    }
+
+                    if (Render.newFormActive) {
+                        Render.renderAddTaskForm.hide()
+                    }
+                    Render.renderAddTaskForm.show()
+                    Render.renderAddTaskForm.newFormActive = true
+                    Render.renderAddListForm.hide()
+                })
             }
         })()
 
@@ -380,18 +408,29 @@ export const runApp = () => {
                         // If it wasn't flagged
                         button.classList.add("flagActive")
                         button.setAttribute("data-flagged", true)
-                    } else (
-                        console.log("FLAG ERROR")
-                    )
+                    }
                 })
             }
         })()
 
         const cancelButton = (() => {
-            const button = document.getElementById("newItemAbort")
-            button.addEventListener("click", function () {
+            const newTaskButton = document.getElementById("newItemAbort")
+            newTaskButton.addEventListener("click", function () {
                 document.getElementById("newTaskForm").reset()
                 Render.renderAddTaskForm.hide()
+            })
+
+            const editTaskButton = document.getElementById("editTaskAbort")
+            editTaskButton.addEventListener("click", function () {
+                document.getElementById("editTaskForm").reset()
+                Render.renderEditTaskForm.hide()
+                Render.renderEditTaskForm.editFormActive = false
+            })
+
+            const newListAbortButton = document.getElementById("newListAbort")
+            newListAbortButton.addEventListener("click", function () {
+                document.getElementById("newListForm").reset()
+                document.getElementById("newListContainer").style.display = "none"
             })
         })()
 
@@ -428,7 +467,6 @@ export const runApp = () => {
                 // Flag
                 const flagButton = document.getElementById("editItemFlag")
                 const flagToggle = (flagButton.dataset.flagged == "true")
-                console.log(`editTaskSubmit - flagToggle: ${flagToggle}`)
                 flagButton.removeAttribute("data-flagged")
                 flagButton.classList.remove("flagActive")
 
@@ -488,7 +526,6 @@ export const runApp = () => {
                 }
                 document.getElementById("dateInput").value = ""
                 document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
-                console.log(document.getElementById("dateInput"))
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -715,6 +752,8 @@ export const runApp = () => {
             const lowerAddButton = document.getElementById("lowerAddTask")
             const inputFocus = document.getElementById("newItemTitle")
 
+            let newFormActive = false
+
             function show() {
                 form.style.display = "flex"
                 lowerAddButton.style.display = "none"
@@ -731,46 +770,68 @@ export const runApp = () => {
                 newItem.parentNode.insertBefore(form, newItem.nextSibling)
             }
 
-            return { show, hide }
+            return { show, hide, newFormActive }
 
         })()
 
-        const renderEditTaskForm = (taskBinder) => {
+        const renderEditTaskForm = (() => {
+
             const editTaskContainer = document.querySelector("#editTaskContainer")
-            userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
 
-            // Title
-            const titleSelector = editTaskContainer.querySelector("#editItemTitle")
-            const priorTitle = taskBinder.obj.title
-            titleSelector.setAttribute("placeholder", priorTitle)
+            let editFormActive = false
 
-            // Date
-            const dateSelector = editTaskContainer.querySelector("#editDateInput")
-            if (!isNaN(taskBinder.obj.dueDate)) {
-                const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
-                dateSelector.setAttribute("placeholder", priorDate)
-                dateSelector.setAttribute("data-date", taskBinder.obj.dueDate)
-                const editDateCheckBox = document.getElementById("editFormDateDeleteButton")
-                editDateCheckBox.style.display = "flex"
-                editDateCheckBox.checked = true
+            function show(taskBinder) {
+
+                editFormActive = true
+
+                userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+
+                // Title
+                const titleSelector = editTaskContainer.querySelector("#editItemTitle")
+                const priorTitle = taskBinder.obj.title
+                titleSelector.setAttribute("placeholder", priorTitle)
+
+                // Date
+                const dateSelector = editTaskContainer.querySelector("#editDateInput")
+                if (!isNaN(taskBinder.obj.dueDate)) {
+                    const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+                    dateSelector.setAttribute("placeholder", priorDate)
+                    dateSelector.setAttribute("data-date", taskBinder.obj.dueDate)
+                    const editDateCheckBox = document.getElementById("editFormDateDeleteButton")
+                    editDateCheckBox.style.display = "flex"
+                    editDateCheckBox.checked = true
+                }
+
+                // Flag
+                if (taskBinder.obj.flagged) {
+                    const flagButton = document.getElementById("editItemFlag")
+                    flagButton.setAttribute("data-flagged", true)
+                    flagButton.classList.add("flagActive")
+                }
+
+                // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
+                // identify and update the correct task object
+                editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
+                editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
+
+                editTaskContainer.style.display = "flex"
             }
 
-            // Flag
-            if (taskBinder.obj.flagged) {
-                const flagButton = document.getElementById("editItemFlag")
-                flagButton.setAttribute("data-flagged", true)
-                flagButton.classList.add("flagActive")
+            function hide() {
+
+                editFormActive = false
+
+                const taskHash = editTaskContainer.dataset.taskhash
+                const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
+                taskBinderInstance.node.style.display = "flex"
+
+                editTaskContainer.style.display = "none"
+                editTaskContainer.removeAttribute("data-taskHash")
+                editTaskContainer.removeAttribute("data-listHash")
             }
 
-            // Add other task parameters here
-
-            // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
-            // identify and update the correct task object
-            editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
-            editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
-
-            editTaskContainer.style.display = "flex"
-        }
+            return { show, hide, editFormActive }
+        })()
 
         return { renderAddTaskForm, renderEditTaskForm, renderAddListForm }
     })()
