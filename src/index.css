@@ -291,8 +291,42 @@ body {
 }
 
 .task {
-    display: flex;
+    display: grid;
+    grid-template-columns: [first] 5% [second] 70% [third] 10% [fourth] 5% [fifth] 5% [sixth] 5% [seventh];
+    justify-items: center;
     align-items: center;
+}
+
+.checkbox {
+    grid-column: first / second;
+}
+
+.taskDescription {
+    grid-column: second / third;
+    justify-self: start;
+}
+
+.taskDueDate {
+    grid-column: third / fourth;
+}
+
+.taskFlagIcon {
+    grid-column: fourth / fifth;
+}
+
+.flagNodeHolder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 5%;
+}
+
+.editTaskIcon {
+    grid-column: fifth / sixth;
+}
+
+.deleteTaskIcon {
+    grid-column: sixth / seventh;
 }
 
 #lowerAddTask {
@@ -411,10 +445,6 @@ body {
 
 .flagActive {
     background-color: orange;
-}
-
-.taskFlagIcon {
-    margin-left: 5px;
 }
 
 .submitButton {

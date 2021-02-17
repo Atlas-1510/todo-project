@@ -126,12 +126,15 @@ export const runApp = () => {
             const deleteTaskIcon = createNode("img", taskNode, "", "deleteTaskIcon")
             deleteTaskIcon.src = trashIcon
 
+            const flagNodeHolder = createNode("div", taskNode, "", "flagNodeHolder")
             if (taskObject.flagged) {
                 // Create a flag icon on the task here
-                const flagNode = createNode("img", taskNode, "", "taskFlagIcon")
+                const flagNode = createNode("img", flagNodeHolder, "", "taskFlagIcon")
                 flagNode.src = flagIcon
-                taskNode.insertBefore(flagNode, editTaskIcon)
+            } else {
+                const flagNode = createNode("img", flagNodeHolder, "", "taskFlagIcon")
             }
+            taskNode.insertBefore(flagNodeHolder, editTaskIcon)
 
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
             taskNode.setAttribute("data-hash", taskObject.hash)
@@ -391,6 +394,7 @@ export const runApp = () => {
             const buttons = document.getElementsByClassName("flagButton")
             for (let i = 0; i < buttons.length; i++) {
                 let button = buttons[i]
+                button.setAttribute("data-flagged", false)
                 button.addEventListener("click", () => {
                     // get current state in BOOLEAN
                     const priorFlagState = (button.dataset.flagged == "true")
@@ -473,7 +477,7 @@ export const runApp = () => {
                 editTaskContainer.style.display = "none"
 
                 // Reveal the edited node
-                taskBinder.node.style.display = "flex"
+                taskBinder.node.style.display = "grid"
             }
 
             const editTaskSubmitButton = document.querySelector("#editTaskSubmit")
@@ -503,6 +507,8 @@ export const runApp = () => {
                 const flagButton = document.getElementById("newItemFlag")
                 if (flagButton.dataset.flagged) {
                     taskObject.flagged = true
+                } else {
+                    taskObject.flagged = false
                 }
                 flagButton.removeAttribute("data-flagged")
                 flagButton.classList.remove("flagActive")

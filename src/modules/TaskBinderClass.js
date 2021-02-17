@@ -41,17 +41,9 @@ export default class TaskBinder {
 
         // Flag
         if (this.obj.flagged) {
-            if (!this.node.querySelector(".taskFlagIcon")) {
-                // Create a flag icon on the task here
-                const flagNode = createNode("img", this.node, "", "taskFlagIcon")
-                flagNode.src = flagIcon
-                this.node.insertBefore(flagNode, this.node.querySelector(".editTaskIcon"))
-            }
+            this.node.querySelector(".taskFlagIcon").src = flagIcon
         } else {
-            const flagNode = this.node.querySelector(".taskFlagIcon")
-            if (flagNode) {
-                flagNode.remove()
-            }
+            this.node.querySelector(".taskFlagIcon").src = ""
         }
 
         this.node.querySelector(".taskDescription").textContent = objectTitle
