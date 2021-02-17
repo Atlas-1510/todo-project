@@ -484,6 +484,10 @@ export const runApp = () => {
             // Function to handle submission of form input into new task binder
             function submitNewTask() {
                 const title = document.getElementById("newItemTitle").value
+                if (title == "") {
+                    alert("Remember to give your task a title!")
+                    return
+                }
                 const storedDateValue = parseInt(document.getElementById("dateInput").dataset.date)
                 const date = storedDateValue
                 const completeBool = false // make this changeable later
