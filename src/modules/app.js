@@ -315,16 +315,13 @@ export const runApp = () => {
         const addListButton = (() => {
             const button = document.getElementById("addListButton")
             button.addEventListener("click", function () {
-                Render.renderAddListForm.show()
                 if (Render.renderEditTaskForm.editFormActive) {
                     Render.renderEditTaskForm.hide()
-                    Render.renderEditTaskForm.editFormActive = false
                 }
                 if (Render.renderAddTaskForm.newFormActive) {
                     Render.renderAddTaskForm.hide()
-                    Render.renderAddTaskForm.newFormActive = false
                 }
-
+                Render.renderAddListForm.show()
             })
         })()
 
@@ -338,7 +335,7 @@ export const runApp = () => {
                         Render.renderEditTaskForm.hide()
                     }
 
-                    if (Render.newFormActive) {
+                    if (Render.renderAddTaskForm.newFormActive) {
                         Render.renderAddTaskForm.hide()
                     }
                     Render.renderAddTaskForm.show()
@@ -756,7 +753,7 @@ export const runApp = () => {
                 form.style.display = "flex"
                 lowerAddButton.style.display = "none"
                 inputFocus.focus()
-                newFormActive = true
+                Render.renderAddTaskForm.newFormActive = true
             }
 
             function hide() {
@@ -782,7 +779,7 @@ export const runApp = () => {
 
             function show(taskBinder) {
 
-                editFormActive = true
+                Render.renderEditTaskForm.editFormActive = true
 
                 userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
 
