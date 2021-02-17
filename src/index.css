@@ -314,6 +314,7 @@ body {
 
 .taskDueDate {
     margin-left: auto;
+    margin-right: 5px;
 }
 
 .editTaskIcon {
