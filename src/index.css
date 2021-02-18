@@ -28,7 +28,6 @@ body {
     grid-column: first / second;
     grid-row: first / third;
     background-color: lightblue;
-    min-width: 200px;
     display: flex;
     flex-direction: column;
 }
@@ -36,7 +35,6 @@ body {
 #displaySection {
     grid-column: second / third;
     grid-row: second / third;
-    min-width: 100%;
     min-height: 100%;
     background-color: lightcyan;
     display: flex;
