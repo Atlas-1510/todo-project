@@ -505,8 +505,9 @@ export const runApp = () => {
 
 
                 const flagButton = document.getElementById("newItemFlag")
-                if (flagButton.dataset.flagged) {
+                if (flagButton.dataset.flagged == "true") {
                     taskObject.flagged = true
+
                 } else {
                     taskObject.flagged = false
                 }
