@@ -356,6 +356,8 @@ export const runApp = () => {
                     },
                     onSelect: (instance, date) => {
 
+                        console.log(datePicker)
+
                         // If in new task form or edit task form
                         const formType = instance.parent.parentNode.id
                         const parsedDate = Date.parse(date)
@@ -375,6 +377,8 @@ export const runApp = () => {
                             editFormDateCheckBox.style.display = "flex"
                             editFormDateCheckBox.checked = true
                         }
+
+                        instance.setDate()
                     }
                 })
             })
@@ -522,10 +526,6 @@ export const runApp = () => {
 
                 List.updateTaskCounters()
                 contentController.refreshTopBar(listHash)
-                const datePickerActiveSquare = document.getElementsByClassName("qs-active")
-                if (datePickerActiveSquare[0]) {
-                    datePickerActiveSquare[0].classList.remove("qs-active")
-                }
 
                 if (document.getElementById("dateDeleteButton")) {
                     document.getElementById("dateDeleteButton").remove()
