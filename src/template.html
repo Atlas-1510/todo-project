@@ -46,20 +46,20 @@
                     </div>
                 </div>
                 <div id="listsContainer">
-                    <div class="sideBarList">
-                        <!-- <img class="listIcon" src="./img/app.svg">
-                        <div class="listName">Reminders</div>
-                        <div class="listCount">36</div> -->
-                    </div>
+                    <div class="sideBarList"></div>
                     <div id="newListContainer" class="listInputContainer">
-                        <img src="./img/app.svg" class="listIcon"></img>
+                        <div class="listIcon"></div>
+                        <!-- <img src="./img/app.svg" class="listIcon"></img> -->
                         <form id="newListForm" class="listInputForm submitRefreshBlocker">
-                            <div>
+                            <div id="newListTitleAndColor">
                                 <div id="newListTitleContainer">
-                                    <form id="newListForm">
-                                        <input type="text" placeholder="Title" id="newListTitle" class="inputListTitle">
-                                    </form>
+                                    <input type="text" placeholder="Title" id="newListTitle" class="inputListTitle"
+                                        autocomplete="off">
                                 </div>
+                                <button id="newListColor" class="listButton">Colour</button>
+                                <div id="colorPickerHolder"></div>
+                            </div>
+                            <div id="newListSubmitAndAbort">
                                 <button id="newListSubmit" class="listButton"></button>
                                 <button id="newListAbort" class="listButton"></button>
                             </div>

@@ -3,6 +3,7 @@ import add from 'date-fns/add'
 import format from 'date-fns/format'
 import isToday from 'date-fns/isToday'
 import datepicker from 'js-datepicker'
+import ColorPicker from 'simple-color-picker';
 // Helper home-made modules
 import createNode from "./createNode"
 import ListBinderInstance from "./ListBinderClass"
@@ -33,7 +34,7 @@ export const runApp = () => {
         const ListBinderStorage = new Map()
 
         // Add a new list to ListStorage 
-        function createListObject(name) {
+        function createListObject(name, color) {
             const newList = new Map()
             const hash = name + new Date()
             const listContainer = {
@@ -42,14 +43,20 @@ export const runApp = () => {
                 hash: hash,
             }
 
+            if (color != "") {
+                listContainer.color = color
+            }
+
             ListStorage.set(hash, listContainer)
             return hash
         }
 
         function createListNode(listContainer) {
             const listNode = createNode("div", listsContainer, "", "sideBarList")
-            const listIcon = createNode("img", listNode, "", "listIcon")
-            listIcon.src = emptyAppIcon
+            const listIcon = createNode("div", listNode, "", "listIcon")
+            if (listContainer.color) {
+                listIcon.style.backgroundColor = listContainer.color
+            }
             const listName = createNode("div", listNode, "", "listName")
             listName.textContent = listContainer.listName
             const listCount = createNode("div", listNode, "", "listCount")
@@ -350,17 +357,22 @@ export const runApp = () => {
         const datePickers = (() => {
             const dateInputs = document.querySelectorAll(".date")
             dateInputs.forEach(function (dateNode) {
+                const dateChange = new Event("dateChange")
                 const datePicker = datepicker(dateNode, {
                     formatter: (input, date) => {
                         input.value = format(date, "eee d/M/yy")
                     },
                     onSelect: (instance, date) => {
 
-                        console.log(datePicker)
-
+                        dateNode.dispatchEvent(dateChange)
                         // If in new task form or edit task form
                         const formType = instance.parent.parentNode.id
                         const parsedDate = Date.parse(date)
+
+                        instance.setDate()
+                        dateNode.value = format(date, "eee d/M/yy")
+                        console.log(dateNode)
+
                         if (formType == "newTaskForm") {
 
                             // Not clicking on the checkbox, clicking on the date selector menu
@@ -377,10 +389,64 @@ export const runApp = () => {
                             editFormDateCheckBox.style.display = "flex"
                             editFormDateCheckBox.checked = true
                         }
-
-                        instance.setDate()
                     }
                 })
+
+
+
+                dateNode.addEventListener("dateChange", () => {
+                    dateNode.classList.add("dateChosen")
+                })
+            })
+        })()
+
+        const colorPicker = (() => {
+
+            const colorButton = document.getElementById("newListColor")
+            const colorPickerHolder = document.getElementById("colorPickerHolder")
+            let colorPickerActive = false
+            colorButton.addEventListener("click", () => {
+                if (colorPickerActive) {
+                    return
+                } else {
+                    colorPickerActive = true
+                }
+                const colorPicker = new ColorPicker();
+
+                if (colorButton.dataset.color) {
+                    colorPicker.setColor(colorButton.dataset.color)
+                }
+
+                colorPicker.appendTo(colorPickerHolder)
+                const buttonRect = colorButton.getBoundingClientRect()
+                colorPickerHolder.style.top = `${buttonRect.bottom}px`
+                colorPickerHolder.style.left = `${buttonRect.left}px`
+
+                const colorButtonHolder = createNode("div", colorPickerHolder, "colorButtonHolder", "")
+                const colorSubmit = createNode("button", colorButtonHolder, "colorSubmit", "listButton")
+                colorSubmit.textContent = "Accept"
+                const colorAbort = createNode("button", colorButtonHolder, "colorAbort", "listButton")
+                colorAbort.textContent = "Cancel"
+
+                colorSubmit.addEventListener("click", () => {
+                    const color = colorPicker.getColor()
+                    colorButton.style.backgroundColor = color
+                    colorButton.setAttribute("data-color", color)
+                    colorPicker.remove()
+                    colorSubmit.remove()
+                    colorAbort.remove()
+                    colorPickerActive = false
+                })
+
+                colorAbort.addEventListener("click", () => {
+                    colorButton.removeAttribute("data-color")
+                    colorButton.style.backgroundColor = "#F1FAEE"
+                    colorPicker.remove()
+                    colorSubmit.remove()
+                    colorAbort.remove()
+                    colorPickerActive = false
+                })
+
             })
         })()
 
@@ -426,6 +492,7 @@ export const runApp = () => {
             const editTaskButton = document.getElementById("editTaskAbort")
             editTaskButton.addEventListener("click", function () {
                 document.getElementById("editTaskForm").reset()
+                console.log("hide activated")
                 Render.renderEditTaskForm.hide()
                 Render.renderEditTaskForm.editFormActive = false
             })
@@ -434,6 +501,8 @@ export const runApp = () => {
             newListAbortButton.addEventListener("click", function () {
                 document.getElementById("newListForm").reset()
                 document.getElementById("newListContainer").style.display = "none"
+                document.getElementById("newListColor").removeAttribute("data-color")
+                document.getElementById("newListColor").removeAttribute("style")
             })
         })()
 
@@ -461,6 +530,7 @@ export const runApp = () => {
 
                 // Date
                 const dateInput = document.getElementById("editDateInput")
+                dateInput.classList.remove("dateChosen")
                 const date = parseInt(dateInput.dataset.date)
                 dateInput.removeAttribute("data-date")
                 dateInput.setAttribute("placeholder", "Add Date")
@@ -504,6 +574,7 @@ export const runApp = () => {
                     taskObject.scheduled = true
                 }
                 document.getElementById("dateInput").setAttribute("data-date", NaN)
+                document.getElementById("dateInput").classList.remove("dateChosen")
                 document.getElementById("newFormDateCheckBox").style.display = "none"
 
 
@@ -545,7 +616,8 @@ export const runApp = () => {
             // Function to handle of submission of form input into new list
             function submitNewList() {
                 const listTitle = document.getElementById("newListTitle").value
-                const listObjectHash = List.createListObject(listTitle)
+                const listColor = document.getElementById("newListColor").dataset.color
+                const listObjectHash = List.createListObject(listTitle, listColor)
                 const listObject = List.ListStorage.get(listObjectHash)
                 const listNode = List.createListNode(listObject)
                 const listBinder = List.createListBinder(listObject, listNode)
@@ -558,6 +630,8 @@ export const runApp = () => {
                 // userContentContainer.dataset.activelist
                 Render.renderAddListForm.hide()
                 document.getElementById("newListForm").reset()
+                document.getElementById("newListColor").removeAttribute("data-color")
+                document.getElementById("newListColor").removeAttribute("style")
             }
 
             const newListSubmitButton = document.getElementById("newListSubmit")
@@ -578,6 +652,7 @@ export const runApp = () => {
                 } else {
                     button.classList.add("scheduledToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
+                    document.getElementById("listTitle").style.color = "black"
                     Search.toggles.scheduled = true
                 }
 
@@ -597,6 +672,7 @@ export const runApp = () => {
                 } else {
                     button.classList.add("flaggedToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
+                    document.getElementById("listTitle").style.color = "black"
                     Search.toggles.flagged = true
                 }
 
@@ -616,6 +692,7 @@ export const runApp = () => {
                 else {
                     button.classList.add("allToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
+                    document.getElementById("listTitle").style.color = "black"
                     Search.toggles.all = true
                 }
 
@@ -635,6 +712,7 @@ export const runApp = () => {
                 else {
                     button.classList.add("todayToggleActive")
                     document.getElementById("listTitle").textContent = "Search"
+                    document.getElementById("listTitle").style.color = "black"
                     Search.toggles.today = true
                 }
 
@@ -655,6 +733,7 @@ export const runApp = () => {
                     newFormDateSelector.setAttribute("placeholder", "Add Date")
                     newFormDateSelector.removeAttribute("data-date")
                     newFormDateCheckBox.style.display = "none"
+                    document.getElementById("dateInput").classList.remove("dateChosen")
                 })
             })()
 
@@ -666,6 +745,7 @@ export const runApp = () => {
                     editDateInput.setAttribute("placeholder", "Add Date")
                     editDateInput.removeAttribute("data-date")
                     editFormDateCheckBox.style.display = "none"
+                    document.getElementById("editDateInput").classList.remove("dateChosen")
                 })
 
             })()
@@ -696,6 +776,11 @@ export const runApp = () => {
             const listContainer = List.ListStorage.get(listHash)
             const topBarTitle = document.getElementById("listTitle")
             topBarTitle.textContent = listContainer.listName
+            if (listContainer.color) {
+                topBarTitle.style.color = listContainer.color
+            } else {
+                topBarTitle.style.color = "black"
+            }
             const topBarCount = document.getElementById("topBarListCount")
             topBarCount.textContent = listContainer.list.size
         }
@@ -808,6 +893,7 @@ export const runApp = () => {
                     const editDateCheckBox = document.getElementById("editFormDateDeleteButton")
                     editDateCheckBox.style.display = "flex"
                     editDateCheckBox.checked = true
+                    dateSelector.classList.add("dateChosen")
                 }
 
                 // Flag
@@ -827,8 +913,8 @@ export const runApp = () => {
 
             function hide() {
 
-                if (editFormActive) {
-                    editFormActive = false
+                if (Render.renderEditTaskForm.editFormActive) {
+                    Render.renderEditTaskForm.editFormActive = false
                     const taskHash = editTaskContainer.dataset.taskhash
                     const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
                     taskBinderInstance.node.style.display = "flex"

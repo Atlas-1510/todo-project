@@ -31,6 +31,7 @@
     "bootstrap-icons": "^1.2.2",
     "date-fns": "^2.16.1",
     "js-datepicker": "^5.18.0",
-    "popper.js": "^1.16.1"
+    "popper.js": "^1.16.1",
+    "simple-color-picker": "^1.0.4"
   }
 }

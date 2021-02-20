@@ -6,7 +6,7 @@
     --contentWindowBackground: #A8DADC;
     --sideBarToggleColor: #457B9D;
     --sideBarColor: #1D3557;
-
+    --taskFormButtonColor: #EFD5C3;
 }
 
 body {
@@ -105,7 +105,7 @@ body {
 
 #searchBarForm {
     width: 100%;
-    color: rgb(104,106,104);
+    color: var(--sideBarColor);
 }
 
 #searchBar {
@@ -114,7 +114,12 @@ body {
     margin: 0;
     border: 0;
     outline: none;
-    background-color: var(--taskColor)
+    background-color: var(--taskColor);
+    color: var(--sideBarColor);
+}
+
+#searchBar::placeholder {
+    color: var(--sideBarColor);
 }
 
 #clearIcon {
@@ -219,7 +224,12 @@ body {
 }
 
 .listIcon {
-    filter: invert(99%) sepia(19%) saturate(244%) hue-rotate(40deg) brightness(99%) contrast(97%);
+    width: 20px;
+    height: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    border-radius: 5px;
+    background-color: white;
 }
 
 .listName {
@@ -232,9 +242,9 @@ body {
 
 #addListButton {
     margin-top: auto;
-    background-color: rgb(68,70,69);
+    background-color: var(--taskColor);
     border-radius: 15px;
-    color: rgb(148,151,149);
+    color: var(--sideBarColor);
     border: none;
     padding: 5px;
     font-size: large;
@@ -243,43 +253,96 @@ body {
 
 #newListContainer {
     display: none;
+    align-items: center;
     justify-content: flex-start;
     margin: 10px 0px 10px 0px;
 }
 
-#newListContainer > form > div {
-    margin-left: 5px;
+/* #newListContainer > form {
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    flex-direction: column;
+} */
+
+#newListForm {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
 }
 
-.listButton {
-    height: 20px;
-    width: 20px;
-    padding: 0;
-    margin-left: 5px;
+#newListTitleAndColor {
+    display: grid;
+    grid-template-columns: [first] 70% [second] 10% [third] 20% [fourth];
+    justify-items: center;
+    margin: 0.5rem;
+    max-height: 20px;
+}
+
+#newListSubmitAndAbort {
+    display: grid;
+    grid-template-columns: [first] 45% [second] 10% [third] 45% [fourth];
+    justify-items: center;
+    margin: 0.5rem;
 }
 
 #newListTitleContainer {
-    box-sizing: border-box;
-    min-height: 20px;
-    width: max-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 1.5rem;
+    width: 100%;
     border-radius: 10px;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     overflow: hidden;
-    background-color: white;
-    padding: 0;
-    margin: 0;
-    border: 0;
+    background-color: var(--taskColor);
     outline: none;
+    margin: 0.3rem;
+    max-height: 20px;
+    background-color: var(--taskColor);
+}
+
+#newListColor {
+    grid-column: third / fourth;
+    margin: 0.3rem;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--taskColor);
+    color: none;
+    overflow: visible;
+    width: fit-content;
+    height: 1.5rem;
+    padding: 0.3rem;
+}
+
+#colorPickerHolder {
+    position: absolute;
+}
+
+#colorButtonHolder {
+    display: flex;
+    justify-content: center;
+}
+
+#colorButtonHolder > button {
+    width: 100%;
+    border-radius: 10px;
+    margin: 0.3rem;
+}
+
+#newListAbort {
+    grid-column: third / fourth;
+    min-height: 1.5rem;
+}
+
+#newListSubmit {
+    min-height: 1.5rem;
 }
 
 #newListTitle {
-    margin-left: 5px;
+    margin-left: 10px;
     padding: 0;
     border: 0;
     outline: none;
+    background-color: var(--taskColor);
 }
 
 #newListTitleContainer:focus-within {
@@ -301,12 +364,12 @@ body {
 }
 
 .listButton {
-    width: 20px;
+    width: 100%;
+    margin: 0.3rem;
     padding: 10px;
-    height: auto;
     position: relative;
-    bottom: 2px;
     border: 0;
+    border-radius: 10px;
 }
 
 /* USER CONTENT CONTAINER */
@@ -452,6 +515,10 @@ body {
     outline: none;
 }
 
+.formInput {
+    background-color: var(--taskFormButtonColor);
+}
+
 .dateCheckBox {
     position: relative;
     top: 6px;
@@ -469,11 +536,15 @@ body {
     text-align: center;
 }
 
+.dateChosen {
+    background-color: yellow;
+}
+
 .flagButton {
     background: url("./img/flag.svg");
     background-repeat: no-repeat;
     background-position: center;
-    background-color: lightgray;
+    background-color: var(--taskFormButtonColor);
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 10px;
