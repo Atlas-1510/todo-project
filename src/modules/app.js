@@ -222,10 +222,11 @@ export const runApp = () => {
             all: false,
         }
 
+        let searchResultObjects = []
+
         function runSearch() {
 
             // Get a list of all the task objects that fit the search requirements
-            const searchResultObjects = []
 
             if (toggles.all) {
                 // Iterate over each list in listStorage
@@ -233,12 +234,10 @@ export const runApp = () => {
                     const list = listContainer.list
                     // Iterate over each task in list
                     list.forEach((task) => {
-                        searchResultObjects.push(task)
+                        Search.searchResultObjects.push(task)
                     })
                 })
             }
-
-            // today search goes here. But how to fit in If/Else logic?
 
             else {
                 const searchParameters = []
@@ -269,13 +268,16 @@ export const runApp = () => {
                         }
 
                         if (shouldAddThisOne) {
-                            searchResultObjects.push(task)
+                            Search.searchResultObjects.push(task)
                         }
                     })
                 })
             }
+            return Search.searchResultObjects
+        }
 
-            searchResultObjects.forEach((taskObject) => {
+        function publishSearchResults() {
+            Search.searchResultObjects.forEach((taskObject) => {
                 const listHash = 'searchResults'
                 const taskNode = TaskBinder.createTaskNode(taskObject)
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
@@ -283,13 +285,56 @@ export const runApp = () => {
             })
 
             // Hide the add task form
-
             document.getElementById("lowerAddTask").style.display = "none"
 
-            return searchResultObjects
+            Search.searchResultObjects = []
         }
 
-        return { toggles, runSearch }
+        function updateSideBarToggleCounts() {
+            const originalToggles = Object.assign(Search.toggles, {})
+            // Scheduled
+            const scheduledCountNode = document.querySelector(".scheduledCount")
+            Search.toggles.scheduled = true
+            Search.toggles.flagged = false
+            Search.toggles.today = false
+            Search.toggles.all = false
+            const scheduledCountSearch = Search.runSearch()
+            console.log(`scheduled: ${scheduledCountSearch}`)
+            const scheduledCount = scheduledCountSearch.length
+            scheduledCountNode.textContent = scheduledCount
+            Search.searchResultObjects = []
+            // Flagged
+            const flaggedCountNode = document.querySelector(".flaggedCount")
+            Search.toggles.scheduled = false
+            Search.toggles.flagged = true
+            Search.toggles.today = false
+            Search.toggles.all = false
+            const flaggedCount = Search.runSearch().length
+            flaggedCountNode.textContent = flaggedCount
+            Search.searchResultObjects = []
+            // Today
+            const todayCountNode = document.querySelector(".todayCount")
+            Search.toggles.scheduled = false
+            Search.toggles.flagged = false
+            Search.toggles.today = true
+            Search.toggles.all = false
+            const todayCount = Search.runSearch().length
+            todayCountNode.textContent = todayCount
+            Search.searchResultObjects = []
+            // All
+            const allCountNode = document.querySelector(".allCount")
+            Search.toggles.scheduled = false
+            Search.toggles.flagged = false
+            Search.toggles.today = false
+            Search.toggles.all = true
+            const allCount = Search.runSearch().length
+            allCountNode.textContent = allCount
+            Search.searchResultObjects = []
+
+            Search.toggles = originalToggles
+        }
+
+        return { toggles, runSearch, updateSideBarToggleCounts, searchResultObjects, publishSearchResults }
     })()
 
     // Listeners applies functionality to buttons in DOM elements.
@@ -302,6 +347,7 @@ export const runApp = () => {
                 button.addEventListener("click", function () {
                     TaskBinder.deleteTaskBinder(taskBinder)
                     List.updateTaskCounters()
+                    Search.updateSideBarToggleCounts()
                 })
             }
 
@@ -599,6 +645,9 @@ export const runApp = () => {
 
                 // Reveal the edited node
                 taskBinder.node.style.display = "grid"
+
+                // Update side bar toggle counts
+                Search.updateSideBarToggleCounts()
             }
 
             const editTaskSubmitButton = document.querySelector("#editTaskSubmit")
@@ -681,6 +730,8 @@ export const runApp = () => {
                 }
                 document.getElementById("dateInput").value = ""
                 document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
+
+                Search.updateSideBarToggleCounts()
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -738,6 +789,7 @@ export const runApp = () => {
                 }
 
                 const searchResults = Search.runSearch()
+                Search.publishSearchResults()
                 document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
             })
         })()
@@ -758,6 +810,7 @@ export const runApp = () => {
                 }
 
                 const searchResults = Search.runSearch()
+                Search.publishSearchResults()
                 document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
             })
         })()
@@ -778,6 +831,7 @@ export const runApp = () => {
                 }
 
                 const searchResults = Search.runSearch()
+                Search.publishSearchResults()
                 document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
             })
         })()
@@ -798,6 +852,7 @@ export const runApp = () => {
                 }
 
                 const searchResults = Search.runSearch()
+                Search.publishSearchResults()
                 document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
             })
         })()
@@ -893,6 +948,7 @@ export const runApp = () => {
             const topBarTitle = document.getElementById("listTitle")
             topBarTitle.textContent = "Select or add a list to get started!"
             topBarTitle.style.color = "black"
+            document.getElementById("lowerAddTask").style.display = "none"
         }
 
         return { loadList, unloadLists, loadListsIntoSideBar, refreshTopBar, generateHome }
@@ -1083,5 +1139,6 @@ export const runApp = () => {
         })()
 
         contentController.generateHome()
+        Search.updateSideBarToggleCounts()
     })()
 }
