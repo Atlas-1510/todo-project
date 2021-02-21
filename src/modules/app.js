@@ -93,7 +93,13 @@ export const runApp = () => {
             })
         }
 
-        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder }
+        function deleteListBinder(listBinder) {
+            listBinder.node.remove()
+            listBinder.obj = null
+            List.ListStorage.delete(listBinder.container.hash)
+        }
+
+        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder, deleteListBinder }
     })()
 
     // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
@@ -320,14 +326,23 @@ export const runApp = () => {
 
         function applyListListeners(listBinder) {
             const node = listBinder.node
-            node.addEventListener("click", function () {
-                Render.renderAddListForm.hide()
-                Render.renderAddTaskForm.hide()
-                Render.renderEditTaskForm.hide()
-                contentController.unloadLists()
-                contentController.loadList(listBinder.listHash)
-                contentController.refreshTopBar(listBinder.listHash)
-                document.getElementById("lowerAddTask").style.display = "flex"
+
+            const clickBoxElements = []
+
+            clickBoxElements.push(node.querySelector(".listPointer"))
+            clickBoxElements.push(node.querySelector(".listName"))
+
+            clickBoxElements.forEach(element => {
+                element.addEventListener("click", function () {
+                    Render.renderAddListForm.hide()
+                    Render.renderAddTaskForm.hide()
+                    Render.renderEditTaskForm.hide()
+                    contentController.unloadLists()
+                    console.log("clicked on list")
+                    contentController.loadList(listBinder.listHash)
+                    contentController.refreshTopBar(listBinder.listHash)
+                    document.getElementById("lowerAddTask").style.display = "flex"
+                })
             })
 
             const editButton = listBinder.node.querySelector(".editListIcon")
@@ -336,8 +351,12 @@ export const runApp = () => {
                 Render.renderEditListForm.show(listBinder)
             })
 
-            const deleteButton = listBinder.node.querySelector(".editAbortButton")
-            // NEED TO ADD DELETE LIST FUNCTIONALITY HERE
+            const deleteButton = listBinder.node.querySelector(".deleteListIcon")
+            deleteButton.addEventListener("click", () => {
+                List.deleteListBinder(listBinder)
+                contentController.unloadLists()
+                contentController.generateHome()
+            })
         }
 
         const addListButton = (() => {
@@ -692,6 +711,8 @@ export const runApp = () => {
                 document.getElementById("newListForm").reset()
                 document.getElementById("newListColor").removeAttribute("data-color")
                 document.getElementById("newListColor").removeAttribute("style")
+
+                document.getElementById("lowerAddTask").style.display = "flex"
             }
 
             const newListSubmitButton = document.getElementById("newListSubmit")
@@ -868,7 +889,13 @@ export const runApp = () => {
             })
         }
 
-        return { loadList, unloadLists, loadListsIntoSideBar, refreshTopBar }
+        function generateHome() {
+            const topBarTitle = document.getElementById("listTitle")
+            topBarTitle.textContent = "Select or add a list to get started!"
+            topBarTitle.style.color = "black"
+        }
+
+        return { loadList, unloadLists, loadListsIntoSideBar, refreshTopBar, generateHome }
     })()
 
     // Render loads interactable DOM elements such as forms and buttons.
@@ -1038,28 +1065,10 @@ export const runApp = () => {
         return { renderAddTaskForm, renderEditTaskForm, renderAddListForm, renderEditListForm }
     })()
 
-    // APP LOGIC
     const App = (() => {
 
         // Dev tools to be deleted when production ready.
         const devStuff = (() => {
-
-            function createDemo(title) {
-
-                // Demo list
-                // const demoListHash = List.createListObject(title)
-                // const demoListNode = List.createListNode(List.ListStorage.get(demoListHash))
-
-                // Demo task
-                // const demoTask = TaskBinder.createTaskObject(false, `demo task ${title}`, new Date(), demoListHash)
-                // List.ListStorage.get(demoListHash).list.set(demoTask.taskHash, demoTask)
-
-                // return demoListHash
-            }
-
-            // const demoLoader = createDemo("first")
-            // createDemo("second")
-            // createDemo("third")
 
             // Easy check
             document.getElementById("topBar").addEventListener("click", function () {
@@ -1070,9 +1079,9 @@ export const runApp = () => {
                 console.log("TASK BINDER STORAGE")
                 console.log(TaskBinder.TaskBinderStorage)
             })
-            // contentController.loadList(demoLoader)
-            // contentController.refreshTopBar(demoLoader)
 
         })()
+
+        contentController.generateHome()
     })()
 }

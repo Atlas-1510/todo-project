@@ -530,7 +530,7 @@ body {
 
 #lowerAddTask {
     width: 100%;
-    display: flex;
+    display: none;
     align-items: center;
 }
 
