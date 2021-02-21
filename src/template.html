@@ -48,23 +48,41 @@
                 <div id="listsContainer">
                     <div class="sideBarList"></div>
                     <div id="newListContainer" class="listInputContainer">
-                        <div class="listIcon"></div>
-                        <!-- <img src="./img/app.svg" class="listIcon"></img> -->
+                        <div class="listPointer"></div>
                         <form id="newListForm" class="listInputForm submitRefreshBlocker">
                             <div id="newListTitleAndColor">
                                 <div id="newListTitleContainer">
                                     <input type="text" placeholder="Title" id="newListTitle" class="inputListTitle"
                                         autocomplete="off">
                                 </div>
-                                <button id="newListColor" class="listButton">Colour</button>
-                                <div id="colorPickerHolder"></div>
+                                <button id="newListColor" class="listButton colorPicker">Colour</button>
+                                <div class="colorPickerHolder"></div>
                             </div>
                             <div id="newListSubmitAndAbort">
-                                <button id="newListSubmit" class="listButton"></button>
-                                <button id="newListAbort" class="listButton"></button>
+                                <button id="newListSubmit" class="listButton listSubmitButton"></button>
+                                <button id="newListAbort" class="listButton listAbortButton"></button>
                             </div>
                         </form>
                     </div>
+                    <!-- Break Begin -->
+                    <div id="editListContainer" class="listInputContainer">
+                        <div class="listPointer"></div>
+                        <form id="editListForm" class="listInputForm submitRefreshBlocker">
+                            <div id="editListTitleAndColor">
+                                <div id="editListTitleContainer">
+                                    <input type="text" placeholder="Title" id="editListTitle" class="inputListTitle"
+                                        autocomplete="off">
+                                </div>
+                                <button id="editListColor" class="listButton colorPicker">Colour</button>
+                                <div class="colorPickerHolder"></div>
+                            </div>
+                            <div id="editListSubmitAndAbort">
+                                <button id="editListSubmit" class="listButton listSubmitButton"></button>
+                                <button id="editListAbort" class="listButton listAbortButton"></button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Break End -->
                 </div>
                 <button id="addListButton">+ Add List</button>
             </div>

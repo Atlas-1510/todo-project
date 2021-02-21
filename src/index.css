@@ -218,13 +218,19 @@ body {
 }
 
 .sideBarList {
-    display: flex;
-    justify-content: flex-start;
+    display: grid;
+    width: 100%;
+    grid-template-columns: [first] 15% [second] 50% [third] 10% [fourth] 12.5% [fifth] 12.5% [sixth];
+    justify-content: center;
     margin: 10px 0px 10px 0px;
 }
 
-.listIcon {
-    width: 20px;
+.listPointer {
+    grid-column: first / second;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
     height: 20px;
     min-height: 20px;
     max-height: 20px;
@@ -233,14 +239,30 @@ body {
 }
 
 .listName {
+    grid-column: second / third;
     margin-left: 5px;
 }
 
 .listCount {
-    margin-left: auto;
+    grid-column: third / fourth;
+    justify-self: center;
+}
+
+.editListIcon {
+    grid-column: fourth / fifth;
+}
+
+.deleteListIcon {
+    grid-column: fifth / sixth;
+}
+
+.listIcon {
+    filter: invert(99%) sepia(1%) saturate(282%) hue-rotate(107deg) brightness(114%) contrast(100%);
+    justify-self: center;
 }
 
 #addListButton {
+
     margin-top: auto;
     background-color: var(--taskColor);
     border-radius: 15px;
@@ -257,11 +279,6 @@ body {
     justify-content: flex-start;
     margin: 10px 0px 10px 0px;
 }
-
-/* #newListContainer > form {
-    display: flex;
-    flex-direction: column;
-} */
 
 #newListForm {
     display: flex;
@@ -313,8 +330,9 @@ body {
     padding: 0.3rem;
 }
 
-#colorPickerHolder {
+.colorPickerHolder {
     position: absolute;
+    z-index: 10;
 }
 
 #colorButtonHolder {
@@ -337,7 +355,7 @@ body {
     min-height: 1.5rem;
 }
 
-#newListTitle {
+.inputListTitle {
     margin-left: 10px;
     padding: 0;
     border: 0;
@@ -349,14 +367,14 @@ body {
     box-shadow: 0 0 5px 1px cyan;
 }
 
-#newListSubmit {
+.listSubmitButton {
     background-image: url("./img/check-circle.svg");
     background-repeat: no-repeat;
     background-size: 20px;
     background-position: center;
 }
 
-#newListAbort {
+.listAbortButton {
     background-image: url("./img/x-circle.svg");
     background-repeat: no-repeat;
     background-position: center;
@@ -370,6 +388,88 @@ body {
     position: relative;
     border: 0;
     border-radius: 10px;
+}
+
+/* LIST EDIT FORM */
+#editListContainer {
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 10px 0px 10px 0px;
+}
+
+#editListForm {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+#editListTitleAndColor {
+    display: grid;
+    grid-template-columns: [first] 70% [second] 10% [third] 20% [fourth];
+    justify-items: center;
+    margin: 0.5rem;
+    max-height: 20px;
+}
+
+#editListTitleContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 1.5rem;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--taskColor);
+    outline: none;
+    margin: 0.3rem;
+    max-height: 20px;
+    background-color: var(--taskColor);
+}
+
+#editListTitleAndColor {
+    display: grid;
+    grid-template-columns: [first] 70% [second] 10% [third] 20% [fourth];
+    justify-items: center;
+    margin: 0.5rem;
+    max-height: 20px;
+}
+
+#editListColor {
+    grid-column: third / fourth;
+    margin: 0.3rem;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--taskColor);
+    color: none;
+    overflow: visible;
+    width: fit-content;
+    height: 1.5rem;
+    padding: 0.3rem;
+}
+
+#editColorPickerHolder {
+    position: absolute;
+}
+
+#editListSubmitAndAbort {
+    display: grid;
+    grid-template-columns: [first] 45% [second] 10% [third] 45% [fourth];
+    justify-items: center;
+    margin: 0.5rem;
+}
+
+#editListAbort {
+    grid-column: third / fourth;
+    min-height: 1.5rem;
+}
+
+#editListSubmit {
+    min-height: 1.5rem;
+}
+
+#editListTitle {
+
 }
 
 /* USER CONTENT CONTAINER */

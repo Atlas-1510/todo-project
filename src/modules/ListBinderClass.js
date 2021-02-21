@@ -1,10 +1,11 @@
 import publish from "./publishEvent"
 
 export default class ListBinder {
-    constructor(node, obj, hash) {
+    constructor(node, container, hash) {
 
         this.node = node
-        this.obj = obj
+        this.container = container
+        this.obj = container.list
         this.listHash = hash
         node.addEventListener("publish", this)
 
@@ -19,8 +20,10 @@ export default class ListBinder {
 
     // CHANGE handles transfer of data from object to node
     change() {
-        const objectName = this.obj.name
-        this.node.querySelector(".listName").textContent = objectName
+        const listObjectName = this.container.listName
+        this.node.querySelector(".listName").textContent = listObjectName
+        const listObjectColor = this.container.color
+        this.node.querySelector(".listPointer").style.backgroundColor = listObjectColor
         console.log(this)
     }
 }

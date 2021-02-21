@@ -53,27 +53,36 @@ export const runApp = () => {
 
         function createListNode(listContainer) {
             const listNode = createNode("div", listsContainer, "", "sideBarList")
-            const listIcon = createNode("div", listNode, "", "listIcon")
+            const listPointer = createNode("div", listNode, "", "listPointer")
             if (listContainer.color) {
-                listIcon.style.backgroundColor = listContainer.color
+                listPointer.style.backgroundColor = listContainer.color
             }
             const listName = createNode("div", listNode, "", "listName")
             listName.textContent = listContainer.listName
-            const listCount = createNode("div", listNode, "", "listCount")
+            const listCount = createNode("div", listPointer, "", "listCount")
             listCount.textContent = listContainer.list.size
+            const listEditIcon = createNode("img", listNode, "", ["editListIcon", "listIcon"])
+            listEditIcon.src = pencilSquareIcon
+            const listDeleteIcon = createNode("img", listNode, "", ["deleteListIcon", "listIcon"])
+            listDeleteIcon.src = trashIcon
             return listNode
         }
 
         function createListBinder(listContainer, listNode) {
-            const listObject = listContainer.list
+            console.log(listContainer)
             const listHash = listContainer.hash
-            const listBinder = new ListBinderInstance(listNode, listObject, listHash)
+            const listBinder = new ListBinderInstance(listNode, listContainer, listHash)
             ListBinderStorage.set(listHash, listBinder)
             return listBinder
         }
 
-        function editListBinder(listHash, newName) {
-            // Not implemented yet. Relies on listBinderStorage above.
+        function editListBinder(listBinder, title, color) {
+            if (title !== "") {
+                listBinder.container.listName = title
+            }
+
+            listBinder.container.color = color
+            listBinder.change()
         }
 
         function updateTaskCounters() {
@@ -84,7 +93,7 @@ export const runApp = () => {
             })
         }
 
-        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters }
+        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder }
     })()
 
     // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
@@ -320,6 +329,15 @@ export const runApp = () => {
                 contentController.refreshTopBar(listBinder.listHash)
                 document.getElementById("lowerAddTask").style.display = "flex"
             })
+
+            const editButton = listBinder.node.querySelector(".editListIcon")
+            editButton.addEventListener("click", () => {
+                node.style.display = "none"
+                Render.renderEditListForm.show(listBinder)
+            })
+
+            const deleteButton = listBinder.node.querySelector(".editAbortButton")
+            // NEED TO ADD DELETE LIST FUNCTIONALITY HERE
         }
 
         const addListButton = (() => {
@@ -402,51 +420,55 @@ export const runApp = () => {
 
         const colorPicker = (() => {
 
-            const colorButton = document.getElementById("newListColor")
-            const colorPickerHolder = document.getElementById("colorPickerHolder")
-            let colorPickerActive = false
-            colorButton.addEventListener("click", () => {
-                if (colorPickerActive) {
-                    return
-                } else {
-                    colorPickerActive = true
-                }
-                const colorPicker = new ColorPicker();
+            const buttons = document.querySelectorAll(".colorPicker")
 
-                if (colorButton.dataset.color) {
-                    colorPicker.setColor(colorButton.dataset.color)
-                }
+            buttons.forEach(button => {
+                const colorButton = button
+                const colorPickerHolder = colorButton.parentElement.querySelector(".colorPickerHolder")
+                let colorPickerActive = false
+                colorButton.addEventListener("click", () => {
+                    if (colorPickerActive) {
+                        return
+                    } else {
+                        colorPickerActive = true
+                    }
+                    const colorPicker = new ColorPicker();
 
-                colorPicker.appendTo(colorPickerHolder)
-                const buttonRect = colorButton.getBoundingClientRect()
-                colorPickerHolder.style.top = `${buttonRect.bottom}px`
-                colorPickerHolder.style.left = `${buttonRect.left}px`
+                    if (colorButton.dataset.color) {
+                        colorPicker.setColor(colorButton.dataset.color)
+                    }
 
-                const colorButtonHolder = createNode("div", colorPickerHolder, "colorButtonHolder", "")
-                const colorSubmit = createNode("button", colorButtonHolder, "colorSubmit", "listButton")
-                colorSubmit.textContent = "Accept"
-                const colorAbort = createNode("button", colorButtonHolder, "colorAbort", "listButton")
-                colorAbort.textContent = "Cancel"
+                    colorPicker.appendTo(colorPickerHolder)
+                    const buttonRect = colorButton.getBoundingClientRect()
+                    colorPickerHolder.style.top = `${buttonRect.bottom}px`
+                    colorPickerHolder.style.left = `${buttonRect.left}px`
 
-                colorSubmit.addEventListener("click", () => {
-                    const color = colorPicker.getColor()
-                    colorButton.style.backgroundColor = color
-                    colorButton.setAttribute("data-color", color)
-                    colorPicker.remove()
-                    colorSubmit.remove()
-                    colorAbort.remove()
-                    colorPickerActive = false
+                    const colorButtonHolder = createNode("div", colorPickerHolder, "colorButtonHolder", "")
+                    const colorSubmit = createNode("button", colorButtonHolder, "colorSubmit", "listButton")
+                    colorSubmit.textContent = "Accept"
+                    const colorAbort = createNode("button", colorButtonHolder, "colorAbort", "listButton")
+                    colorAbort.textContent = "Remove"
+
+                    colorSubmit.addEventListener("click", () => {
+                        const color = colorPicker.getColor()
+                        colorButton.style.backgroundColor = color
+                        colorButton.setAttribute("data-color", color)
+                        colorPicker.remove()
+                        colorSubmit.remove()
+                        colorAbort.remove()
+                        colorPickerActive = false
+                    })
+
+                    colorAbort.addEventListener("click", () => {
+                        colorButton.removeAttribute("data-color")
+                        colorButton.style.backgroundColor = "#F1FAEE"
+                        colorPicker.remove()
+                        colorSubmit.remove()
+                        colorAbort.remove()
+                        colorPickerActive = false
+                    })
+
                 })
-
-                colorAbort.addEventListener("click", () => {
-                    colorButton.removeAttribute("data-color")
-                    colorButton.style.backgroundColor = "#F1FAEE"
-                    colorPicker.remove()
-                    colorSubmit.remove()
-                    colorAbort.remove()
-                    colorPickerActive = false
-                })
-
             })
         })()
 
@@ -504,6 +526,12 @@ export const runApp = () => {
                 document.getElementById("newListColor").removeAttribute("data-color")
                 document.getElementById("newListColor").removeAttribute("style")
             })
+
+            const editListAbortButton = document.getElementById("editListAbort")
+            editListAbortButton.addEventListener("click", function () {
+                document.getElementById("editListForm").reset()
+                Render.renderEditListForm.hide()
+            })
         })()
 
         const submitButtons = (() => {
@@ -558,6 +586,37 @@ export const runApp = () => {
             editTaskSubmitButton.addEventListener("click", function () {
                 editTaskSubmit()
             })
+
+            function editListSubmit() {
+
+                const editListContainer = document.getElementById("editListContainer")
+                const listHash = editListContainer.dataset.listhash
+                console.log(`LIST HASH: ${listHash}`)
+                const listBinder = List.ListBinderStorage.get(listHash)
+
+                // Get the edited form data
+                const title = document.getElementById("editListTitle").value
+                const color = document.getElementById("editListColor").dataset.color
+
+                // Update the taskBinder
+                List.editListBinder(listBinder, title, color)
+
+                // Reset the form
+                document.getElementById("editListForm").reset()
+                // editListContainer.style.display = "none"
+
+                // Reveal the edited node
+                // listBinder.node.style.display = "grid"
+                Render.renderEditListForm.hide()
+                listBinder.node.click()
+
+            }
+
+            const editListSubmitButton = document.querySelector("#editListSubmit")
+            editListSubmitButton.addEventListener("click", function () {
+                editListSubmit()
+            })
+
 
             // Function to handle submission of form input into new task binder
             function submitNewTask() {
@@ -619,15 +678,16 @@ export const runApp = () => {
                 const listColor = document.getElementById("newListColor").dataset.color
                 const listObjectHash = List.createListObject(listTitle, listColor)
                 const listObject = List.ListStorage.get(listObjectHash)
+                console.log(listObject)
                 const listNode = List.createListNode(listObject)
                 const listBinder = List.createListBinder(listObject, listNode)
+                console.log(listBinder)
                 applyListListeners(listBinder)
 
                 userContentContainer.setAttribute("data-activelist", listBinder.listHash)
                 contentController.unloadLists()
                 contentController.loadList(listBinder.listHash)
                 contentController.refreshTopBar(listBinder.listHash)
-                // userContentContainer.dataset.activelist
                 Render.renderAddListForm.hide()
                 document.getElementById("newListForm").reset()
                 document.getElementById("newListColor").removeAttribute("data-color")
@@ -814,7 +874,6 @@ export const runApp = () => {
     // Render loads interactable DOM elements such as forms and buttons.
     const Render = (() => {
 
-        // Form for adding new lists
         const renderAddListForm = (() => {
 
             const form = document.getElementById("newListContainer")
@@ -836,7 +895,6 @@ export const runApp = () => {
 
         })()
 
-        // Form for adding new tasks
         const renderAddTaskForm = (() => {
 
             const form = document.getElementById("newTaskContainer")
@@ -867,6 +925,54 @@ export const runApp = () => {
 
         })()
 
+        const renderEditListForm = (() => {
+
+            const editListFormContainer = document.getElementById("editListContainer")
+
+            let editListFormActive = false
+
+            function show(listBinder) {
+                console.log("Show function activated")
+                console.log(listBinder)
+
+                Render.renderEditListForm.editListFormActive = true
+                editListFormContainer.style.display = "flex"
+
+                document.getElementById("listsContainer").insertBefore(editListFormContainer, listBinder.node)
+
+                // Title
+                const titleSelector = editListFormContainer.querySelector("#editListTitle")
+                const priorTitle = listBinder.container.listName
+                titleSelector.setAttribute("placeholder", priorTitle)
+
+                // Colour
+                const colourSelector = editListFormContainer.querySelector("#editListColor")
+                const priorColour = listBinder.container.color
+                if (priorColour) {
+                    colourSelector.style.backgroundColor = priorColour
+                }
+
+                // Assigns list hash from original list to the form, so on submission the form can use the hash to 
+                // identify and update the correct list object
+                editListFormContainer.setAttribute("data-listHash", listBinder.container.hash)
+                editListFormContainer.style.display = "flex"
+            }
+
+            function hide() {
+                if (Render.renderEditListForm.editListFormActive) {
+                    Render.renderEditListForm.editListFormActive = false
+                    const listHash = editListFormContainer.dataset.listhash
+                    const listBinderInstance = List.ListBinderStorage.get(listHash)
+                    listBinderInstance.node.style.display = "grid"
+
+                    editListFormContainer.style.display = "none"
+                    editListFormContainer.removeAttribute("data-listHash")
+                }
+            }
+
+            return { show, hide, editListFormActive }
+        })()
+
         const renderEditTaskForm = (() => {
 
             const editTaskContainer = document.querySelector("#editTaskContainer")
@@ -878,6 +984,7 @@ export const runApp = () => {
                 Render.renderEditTaskForm.editFormActive = true
 
                 userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
+
 
                 // Title
                 const titleSelector = editTaskContainer.querySelector("#editItemTitle")
@@ -928,7 +1035,7 @@ export const runApp = () => {
             return { show, hide, editFormActive }
         })()
 
-        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm }
+        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm, renderEditListForm }
     })()
 
     // APP LOGIC
