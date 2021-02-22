@@ -656,7 +656,6 @@ export const runApp = () => {
 
                 const editListContainer = document.getElementById("editListContainer")
                 const listHash = editListContainer.dataset.listhash
-                // console.log(`LIST HASH: ${listHash}`)
                 const listBinder = List.ListBinderStorage.get(listHash)
 
                 // Get the edited form data
@@ -668,13 +667,13 @@ export const runApp = () => {
 
                 // Reset the form
                 document.getElementById("editListForm").reset()
-                // editListContainer.style.display = "none"
 
                 // Reveal the edited node
-                // listBinder.node.style.display = "grid"
                 Render.renderEditListForm.hide()
                 listBinder.node.click()
 
+                // Update the TopBar
+                contentController.refreshTopBar(listHash)
             }
 
             const editListSubmitButton = document.querySelector("#editListSubmit")
