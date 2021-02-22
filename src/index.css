@@ -126,11 +126,6 @@ body {
     visibility: hidden;
 }
 
-#searchBarContainer:focus-within #clearIcon { 
-    /* Note: replace this css rule with JS to detect form typed input, then show the clear icon/button */
-    visibility: visible;
-}
-
 #searchBarContainer:focus-within {
     box-shadow: 0 0 5px 1px cyan;
 }
@@ -466,10 +461,6 @@ body {
 
 #editListSubmit {
     min-height: 1.5rem;
-}
-
-#editListTitle {
-
 }
 
 /* USER CONTENT CONTAINER */

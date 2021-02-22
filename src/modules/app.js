@@ -69,7 +69,7 @@ export const runApp = () => {
         }
 
         function createListBinder(listContainer, listNode) {
-            console.log(listContainer)
+            // console.log(listContainer)
             const listHash = listContainer.hash
             const listBinder = new ListBinderInstance(listNode, listContainer, listHash)
             ListBinderStorage.set(listHash, listBinder)
@@ -214,7 +214,9 @@ export const runApp = () => {
     })()
 
     // Search uses the sidebar interface to allow a user to search through all tasks
+
     const Search = (() => {
+
         const toggles = {
             scheduled: false,
             flagged: false,
@@ -222,62 +224,78 @@ export const runApp = () => {
             all: false,
         }
 
-        let searchResultObjects = []
+        // Runs a search based on either a text parameter, or an object that contains the bool state of the flagged/scheduled/today/all toggles
+        function runSearch(searchType, searchParameters) {
 
-        function runSearch() {
+            function _createSearchTest() {
+                if (searchType == "toggle") {
+                    function searchTest(task, searchParameters) {
 
-            // Get a list of all the task objects that fit the search requirements
+                        let shouldAddThisOne = false
+                        for (const [key, value] of Object.entries(searchParameters)) {
 
-            if (toggles.all) {
-                // Iterate over each list in listStorage
-                List.ListStorage.forEach((listContainer) => {
-                    const list = listContainer.list
-                    // Iterate over each task in list
-                    list.forEach((task) => {
-                        Search.searchResultObjects.push(task)
-                    })
-                })
-            }
-
-            else {
-                const searchParameters = []
-
-                for (const [key, value] of Object.entries(toggles)) {
-                    if (value) {
-                        searchParameters.push(key)
-                    }
-                }
-
-                // Iterate over each list in listStorage
-                List.ListStorage.forEach((listContainer) => {
-                    const list = listContainer.list
-                    // Iterate over each task in list
-                    list.forEach((task) => {
-                        let shouldAddThisOne = true
-                        // Iterate over each search parameter
-                        for (let i = 0; i < searchParameters.length; i++) {
-
-                            // If the search parameter is 'today', do something different
-                            if (searchParameters[i] == "today") {
-                                if (!isToday(task.dueDate)) {
-                                    shouldAddThisOne = false
+                            if (key == "all") {
+                                if (value) {
+                                    shouldAddThisOne = true
+                                    break
                                 }
-                            } else if (task[searchParameters[i]] != true) {
-                                shouldAddThisOne = false
+                            }
+
+                            else if (key == "today") {
+                                if (value) {
+                                    if (isToday(task.dueDate)) {
+                                        shouldAddThisOne = true
+                                        break
+                                    }
+                                }
+                            }
+
+                            else if (value) {
+                                if (task[key])
+                                    shouldAddThisOne = true
                             }
                         }
+                        return shouldAddThisOne
+                    }
+                    return searchTest
 
-                        if (shouldAddThisOne) {
-                            Search.searchResultObjects.push(task)
+                } else if (searchType == "text") {
+                    function searchTest(task, searchParameters) {
+                        if (searchParameters == "") {
+                            return true
+                        } else if (task.title.includes(searchParameters)) {
+                            return true
+                        } else {
+                            return false
                         }
-                    })
-                })
+                    }
+                    return searchTest
+                } else {
+                    console.log("Error with createSearchTest - no test type provided")
+                }
             }
-            return Search.searchResultObjects
+
+            const searchTest = _createSearchTest(searchType, searchParameters)
+
+            let searchResultObjects = []
+
+            // Iterate over each list in listStorage
+            List.ListStorage.forEach((listContainer) => {
+                const list = listContainer.list
+                // Iterate over each task in list
+                list.forEach((task) => {
+                    if (searchTest(task, searchParameters)) {
+                        searchResultObjects.push(task)
+                    }
+                })
+            })
+
+            return searchResultObjects
         }
 
-        function publishSearchResults() {
-            Search.searchResultObjects.forEach((taskObject) => {
+        function publishSearchResults(searchResults) {
+
+            searchResults.forEach((taskObject) => {
                 const listHash = 'searchResults'
                 const taskNode = TaskBinder.createTaskNode(taskObject)
                 const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
@@ -287,54 +305,17 @@ export const runApp = () => {
             // Hide the add task form
             document.getElementById("lowerAddTask").style.display = "none"
 
-            Search.searchResultObjects = []
+            // Update top bar
+            document.getElementById("listTitle").textContent = "Search"
+            document.getElementById("listTitle").style.color = "black"
+            document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
+
         }
 
-        function updateSideBarToggleCounts() {
-            const originalToggles = Object.assign(Search.toggles, {})
-            // Scheduled
-            const scheduledCountNode = document.querySelector(".scheduledCount")
-            Search.toggles.scheduled = true
-            Search.toggles.flagged = false
-            Search.toggles.today = false
-            Search.toggles.all = false
-            const scheduledCountSearch = Search.runSearch()
-            console.log(`scheduled: ${scheduledCountSearch}`)
-            const scheduledCount = scheduledCountSearch.length
-            scheduledCountNode.textContent = scheduledCount
-            Search.searchResultObjects = []
-            // Flagged
-            const flaggedCountNode = document.querySelector(".flaggedCount")
-            Search.toggles.scheduled = false
-            Search.toggles.flagged = true
-            Search.toggles.today = false
-            Search.toggles.all = false
-            const flaggedCount = Search.runSearch().length
-            flaggedCountNode.textContent = flaggedCount
-            Search.searchResultObjects = []
-            // Today
-            const todayCountNode = document.querySelector(".todayCount")
-            Search.toggles.scheduled = false
-            Search.toggles.flagged = false
-            Search.toggles.today = true
-            Search.toggles.all = false
-            const todayCount = Search.runSearch().length
-            todayCountNode.textContent = todayCount
-            Search.searchResultObjects = []
-            // All
-            const allCountNode = document.querySelector(".allCount")
-            Search.toggles.scheduled = false
-            Search.toggles.flagged = false
-            Search.toggles.today = false
-            Search.toggles.all = true
-            const allCount = Search.runSearch().length
-            allCountNode.textContent = allCount
-            Search.searchResultObjects = []
 
-            Search.toggles = originalToggles
-        }
 
-        return { toggles, runSearch, updateSideBarToggleCounts, searchResultObjects, publishSearchResults }
+        return { runSearch, toggles, publishSearchResults }
+
     })()
 
     // Listeners applies functionality to buttons in DOM elements.
@@ -347,7 +328,7 @@ export const runApp = () => {
                 button.addEventListener("click", function () {
                     TaskBinder.deleteTaskBinder(taskBinder)
                     List.updateTaskCounters()
-                    Search.updateSideBarToggleCounts()
+                    Listeners.sideBarToggles.updateSideBarToggleCounts()
                 })
             }
 
@@ -384,7 +365,7 @@ export const runApp = () => {
                     Render.renderAddTaskForm.hide()
                     Render.renderEditTaskForm.hide()
                     contentController.unloadLists()
-                    console.log("clicked on list")
+                    // console.log("clicked on list")
                     contentController.loadList(listBinder.listHash)
                     contentController.refreshTopBar(listBinder.listHash)
                     document.getElementById("lowerAddTask").style.display = "flex"
@@ -404,6 +385,22 @@ export const runApp = () => {
                 contentController.generateHome()
             })
         }
+
+        const searchBar = (() => {
+            const searchInputNode = document.getElementById("searchBar")
+            searchInputNode.addEventListener("input", function (e) {
+                document.getElementById("clearIcon").style.visibility = "visible"
+                contentController.unloadLists()
+                const searchResults = Search.runSearch("text", e.target.value)
+                Search.publishSearchResults(searchResults)
+            })
+
+            const searchClearButton = document.getElementById("clearIcon")
+            searchClearButton.addEventListener("click", () => {
+                searchInputNode.value = ""
+                contentController.unloadLists()
+            })
+        })()
 
         const addListButton = (() => {
             const button = document.getElementById("addListButton")
@@ -454,7 +451,7 @@ export const runApp = () => {
 
                         instance.setDate()
                         dateNode.value = format(date, "eee d/M/yy")
-                        console.log(dateNode)
+                        // console.log(dateNode)
 
                         if (formType == "newTaskForm") {
 
@@ -579,7 +576,7 @@ export const runApp = () => {
             const editTaskButton = document.getElementById("editTaskAbort")
             editTaskButton.addEventListener("click", function () {
                 document.getElementById("editTaskForm").reset()
-                console.log("hide activated")
+                // console.log("hide activated")
                 Render.renderEditTaskForm.hide()
                 Render.renderEditTaskForm.editFormActive = false
             })
@@ -647,7 +644,7 @@ export const runApp = () => {
                 taskBinder.node.style.display = "grid"
 
                 // Update side bar toggle counts
-                Search.updateSideBarToggleCounts()
+                Listeners.sideBarToggles.updateSideBarToggleCounts()
             }
 
             const editTaskSubmitButton = document.querySelector("#editTaskSubmit")
@@ -659,7 +656,7 @@ export const runApp = () => {
 
                 const editListContainer = document.getElementById("editListContainer")
                 const listHash = editListContainer.dataset.listhash
-                console.log(`LIST HASH: ${listHash}`)
+                // console.log(`LIST HASH: ${listHash}`)
                 const listBinder = List.ListBinderStorage.get(listHash)
 
                 // Get the edited form data
@@ -731,7 +728,7 @@ export const runApp = () => {
                 document.getElementById("dateInput").value = ""
                 document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
 
-                Search.updateSideBarToggleCounts()
+                Listeners.sideBarToggles.updateSideBarToggleCounts()
             }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -748,10 +745,10 @@ export const runApp = () => {
                 const listColor = document.getElementById("newListColor").dataset.color
                 const listObjectHash = List.createListObject(listTitle, listColor)
                 const listObject = List.ListStorage.get(listObjectHash)
-                console.log(listObject)
+                // console.log(listObject)
                 const listNode = List.createListNode(listObject)
                 const listBinder = List.createListBinder(listObject, listNode)
-                console.log(listBinder)
+                // console.log(listBinder)
                 applyListListeners(listBinder)
 
                 userContentContainer.setAttribute("data-activelist", listBinder.listHash)
@@ -773,88 +770,54 @@ export const runApp = () => {
 
         })()
 
-        const scheduledToggle = (() => {
-            const button = document.getElementById("scheduledToggle")
-            button.addEventListener("click", () => {
-                contentController.unloadLists()
-                if (button.classList.contains("scheduledToggleActive")) {
-                    button.classList.remove("scheduledToggleActive")
-                    Search.toggles.scheduled = false
+        const sideBarToggles = (() => {
 
-                } else {
-                    button.classList.add("scheduledToggleActive")
-                    document.getElementById("listTitle").textContent = "Search"
-                    document.getElementById("listTitle").style.color = "black"
-                    Search.toggles.scheduled = true
-                }
+            const toggles = ["scheduled", "flagged", "today", "all"]
 
-                const searchResults = Search.runSearch()
-                Search.publishSearchResults()
-                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
+            toggles.forEach(toggle => {
+                const button = document.getElementById(`${toggle}Toggle`)
+                button.addEventListener("click", () => {
+                    contentController.unloadLists()
+                    if (button.classList.contains(`${toggle}ToggleActive`)) {
+                        button.classList.remove(`${toggle}ToggleActive`)
+                        Search.toggles[`${toggle}`] = false
+
+                    } else {
+                        contentController.unloadLists()
+                        button.classList.add(`${toggle}ToggleActive`)
+                        document.getElementById("listTitle").textContent = "Search"
+                        document.getElementById("listTitle").style.color = "black"
+                        Search.toggles[`${toggle}`] = true
+                    }
+
+                    const searchResults = Search.runSearch("toggle", Search.toggles)
+                    Search.publishSearchResults(searchResults)
+                })
             })
-        })()
 
-        const flaggedToggle = (() => {
-            const button = document.getElementById("flaggedToggle")
-            button.addEventListener("click", () => {
-                contentController.unloadLists()
-                if (button.classList.contains("flaggedToggleActive")) {
-                    button.classList.remove("flaggedToggleActive")
-                    Search.toggles.flagged = false
+            function updateSideBarToggleCounts() {
 
-                } else {
-                    button.classList.add("flaggedToggleActive")
-                    document.getElementById("listTitle").textContent = "Search"
-                    document.getElementById("listTitle").style.color = "black"
-                    Search.toggles.flagged = true
-                }
+                toggles.forEach(toggle => {
 
-                const searchResults = Search.runSearch()
-                Search.publishSearchResults()
-                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
-            })
-        })()
+                    function generateSearchParameters(toggle) {
+                        let togglesRange = Object.assign({}, Search.toggles)
+                        for (const tog in togglesRange) {
+                            togglesRange[tog] = false
+                        }
+                        togglesRange[toggle] = true
 
-        const allToggle = (() => {
-            const button = document.getElementById("allToggle")
-            button.addEventListener("click", () => {
-                contentController.unloadLists()
-                if (button.classList.contains("allToggleActive")) {
-                    button.classList.remove("allToggleActive")
-                    Search.toggles.all = false
-                }
-                else {
-                    button.classList.add("allToggleActive")
-                    document.getElementById("listTitle").textContent = "Search"
-                    document.getElementById("listTitle").style.color = "black"
-                    Search.toggles.all = true
-                }
+                        return togglesRange
+                    }
 
-                const searchResults = Search.runSearch()
-                Search.publishSearchResults()
-                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
-            })
-        })()
+                    const countNode = document.querySelector(`.${toggle}Count`)
+                    const searchParameters = generateSearchParameters(toggle)
+                    const searchResults = Search.runSearch("toggle", searchParameters)
+                    countNode.textContent = searchResults.length
 
-        const todayToggle = (() => {
-            const button = document.getElementById("todayToggle")
-            button.addEventListener("click", () => {
-                contentController.unloadLists()
-                if (button.classList.contains("todayToggleActive")) {
-                    button.classList.remove("todayToggleActive")
-                    Search.toggles.today = false
-                }
-                else {
-                    button.classList.add("todayToggleActive")
-                    document.getElementById("listTitle").textContent = "Search"
-                    document.getElementById("listTitle").style.color = "black"
-                    Search.toggles.today = true
-                }
+                })
+            }
 
-                const searchResults = Search.runSearch()
-                Search.publishSearchResults()
-                document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
-            })
+            return { updateSideBarToggleCounts }
         })()
 
         const dateCheckBox = (() => {
@@ -887,7 +850,7 @@ export const runApp = () => {
             })()
         })()
 
-        return { applyTaskListeners, applyListListeners }
+        return { applyTaskListeners, applyListListeners, sideBarToggles }
 
     })()
 
@@ -1015,8 +978,8 @@ export const runApp = () => {
             let editListFormActive = false
 
             function show(listBinder) {
-                console.log("Show function activated")
-                console.log(listBinder)
+                // console.log("Show function activated")
+                // console.log(listBinder)
 
                 Render.renderEditListForm.editListFormActive = true
                 editListFormContainer.style.display = "flex"
@@ -1130,15 +1093,17 @@ export const runApp = () => {
             document.getElementById("topBar").addEventListener("click", function () {
                 console.log("LIST STORAGE")
                 console.log(List.ListStorage)
-                console.log("LIST BINDER STORAGE")
-                console.log(List.ListBinderStorage)
-                console.log("TASK BINDER STORAGE")
-                console.log(TaskBinder.TaskBinderStorage)
+                // console.log("LIST BINDER STORAGE")
+                // console.log(List.ListBinderStorage)
+                // console.log("TASK BINDER STORAGE")
+                // console.log(TaskBinder.TaskBinderStorage)
+                console.log("SEARCH TOGGLES")
+                console.log(Search.toggles)
             })
 
         })()
 
         contentController.generateHome()
-        Search.updateSideBarToggleCounts()
+        Listeners.sideBarToggles.updateSideBarToggleCounts()
     })()
 }
