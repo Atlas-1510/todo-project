@@ -188,7 +188,7 @@ export const runApp = () => {
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
         }
 
-        function editTaskBinder(taskBinder, newTitle, newDate, flagToggle) {
+        function editTaskBinder(taskBinder, newTitle, newDate, flagToggle, completeToggle) {
 
             // Update the task object with the newly edited data
             if (newTitle !== "") {
@@ -205,6 +205,12 @@ export const runApp = () => {
 
             if (taskBinder.obj.flagged != flagToggle) {
                 taskBinder.obj.flagged = flagToggle
+            }
+
+            if (completeToggle) {
+                taskBinder.obj.completeBool = true
+            } else {
+                taskBinder.obj.completeBool = false
             }
 
             // Update the node with the newly edited data in the task object
@@ -573,9 +579,7 @@ export const runApp = () => {
             const editTaskButton = document.getElementById("editTaskAbort")
             editTaskButton.addEventListener("click", function () {
                 document.getElementById("editTaskForm").reset()
-                // console.log("hide activated")
                 Render.renderEditTaskForm.hide()
-                Render.renderEditTaskForm.editFormActive = false
             })
 
             const newListAbortButton = document.getElementById("newListAbort")
@@ -611,13 +615,14 @@ export const runApp = () => {
                 const taskHash = editTaskContainer.dataset.taskhash
                 const taskBinder = TaskBinder.TaskBinderStorage.get(taskHash)
 
-                // Complete checkbox
-                const taskNodeCheckbox = taskBinder.node.querySelector(".checkbox")
-                if (taskBinder.obj.completeBool) {
-                    taskNodeCheckbox.src = filledSquareIcon
-                } else {
-                    taskNodeCheckbox.src = emptySquareIcon
-                }
+                // Need to remove the listener from the checkbox here??
+                const editFormCheckBox = editTaskContainer.querySelector(".checkbox")
+                editFormCheckBox.removeEventListener("click", Listeners.completeCheckBoxEditForm)
+
+                // Complete toggle 
+                // need to pass updated toggle info to function call below
+                const completeBool = (editTaskContainer.dataset.complete === 'true');
+                editTaskContainer.removeAttribute("data-complete")
 
                 // Title
                 const title = document.getElementById("editItemTitle").value
@@ -638,11 +643,12 @@ export const runApp = () => {
                 flagButton.classList.remove("flagActive")
 
                 // Update the taskBinder
-                TaskBinder.editTaskBinder(taskBinder, title, date, flagToggle)
+                TaskBinder.editTaskBinder(taskBinder, title, date, flagToggle, completeBool)
 
                 // Reset and hide the form
                 document.getElementById("editTaskForm").reset()
                 editTaskContainer.style.display = "none"
+                editTaskContainer.removeAttribute("data-taskhash")
 
                 // Reveal the edited node
                 taskBinder.node.style.display = "grid"
@@ -854,7 +860,22 @@ export const runApp = () => {
             })()
         })()
 
-        return { applyTaskListeners, applyListListeners, sideBarToggles }
+        const completeCheckBoxEditForm = () => {
+
+            const editTaskContainer = document.querySelector("#editTaskContainer")
+            const checkbox = editTaskContainer.querySelector(".checkbox")
+
+            let isComplete = (editTaskContainer.dataset.complete === 'true')
+            if (isComplete) {
+                checkbox.src = emptySquareIcon
+                editTaskContainer.setAttribute("data-complete", "false")
+            } else {
+                checkbox.src = filledSquareIcon
+                editTaskContainer.setAttribute("data-complete", "true")
+            }
+        }
+
+        return { applyTaskListeners, applyListListeners, sideBarToggles, completeCheckBoxEditForm }
 
     })()
 
@@ -1028,19 +1049,12 @@ export const runApp = () => {
                 const checkbox = editTaskContainer.querySelector(".checkbox")
                 if (taskBinder.obj.completeBool) {
                     checkbox.src = filledSquareIcon
+                    editTaskContainer.setAttribute("data-complete", "true")
                 } else if (!taskBinder.obj.completeBool) {
                     checkbox.src = emptySquareIcon
+                    editTaskContainer.setAttribute("data-complete", "false")
                 }
-                checkbox.addEventListener("click", () => {
-                    console.log(taskBinder.obj.completeBool)
-                    taskBinder.obj.completeBool = !taskBinder.obj.completeBool
-                    console.log(taskBinder.obj.completeBool)
-                    if (taskBinder.obj.completeBool) {
-                        checkbox.src = filledSquareIcon
-                    } else if (!taskBinder.obj.completeBool) {
-                        checkbox.src = emptySquareIcon
-                    }
-                })
+                checkbox.addEventListener("click", Listeners.completeCheckBoxEditForm)
 
                 // Title
                 const titleSelector = editTaskContainer.querySelector("#editItemTitle")
@@ -1078,10 +1092,10 @@ export const runApp = () => {
 
                 const taskHash = editTaskContainer.dataset.taskhash
                 const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
+                // THIS IS THE PROBLEM
                 if (taskBinderInstance) {
-                    taskBinderInstance.node.style.display = "flex"
+                    taskBinderInstance.node.style.display = "grid"
                 }
-
                 editTaskContainer.style.display = "none"
                 editTaskContainer.removeAttribute("data-taskHash")
                 editTaskContainer.removeAttribute("data-listHash")

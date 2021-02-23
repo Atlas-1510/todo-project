@@ -2,6 +2,8 @@ import publish from "./publishEvent"
 import format from 'date-fns/format'
 import createNode from "./createNode"
 import flagIcon from "../img/flag.svg"
+import emptySquareIcon from "../img/square.svg"
+import filledSquareIcon from "../img/square-fill.svg"
 
 export default class TaskBinder {
     constructor(node, obj, listHash, taskHash) {
@@ -46,9 +48,15 @@ export default class TaskBinder {
             this.node.querySelector(".taskFlagIcon").src = ""
         }
 
+        // Complete checkbox
+        const taskNodeCheckbox = this.node.querySelector(".checkbox")
+        if (this.obj.completeBool) {
+            taskNodeCheckbox.src = filledSquareIcon
+        } else {
+            taskNodeCheckbox.src = emptySquareIcon
+        }
+
         this.node.querySelector(".taskDescription").textContent = objectTitle
         this.node.querySelector(".taskDueDate").textContent = objectDueDate
-
-        console.log(this)
     }
 }
