@@ -127,6 +127,7 @@ export const runApp = () => {
 
             const taskNode = createNode("li", userContentContainer, "", "task")
             const checkbox = createNode("img", taskNode, "", "checkbox")
+            console.log(taskObject.completeBool)
             if (!taskObject.completeBool) {
                 checkbox.src = emptySquareIcon
             } else {
@@ -214,7 +215,6 @@ export const runApp = () => {
     })()
 
     // Search uses the sidebar interface to allow a user to search through all tasks
-
     const Search = (() => {
 
         const toggles = {
@@ -335,18 +335,27 @@ export const runApp = () => {
             function _addEditListener(taskBinder) {
                 const button = taskBinder.node.querySelector(".editTaskIcon")
                 button.addEventListener("click", () => {
+                    console.log("edit form activated")
                     taskBinder.node.style.display = "none"
-                    if (Render.renderEditTaskForm.editFormActive) {
-                        Render.renderEditTaskForm.hide()
-                    }
-                    if (Render.renderAddTaskForm.newFormActive) {
-                        Render.renderAddTaskForm.hide()
-                    }
+                    Render.hideAllForms()
                     Render.renderEditTaskForm.show(taskBinder)
-                    Render.renderAddListForm.hide()
                 })
             }
 
+            function _addCheckBoxListener(taskBinder) {
+                const checkbox = taskBinder.node.querySelector(".checkbox")
+                checkbox.addEventListener("click", () => {
+                    console.log(taskBinder.obj.completeBool)
+                    taskBinder.obj.completeBool = !taskBinder.obj.completeBool
+                    console.log(taskBinder.obj.completeBool)
+                    if (taskBinder.obj.completeBool) {
+                        checkbox.src = filledSquareIcon
+                    } else if (!taskBinder.obj.completeBool) {
+                        checkbox.src = emptySquareIcon
+                    }
+                })
+            }
+            _addCheckBoxListener(taskBinder)
             _addDeletionListener(taskBinder)
             _addEditListener(taskBinder)
         }
@@ -391,6 +400,7 @@ export const runApp = () => {
             searchInputNode.addEventListener("input", function (e) {
                 document.getElementById("clearIcon").style.visibility = "visible"
                 contentController.unloadLists()
+                Render.hideAllForms()
                 const searchResults = Search.runSearch("text", e.target.value)
                 Search.publishSearchResults(searchResults)
             })
@@ -405,12 +415,7 @@ export const runApp = () => {
         const addListButton = (() => {
             const button = document.getElementById("addListButton")
             button.addEventListener("click", function () {
-                if (Render.renderEditTaskForm.editFormActive) {
-                    Render.renderEditTaskForm.hide()
-                }
-                if (Render.renderAddTaskForm.newFormActive) {
-                    Render.renderAddTaskForm.hide()
-                }
+                Render.hideAllForms()
                 Render.renderAddListForm.show()
             })
         })()
@@ -420,16 +425,8 @@ export const runApp = () => {
             for (let i = 0; i < buttons.length; i++) {
                 const button = buttons[i]
                 button.addEventListener("click", function () {
-
-                    if (Render.renderEditTaskForm.editFormActive) {
-                        Render.renderEditTaskForm.hide()
-                    }
-
-                    if (Render.renderAddTaskForm.newFormActive) {
-                        Render.renderAddTaskForm.hide()
-                    }
+                    Render.hideAllForms()
                     Render.renderAddTaskForm.show()
-                    Render.renderAddListForm.hide()
                 })
             }
         })()
@@ -614,8 +611,15 @@ export const runApp = () => {
                 const taskHash = editTaskContainer.dataset.taskhash
                 const taskBinder = TaskBinder.TaskBinderStorage.get(taskHash)
 
-                // Get the edited form data
-                const completeBool = false // make this changeable later
+                // Complete checkbox
+                const taskNodeCheckbox = taskBinder.node.querySelector(".checkbox")
+                if (taskBinder.obj.completeBool) {
+                    taskNodeCheckbox.src = filledSquareIcon
+                } else {
+                    taskNodeCheckbox.src = emptySquareIcon
+                }
+
+                // Title
                 const title = document.getElementById("editItemTitle").value
 
                 // Date
@@ -777,6 +781,7 @@ export const runApp = () => {
                 const button = document.getElementById(`${toggle}Toggle`)
                 button.addEventListener("click", () => {
                     contentController.unloadLists()
+                    Render.hideAllForms()
                     if (button.classList.contains(`${toggle}ToggleActive`)) {
                         button.classList.remove(`${toggle}ToggleActive`)
                         Search.toggles[`${toggle}`] = false
@@ -916,7 +921,7 @@ export const runApp = () => {
         return { loadList, unloadLists, loadListsIntoSideBar, refreshTopBar, generateHome }
     })()
 
-    // Render loads interactable DOM elements such as forms and buttons.
+    // Render loads/unloads interactable DOM elements such as forms and buttons.
     const Render = (() => {
 
         const renderAddListForm = (() => {
@@ -946,17 +951,13 @@ export const runApp = () => {
             const lowerAddButton = document.getElementById("lowerAddTask")
             const inputFocus = document.getElementById("newItemTitle")
 
-            let newFormActive = false
-
             function show() {
                 form.style.display = "flex"
                 lowerAddButton.style.display = "none"
                 inputFocus.focus()
-                Render.renderAddTaskForm.newFormActive = true
             }
 
             function hide() {
-                newFormActive = false
                 form.style.display = "none"
                 lowerAddButton.style.display = "flex"
                 // Move the 'Add Task' button to the end of the user content container, after the new task item
@@ -966,7 +967,7 @@ export const runApp = () => {
                 newItem.parentNode.insertBefore(form, newItem.nextSibling)
             }
 
-            return { show, hide, newFormActive }
+            return { show, hide }
 
         })()
 
@@ -974,11 +975,7 @@ export const runApp = () => {
 
             const editListFormContainer = document.getElementById("editListContainer")
 
-            let editListFormActive = false
-
             function show(listBinder) {
-                // console.log("Show function activated")
-                // console.log(listBinder)
 
                 Render.renderEditListForm.editListFormActive = true
                 editListFormContainer.style.display = "flex"
@@ -1004,32 +1001,46 @@ export const runApp = () => {
             }
 
             function hide() {
-                if (Render.renderEditListForm.editListFormActive) {
-                    Render.renderEditListForm.editListFormActive = false
-                    const listHash = editListFormContainer.dataset.listhash
-                    const listBinderInstance = List.ListBinderStorage.get(listHash)
-                    listBinderInstance.node.style.display = "grid"
 
-                    editListFormContainer.style.display = "none"
-                    editListFormContainer.removeAttribute("data-listHash")
+                const listHash = editListFormContainer.dataset.listhash
+                const listBinderInstance = List.ListBinderStorage.get(listHash)
+                if (listBinderInstance) {
+                    listBinderInstance.node.style.display = "grid"
                 }
+
+                editListFormContainer.style.display = "none"
+                editListFormContainer.removeAttribute("data-listHash")
+
             }
 
-            return { show, hide, editListFormActive }
+            return { show, hide }
         })()
 
         const renderEditTaskForm = (() => {
 
             const editTaskContainer = document.querySelector("#editTaskContainer")
 
-            let editFormActive = false
-
             function show(taskBinder) {
-
-                Render.renderEditTaskForm.editFormActive = true
 
                 userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
 
+                // Complete checkbox
+                const checkbox = editTaskContainer.querySelector(".checkbox")
+                if (taskBinder.obj.completeBool) {
+                    checkbox.src = filledSquareIcon
+                } else if (!taskBinder.obj.completeBool) {
+                    checkbox.src = emptySquareIcon
+                }
+                checkbox.addEventListener("click", () => {
+                    console.log(taskBinder.obj.completeBool)
+                    taskBinder.obj.completeBool = !taskBinder.obj.completeBool
+                    console.log(taskBinder.obj.completeBool)
+                    if (taskBinder.obj.completeBool) {
+                        checkbox.src = filledSquareIcon
+                    } else if (!taskBinder.obj.completeBool) {
+                        checkbox.src = emptySquareIcon
+                    }
+                })
 
                 // Title
                 const titleSelector = editTaskContainer.querySelector("#editItemTitle")
@@ -1065,22 +1076,28 @@ export const runApp = () => {
 
             function hide() {
 
-                if (Render.renderEditTaskForm.editFormActive) {
-                    Render.renderEditTaskForm.editFormActive = false
-                    const taskHash = editTaskContainer.dataset.taskhash
-                    const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
+                const taskHash = editTaskContainer.dataset.taskhash
+                const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
+                if (taskBinderInstance) {
                     taskBinderInstance.node.style.display = "flex"
-
-                    editTaskContainer.style.display = "none"
-                    editTaskContainer.removeAttribute("data-taskHash")
-                    editTaskContainer.removeAttribute("data-listHash")
                 }
+
+                editTaskContainer.style.display = "none"
+                editTaskContainer.removeAttribute("data-taskHash")
+                editTaskContainer.removeAttribute("data-listHash")
             }
 
-            return { show, hide, editFormActive }
+            return { show, hide }
         })()
 
-        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm, renderEditListForm }
+        const hideAllForms = () => {
+            renderAddListForm.hide()
+            renderAddTaskForm.hide()
+            renderEditListForm.hide()
+            renderEditTaskForm.hide()
+        }
+
+        return { renderAddTaskForm, renderEditTaskForm, renderAddListForm, renderEditListForm, hideAllForms }
     })()
 
     const App = (() => {
