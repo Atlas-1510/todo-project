@@ -695,7 +695,7 @@ export const runApp = () => {
                 }
                 const storedDateValue = parseInt(document.getElementById("dateInput").dataset.date)
                 const date = storedDateValue
-                const completeBool = false // make this changeable later
+                const completeBool = false
                 const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
                 if (!isNaN(date)) {
                     taskObject.scheduled = true
