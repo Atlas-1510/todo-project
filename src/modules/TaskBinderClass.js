@@ -25,7 +25,7 @@ export default class TaskBinder {
         const nodeDueDate = this.node.dataset.duedate
 
         this.obj.name = nodeTitle
-        this.obj.dueDate = nodeDueDate
+        this.obj.date = nodeDueDate
 
         console.log(this)
     }
@@ -37,8 +37,8 @@ export default class TaskBinder {
 
         // Date
         let objectDueDate
-        if (this.obj.dueDate) {
-            objectDueDate = format(this.obj.dueDate, "dd/MM/yy")
+        if (this.obj.date) {
+            objectDueDate = format(this.obj.date, "dd/MM/yy")
         }
 
         // Flag

@@ -227,26 +227,28 @@ export const runApp = () => {
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
         }
 
-        function editTaskBinder(taskBinder, newTitle, newDate, flagToggle, completeToggle) {
+        function editTaskBinder(taskParameters) {
+
+            const taskBinder = taskParameters.taskBinder
 
             // Update the task object with the newly edited data
-            if (newTitle !== "") {
-                taskBinder.obj.name = newTitle
+            if (taskParameters.name !== "") {
+                taskBinder.obj.name = taskParameters.title
             }
 
-            taskBinder.obj.date = newDate
+            taskBinder.obj.date = taskParameters.date
 
-            if (!isNaN(newDate)) {
+            if (!isNaN(taskParameters.date)) {
                 taskBinder.obj.scheduled = true
             } else {
                 taskBinder.obj.scheduled = false
             }
 
-            if (taskBinder.obj.flagged != flagToggle) {
-                taskBinder.obj.flagged = flagToggle
+            if (taskBinder.obj.flagged != taskParameters.flagged) {
+                taskBinder.obj.flagged = taskParameters.flagged
             }
 
-            if (completeToggle) {
+            if (taskParameters.completeBool) {
                 taskBinder.obj.completeBool = true
             } else {
                 taskBinder.obj.completeBool = false
@@ -256,59 +258,11 @@ export const runApp = () => {
             taskBinder.change()
         }
 
-        function editTaskSubmit() {
-
-            const editTaskContainer = document.getElementById("editTaskContainer")
-            const taskHash = editTaskContainer.dataset.taskhash
-            const taskBinder = TaskBinder.TaskBinderStorage.get(taskHash)
-
-            // Need to remove the listener from the checkbox here??
-            const editFormCheckBox = editTaskContainer.querySelector(".checkbox")
-            editFormCheckBox.removeEventListener("click", Listeners.completeCheckBoxEditForm)
-
-            // Complete toggle 
-            // need to pass updated toggle info to function call below
-            const completeBool = (editTaskContainer.dataset.complete === 'true');
-            editTaskContainer.removeAttribute("data-complete")
-
-            // Title
-            const title = document.getElementById("editItemTitle").value
-
-            // Date
-            const dateInput = document.getElementById("editDateInput")
-            dateInput.classList.remove("dateChosen")
-            const date = parseInt(dateInput.dataset.date)
-            dateInput.removeAttribute("data-date")
-            dateInput.setAttribute("placeholder", "Add Date")
-            document.getElementById("editFormDateDeleteButton").style.display = "none"
-
-
-            // Flag
-            const flagButton = document.getElementById("editItemFlag")
-            const flagToggle = (flagButton.dataset.flagged == "true")
-            flagButton.removeAttribute("data-flagged")
-            flagButton.classList.remove("flagActive")
-
-            // Update the taskBinder
-            TaskBinder.editTaskBinder(taskBinder, title, date, flagToggle, completeBool)
-
-            // Reset and hide the form
-            document.getElementById("editTaskForm").reset()
-            editTaskContainer.style.display = "none"
-            editTaskContainer.removeAttribute("data-taskhash")
-
-            // Reveal the edited node
-            taskBinder.node.style.display = "grid"
-
-            // Update side bar toggle counts
-            Listeners.sideBarToggles.updateSideBarToggleCounts()
-        }
-
         // Function to handle submission of form input into new task binder
         function submitNewTask(taskParameters) {
 
             // {
-            //     title
+            //     name
             //     date
             //     completeBool
             //     flagged
@@ -322,7 +276,7 @@ export const runApp = () => {
             Listeners.applyTaskListeners(taskBinder)
         }
 
-        return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode, editTaskSubmit, submitNewTask }
+        return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode, submitNewTask }
     })()
 
     // Search uses the sidebar interface to allow a user to search through all tasks
@@ -716,7 +670,53 @@ export const runApp = () => {
 
             const editTaskSubmitButton = document.querySelector("#editTaskSubmit")
             editTaskSubmitButton.addEventListener("click", function () {
-                TaskBinder.editTaskSubmit()
+
+                // GET THE EDIT FORM INFORMATION
+
+                const editTaskContainer = document.getElementById("editTaskContainer")
+                const taskHash = editTaskContainer.dataset.taskhash
+                const taskBinder = TaskBinder.TaskBinderStorage.get(taskHash)
+                const completeBool = (editTaskContainer.dataset.complete === 'true');
+                const name = document.getElementById("editItemTitle").value
+                const dateInput = document.getElementById("editDateInput")
+                const date = parseInt(dateInput.dataset.date)
+                const flagButton = document.getElementById("editItemFlag")
+                const flagged = (flagButton.dataset.flagged == "true")
+
+
+                const taskParameters = {
+                    taskBinder,
+                    completeBool,
+                    name,
+                    date,
+                    flagged,
+                }
+
+
+                TaskBinder.editTaskBinder(taskParameters)
+
+                // RESET AND HIDE THE FORM
+                const editFormCheckBox = editTaskContainer.querySelector(".checkbox")
+                editFormCheckBox.removeEventListener("click", Listeners.completeCheckBoxEditForm)
+
+                editTaskContainer.removeAttribute("data-complete")
+
+                dateInput.classList.remove("dateChosen")
+                dateInput.removeAttribute("data-date")
+                dateInput.setAttribute("placeholder", "Add Date")
+                document.getElementById("editFormDateDeleteButton").style.display = "none"
+                flagButton.removeAttribute("data-flagged")
+                flagButton.classList.remove("flagActive")
+
+                document.getElementById("editTaskForm").reset()
+                editTaskContainer.style.display = "none"
+                editTaskContainer.removeAttribute("data-taskhash")
+
+                // REVEAL THE EDITED NODE
+                taskBinder.node.style.display = "grid"
+
+                // Update side bar toggle counts
+                Listeners.sideBarToggles.updateSideBarToggleCounts()
             })
 
             const editListSubmitButton = document.querySelector("#editListSubmit")
