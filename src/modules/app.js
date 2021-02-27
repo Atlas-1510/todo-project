@@ -147,17 +147,17 @@ export const runApp = () => {
 
         const TaskBinderStorage = new Map()
 
-        function createTaskObject(completeBool, title, dueDate) {
+        function createTaskObject(taskParameters) {
 
-            const taskHash = title + new Date()
+            const taskHash = taskParameters.name + new Date()
 
             const task = {
-                completeBool,
-                title,
-                dueDate,
-                taskHash,
-                flagged: false,
-                scheduled: false,
+                completeBool: taskParameters.completeBool,
+                name: taskParameters.name,
+                date: taskParameters.date,
+                taskHash: taskHash,
+                flagged: taskParameters.flagged,
+                scheduled: taskParameters.scheduled,
             }
 
             return task
@@ -167,7 +167,6 @@ export const runApp = () => {
 
             const taskNode = createNode("li", userContentContainer, "", "task")
             const checkbox = createNode("img", taskNode, "", "checkbox")
-            console.log(taskObject.completeBool)
             if (!taskObject.completeBool) {
                 checkbox.src = emptySquareIcon
             } else {
@@ -175,11 +174,11 @@ export const runApp = () => {
             }
 
             const taskDescription = createNode("div", taskNode, "", "taskDescription")
-            taskDescription.textContent = taskObject.title
+            taskDescription.textContent = taskObject.name
 
             const taskDueDate = createNode("div", taskNode, "", "taskDueDate")
-            if (taskObject.dueDate) {
-                let date = taskObject.dueDate
+            if (taskObject.date) {
+                let date = taskObject.date
                 date = format(date, "dd/MM/yy")
                 taskDueDate.textContent = date
             }
@@ -202,8 +201,8 @@ export const runApp = () => {
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
             taskNode.setAttribute("data-hash", taskObject.hash)
 
-            taskNode.setAttribute("data-title", taskObject.title)
-            taskNode.setAttribute("data-duedate", taskObject.dueDate)
+            taskNode.setAttribute("data-title", taskObject.name)
+            taskNode.setAttribute("data-duedate", taskObject.date)
 
             return taskNode
         }
@@ -232,10 +231,10 @@ export const runApp = () => {
 
             // Update the task object with the newly edited data
             if (newTitle !== "") {
-                taskBinder.obj.title = newTitle
+                taskBinder.obj.name = newTitle
             }
 
-            taskBinder.obj.dueDate = newDate
+            taskBinder.obj.date = newDate
 
             if (!isNaN(newDate)) {
                 taskBinder.obj.scheduled = true
@@ -306,49 +305,21 @@ export const runApp = () => {
         }
 
         // Function to handle submission of form input into new task binder
-        function submitNewTask() {
-            const title = document.getElementById("newItemTitle").value
-            if (title == "") {
-                alert("Remember to give your task a title!")
-                return
-            }
-            const storedDateValue = parseInt(document.getElementById("dateInput").dataset.date)
-            const date = storedDateValue
-            const completeBool = false
-            const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
-            if (!isNaN(date)) {
-                taskObject.scheduled = true
-            }
-            document.getElementById("dateInput").setAttribute("data-date", NaN)
-            document.getElementById("dateInput").classList.remove("dateChosen")
-            document.getElementById("newFormDateCheckBox").style.display = "none"
+        function submitNewTask(taskParameters) {
 
-            const flagButton = document.getElementById("newItemFlag")
-            if (flagButton.dataset.flagged == "true") {
-                taskObject.flagged = true
+            // {
+            //     title
+            //     date
+            //     completeBool
+            //     flagged
+            //     listHash
+            // }
 
-            } else {
-                taskObject.flagged = false
-            }
-            flagButton.removeAttribute("data-flagged")
-            flagButton.classList.remove("flagActive")
-
+            const taskObject = TaskBinder.createTaskObject(taskParameters)
             const taskNode = TaskBinder.createTaskNode(taskObject)
-            const listHash = userContentContainer.dataset.activelist
-            const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
+            const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, taskParameters.listHash)
             TaskBinder.storeTaskBinder(taskBinder)
             Listeners.applyTaskListeners(taskBinder)
-
-            List.updateTaskCounters()
-            contentController.refreshTopBar(listHash)
-
-            if (document.getElementById("dateDeleteButton")) {
-                document.getElementById("dateDeleteButton").remove()
-            }
-            document.getElementById("dateInput").value = ""
-            document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
-
-            Listeners.sideBarToggles.updateSideBarToggleCounts()
         }
 
         return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode, editTaskSubmit, submitNewTask }
@@ -383,7 +354,7 @@ export const runApp = () => {
 
                             else if (key == "today") {
                                 if (value) {
-                                    if (isToday(task.dueDate)) {
+                                    if (isToday(task.date)) {
                                         shouldAddThisOne = true
                                         break
                                     }
@@ -403,7 +374,7 @@ export const runApp = () => {
                     function searchTest(task, searchParameters) {
                         if (searchParameters == "") {
                             return true
-                        } else if (task.title.includes(searchParameters)) {
+                        } else if (task.name.includes(searchParameters)) {
                             return true
                         } else {
                             return false
@@ -451,8 +422,6 @@ export const runApp = () => {
             document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
 
         }
-
-
 
         return { runSearch, toggles, publishSearchResults }
 
@@ -778,11 +747,66 @@ export const runApp = () => {
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
             newTaskSubmitButton.addEventListener("click", function () {
-                TaskBinder.submitNewTask()
+
+                // TASK PARAMETERS
+                // {
+                //     name
+                //     date
+                //     completeBool
+                //     flagged
+                //     listHash
+                // }
+
+                // EXTRACT FORM DATA
+                const name = document.getElementById("newItemTitle").value
+                if (name == "") {
+                    alert("Remember to give your task a title!")
+                    return
+                }
+                const date = parseInt(document.getElementById("dateInput").dataset.date)
+                let scheduled = false
+                if (!isNaN(date)) {
+                    scheduled = true
+                }
+                const completeBool = false
+                const listHash = userContentContainer.dataset.activelist
+                const flagButton = document.getElementById("newItemFlag")
+                let flagged = false
+                if (flagButton.dataset.flagged == "true") {
+                    flagged = true
+                }
+                const taskParameters = {
+                    name: name,
+                    date: date,
+                    completeBool: completeBool,
+                    listHash: listHash,
+                    flagged: flagged,
+                    scheduled: scheduled,
+                }
+
+                // GENERATE NEW TASK
+                TaskBinder.submitNewTask(taskParameters)
+
+                // RESET THE FORM
+                if (document.getElementById("dateDeleteButton")) {
+                    document.getElementById("dateDeleteButton").remove()
+                }
+                document.getElementById("dateInput").value = ""
+                document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
+                flagButton.removeAttribute("data-flagged")
+                flagButton.classList.remove("flagActive")
+                document.getElementById("dateInput").setAttribute("data-date", NaN)
+                document.getElementById("dateInput").classList.remove("dateChosen")
+                document.getElementById("newFormDateCheckBox").style.display = "none"
                 Render.renderAddTaskForm.hide()
                 const lowerAddButton = document.getElementById("lowerAddTask")
                 lowerAddButton.style.display = "flex"
                 document.getElementById("newTaskForm").reset()
+
+                // UPDATE SIDE BAR AND TOP BAR
+                List.updateTaskCounters()
+                contentController.refreshTopBar(listHash)
+                Listeners.sideBarToggles.updateSideBarToggleCounts()
             })
 
             const newListSubmitButton = document.getElementById("newListSubmit")
@@ -1077,15 +1101,15 @@ export const runApp = () => {
 
                 // Title
                 const titleSelector = editTaskContainer.querySelector("#editItemTitle")
-                const priorTitle = taskBinder.obj.title
+                const priorTitle = taskBinder.obj.name
                 titleSelector.setAttribute("placeholder", priorTitle)
 
                 // Date
                 const dateSelector = editTaskContainer.querySelector("#editDateInput")
-                if (!isNaN(taskBinder.obj.dueDate)) {
-                    const priorDate = format(taskBinder.obj.dueDate, "eee d/M/yy")
+                if (!isNaN(taskBinder.obj.date)) {
+                    const priorDate = format(taskBinder.obj.date, "eee d/M/yy")
                     dateSelector.setAttribute("placeholder", priorDate)
-                    dateSelector.setAttribute("data-date", taskBinder.obj.dueDate)
+                    dateSelector.setAttribute("data-date", taskBinder.obj.date)
                     const editDateCheckBox = document.getElementById("editFormDateDeleteButton")
                     editDateCheckBox.style.display = "flex"
                     editDateCheckBox.checked = true

@@ -21,10 +21,10 @@ export default class TaskBinder {
 
     // PUBLISH Handles transfer of data from node dataset to object
     handleEvent(thing) {
-        const nodeTitle = this.node.dataset.title
+        const nodeTitle = this.node.dataset.name
         const nodeDueDate = this.node.dataset.duedate
 
-        this.obj.title = nodeTitle
+        this.obj.name = nodeTitle
         this.obj.dueDate = nodeDueDate
 
         console.log(this)
@@ -33,7 +33,7 @@ export default class TaskBinder {
     // CHANGE handles transfer of data from object to node
     change() {
         // Title
-        const objectTitle = this.obj.title
+        const objectTitle = this.obj.name
 
         // Date
         let objectDueDate
