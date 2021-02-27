@@ -574,6 +574,8 @@ export const runApp = () => {
             newTaskButton.addEventListener("click", function () {
                 document.getElementById("newTaskForm").reset()
                 Render.renderAddTaskForm.hide()
+                const lowerAddButton = document.getElementById("lowerAddTask")
+                lowerAddButton.style.display = "flex"
             })
 
             const editTaskButton = document.getElementById("editTaskAbort")
@@ -744,6 +746,8 @@ export const runApp = () => {
             newTaskSubmitButton.addEventListener("click", function () {
                 submitNewTask()
                 Render.renderAddTaskForm.hide()
+                const lowerAddButton = document.getElementById("lowerAddTask")
+                lowerAddButton.style.display = "flex"
                 document.getElementById("newTaskForm").reset()
             })
 
@@ -980,7 +984,6 @@ export const runApp = () => {
 
             function hide() {
                 form.style.display = "none"
-                lowerAddButton.style.display = "flex"
                 // Move the 'Add Task' button to the end of the user content container, after the new task item
                 const newItem = document.getElementById("userContentContainer").lastChild
                 newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
