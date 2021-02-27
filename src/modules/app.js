@@ -34,17 +34,24 @@ export const runApp = () => {
         const ListBinderStorage = new Map()
 
         // Add a new list to ListStorage 
-        function createListObject(name, color) {
+        function createListObject(listParameters) {
+
+            // this function takes an object of the form:
+            // {
+            //     color: #ABCD
+            //     name: "blahblahblah"
+            // }
+
             const newList = new Map()
-            const hash = name + new Date()
+            const hash = listParameters.name + new Date()
             const listContainer = {
-                listName: name,
+                name: listParameters.name,
                 list: newList,
                 hash: hash,
             }
 
-            if (color != "") {
-                listContainer.color = color
+            if (listParameters.color != "") {
+                listContainer.color = listParameters.color
             }
 
             ListStorage.set(hash, listContainer)
@@ -58,7 +65,7 @@ export const runApp = () => {
                 listPointer.style.backgroundColor = listContainer.color
             }
             const listName = createNode("div", listNode, "", "listName")
-            listName.textContent = listContainer.listName
+            listName.textContent = listContainer.name
             const listCount = createNode("div", listPointer, "", "listCount")
             listCount.textContent = listContainer.list.size
             const listEditIcon = createNode("img", listNode, "", ["editListIcon", "listIcon"])
@@ -76,13 +83,21 @@ export const runApp = () => {
             return listBinder
         }
 
-        function editListBinder(listBinder, title, color) {
-            if (title !== "") {
-                listBinder.container.listName = title
+        function editListBinder(listParameters) {
+
+            // function takes an object like so:
+            // {
+            //     name: "asdfasdf",
+            //     color: "#1234",
+            //     listBinder: listBinder,
+            // }
+
+            if (listParameters.name !== "") {
+                listParameters.listBinder.container.name = listParameters.name
             }
 
-            listBinder.container.color = color
-            listBinder.change()
+            listParameters.listBinder.container.color = listParameters.color
+            listParameters.listBinder.change()
         }
 
         function updateTaskCounters() {
@@ -99,42 +114,20 @@ export const runApp = () => {
             List.ListStorage.delete(listBinder.container.hash)
         }
 
-        function editListSubmit() {
-
-            const editListContainer = document.getElementById("editListContainer")
-            const listHash = editListContainer.dataset.listhash
-            const listBinder = List.ListBinderStorage.get(listHash)
-
-            // Get the edited form data
-            const title = document.getElementById("editListTitle").value
-            const color = document.getElementById("editListColor").dataset.color
-
-            // Update the taskBinder
-            List.editListBinder(listBinder, title, color)
-
-            // Reset the form
-            document.getElementById("editListForm").reset()
-
-            // Reveal the edited node
-            Render.renderEditListForm.hide()
-            listBinder.node.click()
-
-            // Update the TopBar
-            contentController.refreshTopBar(listHash)
-        }
-
         // Function to handle of submission of form input into new list
-        function submitNewList() {
-            const listTitle = document.getElementById("newListTitle").value
-            const listColor = document.getElementById("newListColor").dataset.color
-            const listObjectHash = List.createListObject(listTitle, listColor)
+        function submitNewList(listParameters) {
+
+            // this function takes an object of the form:
+            // {
+            //     color: #ABCD
+            //     name: "blahblahblah"
+            // }
+
+            const listObjectHash = List.createListObject(listParameters)
             const listObject = List.ListStorage.get(listObjectHash)
-            // console.log(listObject)
             const listNode = List.createListNode(listObject)
             const listBinder = List.createListBinder(listObject, listNode)
-            // console.log(listBinder)
             Listeners.applyListListeners(listBinder)
-
             userContentContainer.setAttribute("data-activelist", listBinder.listHash)
             contentController.unloadLists()
             contentController.loadList(listBinder.listHash)
@@ -143,11 +136,10 @@ export const runApp = () => {
             document.getElementById("newListForm").reset()
             document.getElementById("newListColor").removeAttribute("data-color")
             document.getElementById("newListColor").removeAttribute("style")
-
             document.getElementById("lowerAddTask").style.display = "flex"
         }
 
-        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder, deleteListBinder, editListSubmit, submitNewList }
+        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder, deleteListBinder, submitNewList }
     })()
 
     // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
@@ -760,7 +752,28 @@ export const runApp = () => {
 
             const editListSubmitButton = document.querySelector("#editListSubmit")
             editListSubmitButton.addEventListener("click", function () {
-                List.editListSubmit()
+                // Get the edited form data
+                const name = document.getElementById("editListTitle").value
+                const color = document.getElementById("editListColor").dataset.color
+                const editListContainer = document.getElementById("editListContainer")
+                const listHash = editListContainer.dataset.listhash
+                const listBinder = List.ListBinderStorage.get(listHash)
+                const listParameters = {
+                    name: name,
+                    color: color,
+                    listBinder: listBinder,
+                }
+                List.editListBinder(listParameters)
+
+                // Reset the form
+                document.getElementById("editListForm").reset()
+
+                // Reveal the edited node
+                Render.renderEditListForm.hide()
+                listBinder.node.click()
+
+                // Update the TopBar
+                contentController.refreshTopBar(listHash)
             })
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
@@ -774,7 +787,13 @@ export const runApp = () => {
 
             const newListSubmitButton = document.getElementById("newListSubmit")
             newListSubmitButton.addEventListener("click", function () {
-                List.submitNewList()
+                const listTitle = document.getElementById("newListTitle").value
+                const listColor = document.getElementById("newListColor").dataset.color
+                const listParameters = {
+                    name: listTitle,
+                    color: listColor
+                }
+                List.submitNewList(listParameters)
             })
 
         })()
@@ -899,7 +918,7 @@ export const runApp = () => {
             // Update TopBar information
             const listContainer = List.ListStorage.get(listHash)
             const topBarTitle = document.getElementById("listTitle")
-            topBarTitle.textContent = listContainer.listName
+            topBarTitle.textContent = listContainer.name
             if (listContainer.color) {
                 topBarTitle.style.color = listContainer.color
             } else {
@@ -1004,7 +1023,7 @@ export const runApp = () => {
 
                 // Title
                 const titleSelector = editListFormContainer.querySelector("#editListTitle")
-                const priorTitle = listBinder.container.listName
+                const priorTitle = listBinder.container.name
                 titleSelector.setAttribute("placeholder", priorTitle)
 
                 // Colour
@@ -1012,6 +1031,7 @@ export const runApp = () => {
                 const priorColour = listBinder.container.color
                 if (priorColour) {
                     colourSelector.style.backgroundColor = priorColour
+                    colourSelector.setAttribute("data-color", priorColour)
                 }
 
                 // Assigns list hash from original list to the form, so on submission the form can use the hash to 
@@ -1131,6 +1151,16 @@ export const runApp = () => {
             })
 
         })()
+
+        // DEMO CONTENT
+        // Need to set up demo content first, to be saved in local storage
+
+
+
+        // LOCAL STORAGE
+        if (!localStorage.getItem('listMap')) {
+
+        }
 
         contentController.generateHome()
         Listeners.sideBarToggles.updateSideBarToggleCounts()

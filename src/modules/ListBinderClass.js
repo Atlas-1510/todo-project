@@ -20,7 +20,7 @@ export default class ListBinder {
 
     // CHANGE handles transfer of data from object to node
     change() {
-        const listObjectName = this.container.listName
+        const listObjectName = this.container.name
         this.node.querySelector(".listName").textContent = listObjectName
         const listObjectColor = this.container.color
         this.node.querySelector(".listPointer").style.backgroundColor = listObjectColor
