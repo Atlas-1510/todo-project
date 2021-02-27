@@ -99,7 +99,55 @@ export const runApp = () => {
             List.ListStorage.delete(listBinder.container.hash)
         }
 
-        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder, deleteListBinder }
+        function editListSubmit() {
+
+            const editListContainer = document.getElementById("editListContainer")
+            const listHash = editListContainer.dataset.listhash
+            const listBinder = List.ListBinderStorage.get(listHash)
+
+            // Get the edited form data
+            const title = document.getElementById("editListTitle").value
+            const color = document.getElementById("editListColor").dataset.color
+
+            // Update the taskBinder
+            List.editListBinder(listBinder, title, color)
+
+            // Reset the form
+            document.getElementById("editListForm").reset()
+
+            // Reveal the edited node
+            Render.renderEditListForm.hide()
+            listBinder.node.click()
+
+            // Update the TopBar
+            contentController.refreshTopBar(listHash)
+        }
+
+        // Function to handle of submission of form input into new list
+        function submitNewList() {
+            const listTitle = document.getElementById("newListTitle").value
+            const listColor = document.getElementById("newListColor").dataset.color
+            const listObjectHash = List.createListObject(listTitle, listColor)
+            const listObject = List.ListStorage.get(listObjectHash)
+            // console.log(listObject)
+            const listNode = List.createListNode(listObject)
+            const listBinder = List.createListBinder(listObject, listNode)
+            // console.log(listBinder)
+            Listeners.applyListListeners(listBinder)
+
+            userContentContainer.setAttribute("data-activelist", listBinder.listHash)
+            contentController.unloadLists()
+            contentController.loadList(listBinder.listHash)
+            contentController.refreshTopBar(listBinder.listHash)
+            Render.renderAddListForm.hide()
+            document.getElementById("newListForm").reset()
+            document.getElementById("newListColor").removeAttribute("data-color")
+            document.getElementById("newListColor").removeAttribute("style")
+
+            document.getElementById("lowerAddTask").style.display = "flex"
+        }
+
+        return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder, deleteListBinder, editListSubmit, submitNewList }
     })()
 
     // TaskBinder creates/edits/deletes objects that pair together a task node and a task object.
@@ -217,7 +265,101 @@ export const runApp = () => {
             taskBinder.change()
         }
 
-        return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode }
+        function editTaskSubmit() {
+
+            const editTaskContainer = document.getElementById("editTaskContainer")
+            const taskHash = editTaskContainer.dataset.taskhash
+            const taskBinder = TaskBinder.TaskBinderStorage.get(taskHash)
+
+            // Need to remove the listener from the checkbox here??
+            const editFormCheckBox = editTaskContainer.querySelector(".checkbox")
+            editFormCheckBox.removeEventListener("click", Listeners.completeCheckBoxEditForm)
+
+            // Complete toggle 
+            // need to pass updated toggle info to function call below
+            const completeBool = (editTaskContainer.dataset.complete === 'true');
+            editTaskContainer.removeAttribute("data-complete")
+
+            // Title
+            const title = document.getElementById("editItemTitle").value
+
+            // Date
+            const dateInput = document.getElementById("editDateInput")
+            dateInput.classList.remove("dateChosen")
+            const date = parseInt(dateInput.dataset.date)
+            dateInput.removeAttribute("data-date")
+            dateInput.setAttribute("placeholder", "Add Date")
+            document.getElementById("editFormDateDeleteButton").style.display = "none"
+
+
+            // Flag
+            const flagButton = document.getElementById("editItemFlag")
+            const flagToggle = (flagButton.dataset.flagged == "true")
+            flagButton.removeAttribute("data-flagged")
+            flagButton.classList.remove("flagActive")
+
+            // Update the taskBinder
+            TaskBinder.editTaskBinder(taskBinder, title, date, flagToggle, completeBool)
+
+            // Reset and hide the form
+            document.getElementById("editTaskForm").reset()
+            editTaskContainer.style.display = "none"
+            editTaskContainer.removeAttribute("data-taskhash")
+
+            // Reveal the edited node
+            taskBinder.node.style.display = "grid"
+
+            // Update side bar toggle counts
+            Listeners.sideBarToggles.updateSideBarToggleCounts()
+        }
+
+        // Function to handle submission of form input into new task binder
+        function submitNewTask() {
+            const title = document.getElementById("newItemTitle").value
+            if (title == "") {
+                alert("Remember to give your task a title!")
+                return
+            }
+            const storedDateValue = parseInt(document.getElementById("dateInput").dataset.date)
+            const date = storedDateValue
+            const completeBool = false
+            const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
+            if (!isNaN(date)) {
+                taskObject.scheduled = true
+            }
+            document.getElementById("dateInput").setAttribute("data-date", NaN)
+            document.getElementById("dateInput").classList.remove("dateChosen")
+            document.getElementById("newFormDateCheckBox").style.display = "none"
+
+            const flagButton = document.getElementById("newItemFlag")
+            if (flagButton.dataset.flagged == "true") {
+                taskObject.flagged = true
+
+            } else {
+                taskObject.flagged = false
+            }
+            flagButton.removeAttribute("data-flagged")
+            flagButton.classList.remove("flagActive")
+
+            const taskNode = TaskBinder.createTaskNode(taskObject)
+            const listHash = userContentContainer.dataset.activelist
+            const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
+            TaskBinder.storeTaskBinder(taskBinder)
+            Listeners.applyTaskListeners(taskBinder)
+
+            List.updateTaskCounters()
+            contentController.refreshTopBar(listHash)
+
+            if (document.getElementById("dateDeleteButton")) {
+                document.getElementById("dateDeleteButton").remove()
+            }
+            document.getElementById("dateInput").value = ""
+            document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
+
+            Listeners.sideBarToggles.updateSideBarToggleCounts()
+        }
+
+        return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode, editTaskSubmit, submitNewTask }
     })()
 
     // Search uses the sidebar interface to allow a user to search through all tasks
@@ -611,174 +753,28 @@ export const runApp = () => {
                 })
             })()
 
-            function editTaskSubmit() {
-
-                const editTaskContainer = document.getElementById("editTaskContainer")
-                const taskHash = editTaskContainer.dataset.taskhash
-                const taskBinder = TaskBinder.TaskBinderStorage.get(taskHash)
-
-                // Need to remove the listener from the checkbox here??
-                const editFormCheckBox = editTaskContainer.querySelector(".checkbox")
-                editFormCheckBox.removeEventListener("click", Listeners.completeCheckBoxEditForm)
-
-                // Complete toggle 
-                // need to pass updated toggle info to function call below
-                const completeBool = (editTaskContainer.dataset.complete === 'true');
-                editTaskContainer.removeAttribute("data-complete")
-
-                // Title
-                const title = document.getElementById("editItemTitle").value
-
-                // Date
-                const dateInput = document.getElementById("editDateInput")
-                dateInput.classList.remove("dateChosen")
-                const date = parseInt(dateInput.dataset.date)
-                dateInput.removeAttribute("data-date")
-                dateInput.setAttribute("placeholder", "Add Date")
-                document.getElementById("editFormDateDeleteButton").style.display = "none"
-
-
-                // Flag
-                const flagButton = document.getElementById("editItemFlag")
-                const flagToggle = (flagButton.dataset.flagged == "true")
-                flagButton.removeAttribute("data-flagged")
-                flagButton.classList.remove("flagActive")
-
-                // Update the taskBinder
-                TaskBinder.editTaskBinder(taskBinder, title, date, flagToggle, completeBool)
-
-                // Reset and hide the form
-                document.getElementById("editTaskForm").reset()
-                editTaskContainer.style.display = "none"
-                editTaskContainer.removeAttribute("data-taskhash")
-
-                // Reveal the edited node
-                taskBinder.node.style.display = "grid"
-
-                // Update side bar toggle counts
-                Listeners.sideBarToggles.updateSideBarToggleCounts()
-            }
-
             const editTaskSubmitButton = document.querySelector("#editTaskSubmit")
             editTaskSubmitButton.addEventListener("click", function () {
-                editTaskSubmit()
+                TaskBinder.editTaskSubmit()
             })
-
-            function editListSubmit() {
-
-                const editListContainer = document.getElementById("editListContainer")
-                const listHash = editListContainer.dataset.listhash
-                const listBinder = List.ListBinderStorage.get(listHash)
-
-                // Get the edited form data
-                const title = document.getElementById("editListTitle").value
-                const color = document.getElementById("editListColor").dataset.color
-
-                // Update the taskBinder
-                List.editListBinder(listBinder, title, color)
-
-                // Reset the form
-                document.getElementById("editListForm").reset()
-
-                // Reveal the edited node
-                Render.renderEditListForm.hide()
-                listBinder.node.click()
-
-                // Update the TopBar
-                contentController.refreshTopBar(listHash)
-            }
 
             const editListSubmitButton = document.querySelector("#editListSubmit")
             editListSubmitButton.addEventListener("click", function () {
-                editListSubmit()
+                List.editListSubmit()
             })
-
-
-            // Function to handle submission of form input into new task binder
-            function submitNewTask() {
-                const title = document.getElementById("newItemTitle").value
-                if (title == "") {
-                    alert("Remember to give your task a title!")
-                    return
-                }
-                const storedDateValue = parseInt(document.getElementById("dateInput").dataset.date)
-                const date = storedDateValue
-                const completeBool = false
-                const taskObject = TaskBinder.createTaskObject(completeBool, title, date)
-                if (!isNaN(date)) {
-                    taskObject.scheduled = true
-                }
-                document.getElementById("dateInput").setAttribute("data-date", NaN)
-                document.getElementById("dateInput").classList.remove("dateChosen")
-                document.getElementById("newFormDateCheckBox").style.display = "none"
-
-
-
-                const flagButton = document.getElementById("newItemFlag")
-                if (flagButton.dataset.flagged == "true") {
-                    taskObject.flagged = true
-
-                } else {
-                    taskObject.flagged = false
-                }
-                flagButton.removeAttribute("data-flagged")
-                flagButton.classList.remove("flagActive")
-
-                const taskNode = TaskBinder.createTaskNode(taskObject)
-                const listHash = userContentContainer.dataset.activelist
-                const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
-                TaskBinder.storeTaskBinder(taskBinder)
-                Listeners.applyTaskListeners(taskBinder)
-
-                List.updateTaskCounters()
-                contentController.refreshTopBar(listHash)
-
-                if (document.getElementById("dateDeleteButton")) {
-                    document.getElementById("dateDeleteButton").remove()
-                }
-                document.getElementById("dateInput").value = ""
-                document.getElementById("dateInput").setAttribute("placeholder", "Add Date")
-
-                Listeners.sideBarToggles.updateSideBarToggleCounts()
-            }
 
             const newTaskSubmitButton = document.getElementById("newItemSubmit")
             newTaskSubmitButton.addEventListener("click", function () {
-                submitNewTask()
+                TaskBinder.submitNewTask()
                 Render.renderAddTaskForm.hide()
                 const lowerAddButton = document.getElementById("lowerAddTask")
                 lowerAddButton.style.display = "flex"
                 document.getElementById("newTaskForm").reset()
             })
 
-
-            // Function to handle of submission of form input into new list
-            function submitNewList() {
-                const listTitle = document.getElementById("newListTitle").value
-                const listColor = document.getElementById("newListColor").dataset.color
-                const listObjectHash = List.createListObject(listTitle, listColor)
-                const listObject = List.ListStorage.get(listObjectHash)
-                // console.log(listObject)
-                const listNode = List.createListNode(listObject)
-                const listBinder = List.createListBinder(listObject, listNode)
-                // console.log(listBinder)
-                applyListListeners(listBinder)
-
-                userContentContainer.setAttribute("data-activelist", listBinder.listHash)
-                contentController.unloadLists()
-                contentController.loadList(listBinder.listHash)
-                contentController.refreshTopBar(listBinder.listHash)
-                Render.renderAddListForm.hide()
-                document.getElementById("newListForm").reset()
-                document.getElementById("newListColor").removeAttribute("data-color")
-                document.getElementById("newListColor").removeAttribute("style")
-
-                document.getElementById("lowerAddTask").style.display = "flex"
-            }
-
             const newListSubmitButton = document.getElementById("newListSubmit")
             newListSubmitButton.addEventListener("click", function () {
-                submitNewList()
+                List.submitNewList()
             })
 
         })()
