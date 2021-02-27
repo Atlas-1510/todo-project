@@ -52,6 +52,7 @@ export const runApp = () => {
 
             if (listParameters.color != "") {
                 listContainer.color = listParameters.color
+                listContainer.lightToggle = listParameters.lightToggle
             }
 
             ListStorage.set(hash, listContainer)
@@ -68,6 +69,11 @@ export const runApp = () => {
             listName.textContent = listContainer.name
             const listCount = createNode("div", listPointer, "", "listCount")
             listCount.textContent = listContainer.list.size
+            if (listContainer.lightToggle === 'true' || listContainer.lightToggle === true) {
+                listCount.style.color = "black"
+            } else {
+                listCount.style.color = "white"
+            }
             const listEditIcon = createNode("img", listNode, "", ["editListIcon", "listIcon"])
             listEditIcon.src = pencilSquareIcon
             const listDeleteIcon = createNode("img", listNode, "", ["deleteListIcon", "listIcon"])
@@ -137,6 +143,8 @@ export const runApp = () => {
             document.getElementById("newListColor").removeAttribute("data-color")
             document.getElementById("newListColor").removeAttribute("style")
             document.getElementById("lowerAddTask").style.display = "flex"
+
+            return listObjectHash
         }
 
         return { ListStorage, createListObject, createListNode, createListBinder, ListBinderStorage, updateTaskCounters, editListBinder, deleteListBinder, submitNewList }
@@ -433,9 +441,8 @@ export const runApp = () => {
 
             clickBoxElements.forEach(element => {
                 element.addEventListener("click", function () {
-                    Render.renderAddListForm.hide()
-                    Render.renderAddTaskForm.hide()
-                    Render.renderEditTaskForm.hide()
+                    Render.hideAllForms()
+                    Listeners.sideBarToggles.deactivate()
                     contentController.unloadLists()
                     // console.log("clicked on list")
                     contentController.loadList(listBinder.listHash)
@@ -575,6 +582,11 @@ export const runApp = () => {
                         const color = colorPicker.getColor()
                         colorButton.style.backgroundColor = color
                         colorButton.setAttribute("data-color", color)
+                        if (colorPicker.isDark()) {
+                            colorButton.setAttribute("data-lightToggle", false)
+                        } else if (colorPicker.isLight()) {
+                            colorButton.setAttribute("data-lightToggle", true)
+                        }
                         colorPicker.remove()
                         colorSubmit.remove()
                         colorAbort.remove()
@@ -813,9 +825,11 @@ export const runApp = () => {
             newListSubmitButton.addEventListener("click", function () {
                 const listTitle = document.getElementById("newListTitle").value
                 const listColor = document.getElementById("newListColor").dataset.color
+                const lightToggle = document.getElementById("newListColor").dataset.lighttoggle
                 const listParameters = {
                     name: listTitle,
-                    color: listColor
+                    color: listColor,
+                    lightToggle: lightToggle,
                 }
                 List.submitNewList(listParameters)
             })
@@ -870,7 +884,18 @@ export const runApp = () => {
                 })
             }
 
-            return { updateSideBarToggleCounts }
+            function deactivate() {
+
+                toggles.forEach(toggle => {
+                    const button = document.querySelector(`#${toggle}Toggle`)
+                    if (button.classList.contains(`${toggle}ToggleActive`)) {
+                        button.classList.remove(`${toggle}ToggleActive`)
+                        Search.toggles[`${toggle}`] = false
+                    }
+                })
+            }
+
+            return { updateSideBarToggleCounts, deactivate }
         })()
 
         const dateCheckBox = (() => {
@@ -1166,10 +1191,6 @@ export const runApp = () => {
             document.getElementById("topBar").addEventListener("click", function () {
                 console.log("LIST STORAGE")
                 console.log(List.ListStorage)
-                // console.log("LIST BINDER STORAGE")
-                // console.log(List.ListBinderStorage)
-                // console.log("TASK BINDER STORAGE")
-                // console.log(TaskBinder.TaskBinderStorage)
                 console.log("SEARCH TOGGLES")
                 console.log(Search.toggles)
             })
@@ -1178,7 +1199,145 @@ export const runApp = () => {
 
         // DEMO CONTENT
         // Need to set up demo content first, to be saved in local storage
+        const demoContent = (() => {
 
+            const listOne = List.submitNewList({
+                name: "Reminders",
+                color: "#F92A82",
+                lightToggle: true,
+            })
+
+            const listTwo = List.submitNewList({
+                name: "Groceries",
+                color: "#FF7E6B",
+                lightToggle: true,
+            })
+
+            const listThree = List.submitNewList({
+                name: "Coding",
+                color: "#7D5BA6",
+                lightToggle: true,
+            })
+
+            const currentDate = new Date()
+
+            const tasks = [
+                {
+                    name: "Get lo-fi playlist from Daniel",
+                    listHash: `${listOne}`,
+                    flagged: true,
+                    date: add(currentDate, {
+                        days: 4
+                    })
+                },
+                {
+                    name: "Pick up gels for peloton this weekend",
+                    listHash: `${listOne}`,
+                    flagged: false,
+                    date: add(currentDate, {
+                        days: 0
+                    })
+                },
+                {
+                    name: "Get timber to build new desk from Bunnings",
+                    listHash: `${listOne}`,
+                    flagged: false,
+                    date: add(currentDate, {
+                        days: 1
+                    })
+                },
+                {
+                    name: "Stay late at work until jazz gig with Ebony",
+                    listHash: `${listOne}`,
+                    flagged: true,
+                    date: add(currentDate, {
+                        days: 3
+                    })
+                },
+                {
+                    name: "Review CV and GitHub profile",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                },
+                {
+                    name: "Bananas",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Cereal",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Bread",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Avocado (2)",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Greek Yoghurt",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Roti Bread",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Hummus",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Carrots",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Celery",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Kombucha",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Wine",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Review code organisation best practice",
+                    listHash: `${listThree}`,
+                    flagged: false,
+                    date: add(currentDate, {
+                        days: 2
+                    })
+                },
+                {
+                    name: "Follow up on that networking opportunity with Tristan",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                    date: add(currentDate, {
+                        days: 0
+                    })
+                },
+                {
+                    name: "Review Odin Project submissions for ways to improve this app",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                },
+                {
+                    name: "Investigate colour design theory, CSS best practice",
+                    listHash: `${listThree}`,
+                    flagged: false,
+                },
+            ]
+
+            for (let i = 0; i < tasks.length; i++) {
+                TaskBinder.submitNewTask(tasks[i])
+            }
+
+            List.updateTaskCounters()
+            // document.getElementById("allToggle").click()
+        })()
 
 
         // LOCAL STORAGE
