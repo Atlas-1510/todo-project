@@ -166,6 +166,9 @@ export const runApp = () => {
                 taskHash: taskHash,
                 flagged: taskParameters.flagged,
                 scheduled: taskParameters.scheduled,
+                listHash: taskParameters.listHash,
+                color: List.ListStorage.get(taskParameters.listHash).color,
+                lightToggle: List.ListStorage.get(taskParameters.listHash).lightToggle
             }
 
             return task
@@ -174,6 +177,9 @@ export const runApp = () => {
         function createTaskNode(taskObject) {
 
             const taskNode = createNode("li", userContentContainer, "", "task")
+            if (taskObject.color) {
+                taskNode.style.backgroundColor = taskObject.color
+            }
             const checkbox = createNode("img", taskNode, "", "checkbox")
             if (!taskObject.completeBool) {
                 checkbox.src = emptySquareIcon
@@ -197,13 +203,23 @@ export const runApp = () => {
             deleteTaskIcon.src = trashIcon
 
             const flagNodeHolder = createNode("div", taskNode, "", "flagNodeHolder")
+            const flagNode = createNode("img", flagNodeHolder, "", "taskFlagIcon")
             if (taskObject.flagged) {
-                // Create a flag icon on the task here
-                const flagNode = createNode("img", flagNodeHolder, "", "taskFlagIcon")
                 flagNode.src = flagIcon
-            } else {
-                const flagNode = createNode("img", flagNodeHolder, "", "taskFlagIcon")
             }
+
+            if (taskObject.lightToggle === 'true' || taskObject.lightToggle === true) {
+                taskNode.style.color = "black"
+            } else if (taskObject.lightToggle === 'false' || taskObject.lightToggle === false) {
+                taskNode.style.color = "white"
+                taskDueDate.style.color = "white"
+                // make complete checkbox, flag, edit, and delete icons all white
+                const elements = [checkbox, editTaskIcon, deleteTaskIcon, flagNode]
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].classList.add("whiteColouringForDarkBackground")
+                }
+            }
+
             taskNode.insertBefore(flagNodeHolder, editTaskIcon)
 
             document.getElementById("userContentContainer").insertBefore(taskNode, document.getElementById("lowerAddTask"))
@@ -1226,6 +1242,7 @@ export const runApp = () => {
                     name: "Get lo-fi playlist from Daniel",
                     listHash: `${listOne}`,
                     flagged: true,
+                    scheduled: true,
                     date: add(currentDate, {
                         days: 4
                     })
@@ -1234,6 +1251,7 @@ export const runApp = () => {
                     name: "Pick up gels for peloton this weekend",
                     listHash: `${listOne}`,
                     flagged: false,
+                    scheduled: true,
                     date: add(currentDate, {
                         days: 0
                     })
@@ -1242,6 +1260,7 @@ export const runApp = () => {
                     name: "Get timber to build new desk from Bunnings",
                     listHash: `${listOne}`,
                     flagged: false,
+                    scheduled: true,
                     date: add(currentDate, {
                         days: 1
                     })
@@ -1250,6 +1269,7 @@ export const runApp = () => {
                     name: "Stay late at work until jazz gig with Ebony",
                     listHash: `${listOne}`,
                     flagged: true,
+                    scheduled: true,
                     date: add(currentDate, {
                         days: 3
                     })
@@ -1307,6 +1327,7 @@ export const runApp = () => {
                     name: "Review code organisation best practice",
                     listHash: `${listThree}`,
                     flagged: false,
+                    scheduled: true,
                     date: add(currentDate, {
                         days: 2
                     })
@@ -1315,6 +1336,7 @@ export const runApp = () => {
                     name: "Follow up on that networking opportunity with Tristan",
                     listHash: `${listThree}`,
                     flagged: true,
+                    scheduled: true,
                     date: add(currentDate, {
                         days: 0
                     })
@@ -1336,7 +1358,7 @@ export const runApp = () => {
             }
 
             List.updateTaskCounters()
-            // document.getElementById("allToggle").click()
+
         })()
 
 
