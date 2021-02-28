@@ -44,6 +44,7 @@ body {
     background-color: var(--contentWindowBackground);
     display: flex;
     flex-direction: column;
+    overflow: scroll;
 }
 
 #topBar {
@@ -210,6 +211,7 @@ body {
 #listsContainer {
     margin: 20px 10px 10px 10px;
     color: var(--taskColor);
+    overflow: scroll;
 }
 
 .sideBarList {

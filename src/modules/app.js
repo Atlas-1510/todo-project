@@ -263,7 +263,7 @@ export const runApp = () => {
 
             // Update the task object with the newly edited data
             if (taskParameters.name !== "") {
-                taskBinder.obj.name = taskParameters.title
+                taskBinder.obj.name = taskParameters.name
             }
 
             taskBinder.obj.date = taskParameters.date
@@ -1229,19 +1229,19 @@ export const runApp = () => {
 
             const listOne = List.submitNewList({
                 name: "Reminders",
-                color: "#F92A82",
+                color: "#FFC285",
                 lightToggle: true,
             })
 
             const listTwo = List.submitNewList({
                 name: "Groceries",
-                color: "#FF7E6B",
+                color: "#B8AFD5",
                 lightToggle: true,
             })
 
             const listThree = List.submitNewList({
                 name: "Coding",
-                color: "#7D5BA6",
+                color: "#ED96B3",
                 lightToggle: true,
             })
 
@@ -1257,110 +1257,110 @@ export const runApp = () => {
                         days: 4
                     })
                 },
-                // {
-                //     name: "Pick up gels for peloton this weekend",
-                //     listHash: `${listOne}`,
-                //     flagged: false,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 0
-                //     })
-                // },
-                // {
-                //     name: "Get timber to build new desk from Bunnings",
-                //     listHash: `${listOne}`,
-                //     flagged: false,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 1
-                //     })
-                // },
-                // {
-                //     name: "Stay late at work until jazz gig with Ebony",
-                //     listHash: `${listOne}`,
-                //     flagged: true,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 3
-                //     })
-                // },
-                // {
-                //     name: "Review CV and GitHub profile",
-                //     listHash: `${listThree}`,
-                //     flagged: true,
-                // },
-                // {
-                //     name: "Bananas",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Cereal",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Bread",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Avocado (2)",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Greek Yoghurt",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Roti Bread",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Hummus",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Carrots",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Celery",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Kombucha",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Wine",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Review code organisation best practice",
-                //     listHash: `${listThree}`,
-                //     flagged: false,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 2
-                //     })
-                // },
-                // {
-                //     name: "Follow up on that networking opportunity with Tristan",
-                //     listHash: `${listThree}`,
-                //     flagged: true,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 0
-                //     })
-                // },
-                // {
-                //     name: "Review Odin Project submissions for ways to improve this app",
-                //     listHash: `${listThree}`,
-                //     flagged: true,
-                // },
-                // {
-                //     name: "Investigate colour design theory, CSS best practice",
-                //     listHash: `${listThree}`,
-                //     flagged: false,
-                // },
+                {
+                    name: "Pick up gels for peloton this weekend",
+                    listHash: `${listOne}`,
+                    flagged: false,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 0
+                    })
+                },
+                {
+                    name: "Get timber to build new desk from Bunnings",
+                    listHash: `${listOne}`,
+                    flagged: false,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 1
+                    })
+                },
+                {
+                    name: "Stay late at work until jazz gig with Ebony",
+                    listHash: `${listOne}`,
+                    flagged: true,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 3
+                    })
+                },
+                {
+                    name: "Review CV and GitHub profile",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                },
+                {
+                    name: "Bananas",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Cereal",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Bread",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Avocado (2)",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Greek Yoghurt",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Roti Bread",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Hummus",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Carrots",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Celery",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Kombucha",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Wine",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Review code organisation best practice",
+                    listHash: `${listThree}`,
+                    flagged: false,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 2
+                    })
+                },
+                {
+                    name: "Follow up on that networking opportunity with Tristan",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 0
+                    })
+                },
+                {
+                    name: "Review Odin Project submissions for ways to improve this app",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                },
+                {
+                    name: "Investigate colour design theory, CSS best practice",
+                    listHash: `${listThree}`,
+                    flagged: false,
+                },
             ]
 
             for (let i = 0; i < tasks.length; i++) {
@@ -1374,7 +1374,6 @@ export const runApp = () => {
 
         // LOCAL STORAGE
         if (!localStorage.getItem('listMap')) {
-
         }
 
         contentController.generateHome()
