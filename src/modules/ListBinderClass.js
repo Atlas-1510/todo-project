@@ -25,5 +25,11 @@ export default class ListBinder {
         const listObjectColor = this.container.color
         this.node.querySelector(".listPointer").style.backgroundColor = listObjectColor
         console.log(this)
+        const listCounter = this.node.querySelector(".listCount")
+        if (this.container.lightToggle === false || this.container.lightToggle === "false") {
+            listCounter.style.color = "white"
+        } else {
+            listCounter.style.color = "black"
+        }
     }
 }

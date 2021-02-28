@@ -82,7 +82,6 @@ export const runApp = () => {
         }
 
         function createListBinder(listContainer, listNode) {
-            // console.log(listContainer)
             const listHash = listContainer.hash
             const listBinder = new ListBinderInstance(listNode, listContainer, listHash)
             ListBinderStorage.set(listHash, listBinder)
@@ -177,8 +176,6 @@ export const runApp = () => {
 
         function createTaskNode(taskObject) {
 
-            console.log("creating task node")
-            console.log(`color: ${List.ListStorage.get(taskObject.listHash).color}`)
             const taskNode = createNode("li", userContentContainer, "", "task")
             if (List.ListStorage.get(taskObject.listHash).color) {
                 taskNode.style.backgroundColor = List.ListStorage.get(taskObject.listHash).color
@@ -431,7 +428,6 @@ export const runApp = () => {
             function _addEditListener(taskBinder) {
                 const button = taskBinder.node.querySelector(".editTaskIcon")
                 button.addEventListener("click", () => {
-                    console.log("edit form activated")
                     taskBinder.node.style.display = "none"
                     Render.hideAllForms()
                     Render.renderEditTaskForm.show(taskBinder)
@@ -441,9 +437,9 @@ export const runApp = () => {
             function _addCheckBoxListener(taskBinder) {
                 const checkbox = taskBinder.node.querySelector(".checkbox")
                 checkbox.addEventListener("click", () => {
-                    console.log(taskBinder.obj.completeBool)
+
                     taskBinder.obj.completeBool = !taskBinder.obj.completeBool
-                    console.log(taskBinder.obj.completeBool)
+
                     if (taskBinder.obj.completeBool) {
                         checkbox.src = filledSquareIcon
                     } else if (!taskBinder.obj.completeBool) {
@@ -466,11 +462,11 @@ export const runApp = () => {
 
             clickBoxElements.forEach(element => {
                 element.addEventListener("click", function () {
-                    console.log("click event activated")
+
                     Render.hideAllForms()
                     Listeners.sideBarToggles.deactivate()
                     contentController.unloadLists()
-                    // console.log("clicked on list")
+
                     contentController.loadList(listBinder.listHash)
                     contentController.refreshTopBar(listBinder.listHash)
                     document.getElementById("lowerAddTask").style.display = "flex"
@@ -544,7 +540,7 @@ export const runApp = () => {
 
                         instance.setDate()
                         dateNode.value = format(date, "eee d/M/yy")
-                        // console.log(dateNode)
+
 
                         if (formType == "newTaskForm") {
 
@@ -763,7 +759,7 @@ export const runApp = () => {
                 const name = document.getElementById("editListTitle").value
                 const color = document.getElementById("editListColor").dataset.color
                 const lightToggle = document.getElementById("editListColor").dataset.lighttoggle
-                console.log(lightToggle)
+
                 const editListContainer = document.getElementById("editListContainer")
                 const listHash = editListContainer.dataset.listhash
                 const listBinder = List.ListBinderStorage.get(listHash)
@@ -1012,8 +1008,7 @@ export const runApp = () => {
             userContentContainer.setAttribute("data-activeList", listHash)
 
             const listContainer = List.ListStorage.get(listHash)
-            console.log("load list active")
-            console.log(`color: ${List.ListStorage.get(listHash).color}`)
+
             listContainer.list.forEach(function (taskObject) {
                 let taskNode = TaskBinder.createTaskNode(taskObject)
                 let taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
