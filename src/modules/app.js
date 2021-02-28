@@ -103,6 +103,7 @@ export const runApp = () => {
             }
 
             listParameters.listBinder.container.color = listParameters.color
+            listParameters.listBinder.container.lightToggle = listParameters.lightToggle
             listParameters.listBinder.change()
         }
 
@@ -167,8 +168,8 @@ export const runApp = () => {
                 flagged: taskParameters.flagged,
                 scheduled: taskParameters.scheduled,
                 listHash: taskParameters.listHash,
-                color: List.ListStorage.get(taskParameters.listHash).color,
-                lightToggle: List.ListStorage.get(taskParameters.listHash).lightToggle
+                // color: List.ListStorage.get(taskParameters.listHash).color,
+                // lightToggle: List.ListStorage.get(taskParameters.listHash).lightToggle
             }
 
             return task
@@ -176,9 +177,11 @@ export const runApp = () => {
 
         function createTaskNode(taskObject) {
 
+            console.log("creating task node")
+            console.log(`color: ${List.ListStorage.get(taskObject.listHash).color}`)
             const taskNode = createNode("li", userContentContainer, "", "task")
-            if (taskObject.color) {
-                taskNode.style.backgroundColor = taskObject.color
+            if (List.ListStorage.get(taskObject.listHash).color) {
+                taskNode.style.backgroundColor = List.ListStorage.get(taskObject.listHash).color
             }
             const checkbox = createNode("img", taskNode, "", "checkbox")
             if (!taskObject.completeBool) {
@@ -208,9 +211,15 @@ export const runApp = () => {
                 flagNode.src = flagIcon
             }
 
-            if (taskObject.lightToggle === 'true' || taskObject.lightToggle === true) {
+
+
+
+
+
+
+            if (List.ListStorage.get(taskObject.listHash).lightToggle === 'true' || List.ListStorage.get(taskObject.listHash).lightToggle === true) {
                 taskNode.style.color = "black"
-            } else if (taskObject.lightToggle === 'false' || taskObject.lightToggle === false) {
+            } else if (List.ListStorage.get(taskObject.listHash).lightToggle === 'false' || List.ListStorage.get(taskObject.listHash).lightToggle === false) {
                 taskNode.style.color = "white"
                 taskDueDate.style.color = "white"
                 // make complete checkbox, flag, edit, and delete icons all white
@@ -457,6 +466,7 @@ export const runApp = () => {
 
             clickBoxElements.forEach(element => {
                 element.addEventListener("click", function () {
+                    console.log("click event activated")
                     Render.hideAllForms()
                     Listeners.sideBarToggles.deactivate()
                     contentController.unloadLists()
@@ -752,6 +762,8 @@ export const runApp = () => {
                 // Get the edited form data
                 const name = document.getElementById("editListTitle").value
                 const color = document.getElementById("editListColor").dataset.color
+                const lightToggle = document.getElementById("editListColor").dataset.lighttoggle
+                console.log(lightToggle)
                 const editListContainer = document.getElementById("editListContainer")
                 const listHash = editListContainer.dataset.listhash
                 const listBinder = List.ListBinderStorage.get(listHash)
@@ -759,6 +771,7 @@ export const runApp = () => {
                     name: name,
                     color: color,
                     listBinder: listBinder,
+                    lightToggle: lightToggle,
                 }
                 List.editListBinder(listParameters)
 
@@ -767,7 +780,7 @@ export const runApp = () => {
 
                 // Reveal the edited node
                 Render.renderEditListForm.hide()
-                listBinder.node.click()
+                listBinder.node.querySelector(".listName").click()
 
                 // Update the TopBar
                 contentController.refreshTopBar(listHash)
@@ -999,6 +1012,8 @@ export const runApp = () => {
             userContentContainer.setAttribute("data-activeList", listHash)
 
             const listContainer = List.ListStorage.get(listHash)
+            console.log("load list active")
+            console.log(`color: ${List.ListStorage.get(listHash).color}`)
             listContainer.list.forEach(function (taskObject) {
                 let taskNode = TaskBinder.createTaskNode(taskObject)
                 let taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, listHash)
@@ -1247,110 +1262,110 @@ export const runApp = () => {
                         days: 4
                     })
                 },
-                {
-                    name: "Pick up gels for peloton this weekend",
-                    listHash: `${listOne}`,
-                    flagged: false,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 0
-                    })
-                },
-                {
-                    name: "Get timber to build new desk from Bunnings",
-                    listHash: `${listOne}`,
-                    flagged: false,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 1
-                    })
-                },
-                {
-                    name: "Stay late at work until jazz gig with Ebony",
-                    listHash: `${listOne}`,
-                    flagged: true,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 3
-                    })
-                },
-                {
-                    name: "Review CV and GitHub profile",
-                    listHash: `${listThree}`,
-                    flagged: true,
-                },
-                {
-                    name: "Bananas",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Cereal",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Bread",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Avocado (2)",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Greek Yoghurt",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Roti Bread",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Hummus",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Carrots",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Celery",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Kombucha",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Wine",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Review code organisation best practice",
-                    listHash: `${listThree}`,
-                    flagged: false,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 2
-                    })
-                },
-                {
-                    name: "Follow up on that networking opportunity with Tristan",
-                    listHash: `${listThree}`,
-                    flagged: true,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 0
-                    })
-                },
-                {
-                    name: "Review Odin Project submissions for ways to improve this app",
-                    listHash: `${listThree}`,
-                    flagged: true,
-                },
-                {
-                    name: "Investigate colour design theory, CSS best practice",
-                    listHash: `${listThree}`,
-                    flagged: false,
-                },
+                // {
+                //     name: "Pick up gels for peloton this weekend",
+                //     listHash: `${listOne}`,
+                //     flagged: false,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 0
+                //     })
+                // },
+                // {
+                //     name: "Get timber to build new desk from Bunnings",
+                //     listHash: `${listOne}`,
+                //     flagged: false,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 1
+                //     })
+                // },
+                // {
+                //     name: "Stay late at work until jazz gig with Ebony",
+                //     listHash: `${listOne}`,
+                //     flagged: true,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 3
+                //     })
+                // },
+                // {
+                //     name: "Review CV and GitHub profile",
+                //     listHash: `${listThree}`,
+                //     flagged: true,
+                // },
+                // {
+                //     name: "Bananas",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Cereal",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Bread",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Avocado (2)",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Greek Yoghurt",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Roti Bread",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Hummus",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Carrots",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Celery",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Kombucha",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Wine",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Review code organisation best practice",
+                //     listHash: `${listThree}`,
+                //     flagged: false,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 2
+                //     })
+                // },
+                // {
+                //     name: "Follow up on that networking opportunity with Tristan",
+                //     listHash: `${listThree}`,
+                //     flagged: true,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 0
+                //     })
+                // },
+                // {
+                //     name: "Review Odin Project submissions for ways to improve this app",
+                //     listHash: `${listThree}`,
+                //     flagged: true,
+                // },
+                // {
+                //     name: "Investigate colour design theory, CSS best practice",
+                //     listHash: `${listThree}`,
+                //     flagged: false,
+                // },
             ]
 
             for (let i = 0; i < tasks.length; i++) {
