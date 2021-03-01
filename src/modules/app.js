@@ -1217,15 +1217,14 @@ export const runApp = () => {
             document.getElementById("topBar").addEventListener("click", function () {
                 console.log("LIST STORAGE")
                 console.log(List.ListStorage)
-                console.log("SEARCH TOGGLES")
-                console.log(Search.toggles)
+                // console.log("SEARCH TOGGLES")
+                // console.log(Search.toggles)
             })
 
         })()
 
         // DEMO CONTENT
-        // Need to set up demo content first, to be saved in local storage
-        const demoContent = (() => {
+        const demoContent = () => {
 
             const listOne = List.submitNewList({
                 name: "Reminders",
@@ -1239,11 +1238,11 @@ export const runApp = () => {
                 lightToggle: true,
             })
 
-            const listThree = List.submitNewList({
-                name: "Coding",
-                color: "#ED96B3",
-                lightToggle: true,
-            })
+            // const listThree = List.submitNewList({
+            //     name: "Coding",
+            //     color: "#ED96B3",
+            //     lightToggle: true,
+            // })
 
             const currentDate = new Date()
 
@@ -1266,29 +1265,29 @@ export const runApp = () => {
                         days: 0
                     })
                 },
-                {
-                    name: "Get timber to build new desk from Bunnings",
-                    listHash: `${listOne}`,
-                    flagged: false,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 1
-                    })
-                },
-                {
-                    name: "Stay late at work until jazz gig with Ebony",
-                    listHash: `${listOne}`,
-                    flagged: true,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 3
-                    })
-                },
-                {
-                    name: "Review CV and GitHub profile",
-                    listHash: `${listThree}`,
-                    flagged: true,
-                },
+                // {
+                //     name: "Get timber to build new desk from Bunnings",
+                //     listHash: `${listOne}`,
+                //     flagged: false,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 1
+                //     })
+                // },
+                // {
+                //     name: "Stay late at work until jazz gig with Ebony",
+                //     listHash: `${listOne}`,
+                //     flagged: true,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 3
+                //     })
+                // },
+                // {
+                //     name: "Review CV and GitHub profile",
+                //     listHash: `${listThree}`,
+                //     flagged: true,
+                // },
                 {
                     name: "Bananas",
                     listHash: `${listTwo}`,
@@ -1297,70 +1296,70 @@ export const runApp = () => {
                     name: "Cereal",
                     listHash: `${listTwo}`,
                 },
-                {
-                    name: "Bread",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Avocado (2)",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Greek Yoghurt",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Roti Bread",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Hummus",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Carrots",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Celery",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Kombucha",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Wine",
-                    listHash: `${listTwo}`,
-                },
-                {
-                    name: "Review code organisation best practice",
-                    listHash: `${listThree}`,
-                    flagged: false,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 2
-                    })
-                },
-                {
-                    name: "Follow up on that networking opportunity with Tristan",
-                    listHash: `${listThree}`,
-                    flagged: true,
-                    scheduled: true,
-                    date: add(currentDate, {
-                        days: 0
-                    })
-                },
-                {
-                    name: "Review Odin Project submissions for ways to improve this app",
-                    listHash: `${listThree}`,
-                    flagged: true,
-                },
-                {
-                    name: "Investigate colour design theory, CSS best practice",
-                    listHash: `${listThree}`,
-                    flagged: false,
-                },
+                // {
+                //     name: "Bread",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Avocado (2)",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Greek Yoghurt",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Roti Bread",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Hummus",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Carrots",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Celery",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Kombucha",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Wine",
+                //     listHash: `${listTwo}`,
+                // },
+                // {
+                //     name: "Review code organisation best practice",
+                //     listHash: `${listThree}`,
+                //     flagged: false,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 2
+                //     })
+                // },
+                // {
+                //     name: "Follow up on that networking opportunity with Tristan",
+                //     listHash: `${listThree}`,
+                //     flagged: true,
+                //     scheduled: true,
+                //     date: add(currentDate, {
+                //         days: 0
+                //     })
+                // },
+                // {
+                //     name: "Review Odin Project submissions for ways to improve this app",
+                //     listHash: `${listThree}`,
+                //     flagged: true,
+                // },
+                // {
+                //     name: "Investigate colour design theory, CSS best practice",
+                //     listHash: `${listThree}`,
+                //     flagged: false,
+                // },
             ]
 
             for (let i = 0; i < tasks.length; i++) {
@@ -1369,12 +1368,63 @@ export const runApp = () => {
 
             List.updateTaskCounters()
 
-        })()
-
-
-        // LOCAL STORAGE
-        if (!localStorage.getItem('listMap')) {
         }
+
+        demoContent()
+        // LOCAL STORAGE
+        // localStorage.clear()
+
+
+        const listMap = List.ListStorage
+        // const taskMap = new Map()
+        // taskMap.set("taskMapFirstKey", 'taskMapFirstValue')
+        // taskMap.set("taskMapSecondKey", {
+        //     taskObjectKey: "taskObjectValue",
+        // })
+
+        // listMap.set("primeMapFirstKey", 'primeMapFirstValue')
+        // listMap.set("primeMapSecondKey", {
+        //     subObjectFirstKey: 'subObjectFirstValue',
+        //     subObjectSecondKey: taskMap,
+        // })
+
+        console.log(listMap)
+
+        function generateStringableRecursive(data) {
+
+            // console.log(`This is a ${typeof data}`)
+            let object = {}
+
+            let dataTypes = ['string', 'boolean', 'number', 'undefined']
+            if (dataTypes.includes(typeof data) || data instanceof Date) {
+                return data
+            }
+
+            else if (data instanceof Map) {
+
+                for (let [key, value] of data) {
+                    object[key] = generateStringableRecursive(value)
+                }
+
+            }
+            else if (data instanceof Object) {
+
+                for (let property in data) {
+                    object[property] = generateStringableRecursive(data[property])
+                }
+
+            }
+
+            return object
+        }
+
+        console.log(generateStringableRecursive(listMap))
+
+        const stringified = JSON.stringify(generateStringableRecursive(listMap))
+
+        console.log(stringified)
+
+        console.log(JSON.parse(stringified))
 
         contentController.generateHome()
         Listeners.sideBarToggles.updateSideBarToggleCounts()
