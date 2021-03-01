@@ -1252,6 +1252,7 @@ export const runApp = () => {
                     listHash: `${listOne}`,
                     flagged: true,
                     scheduled: true,
+                    completeBool: false,
                     date: add(currentDate, {
                         days: 4
                     })
@@ -1261,6 +1262,7 @@ export const runApp = () => {
                     listHash: `${listOne}`,
                     flagged: false,
                     scheduled: true,
+                    completeBool: false,
                     date: add(currentDate, {
                         days: 0
                     })
@@ -1291,10 +1293,12 @@ export const runApp = () => {
                 {
                     name: "Bananas",
                     listHash: `${listTwo}`,
+                    completeBool: false,
                 },
                 {
                     name: "Cereal",
                     listHash: `${listTwo}`,
+                    completeBool: true,
                 },
                 // {
                 //     name: "Bread",
@@ -1376,55 +1380,59 @@ export const runApp = () => {
 
 
         const listMap = List.ListStorage
-        // const taskMap = new Map()
-        // taskMap.set("taskMapFirstKey", 'taskMapFirstValue')
-        // taskMap.set("taskMapSecondKey", {
-        //     taskObjectKey: "taskObjectValue",
-        // })
-
-        // listMap.set("primeMapFirstKey", 'primeMapFirstValue')
-        // listMap.set("primeMapSecondKey", {
-        //     subObjectFirstKey: 'subObjectFirstValue',
-        //     subObjectSecondKey: taskMap,
-        // })
-
-        console.log(listMap)
 
         function generateStringableRecursive(data) {
 
-            // console.log(`This is a ${typeof data}`)
             let object = {}
 
             let dataTypes = ['string', 'boolean', 'number', 'undefined']
             if (dataTypes.includes(typeof data) || data instanceof Date) {
                 return data
             }
-
             else if (data instanceof Map) {
-
                 for (let [key, value] of data) {
                     object[key] = generateStringableRecursive(value)
                 }
-
             }
             else if (data instanceof Object) {
-
                 for (let property in data) {
                     object[property] = generateStringableRecursive(data[property])
                 }
-
             }
 
             return object
         }
 
-        console.log(generateStringableRecursive(listMap))
-
         const stringified = JSON.stringify(generateStringableRecursive(listMap))
 
-        console.log(stringified)
+        const destringified = JSON.parse(stringified)
 
-        console.log(JSON.parse(stringified))
+        function restoreListMap(jsonObject) {
+
+            const restoredListMap = new Map()
+
+            for (let property in jsonObject) {
+                let listObject = jsonObject[property]
+                let listHash = property
+
+                let listOfTasks = listObject.list
+
+                let newListMap = new Map()
+
+                for (let task in listOfTasks) {
+                    let taskObject = listOfTasks[task]
+                    let taskHash = task
+
+                    taskObject.date = new Date(taskObject.date)
+
+                    newListMap.set(taskHash, taskObject)
+                }
+
+                listObject.list = newListMap
+                restoredListMap.set(listHash, listObject)
+            }
+            return restoredListMap
+        }
 
         contentController.generateHome()
         Listeners.sideBarToggles.updateSideBarToggleCounts()
