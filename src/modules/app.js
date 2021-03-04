@@ -976,17 +976,15 @@ export const runApp = () => {
     const contentController = (() => {
 
         // Render list of lists in sidebar
-        const loadListsIntoSideBar = (() => {
+        function loadListsIntoSideBar() {
             let listIterator = List.ListStorage.values()
-
             for (let i = 0; i < List.ListStorage.size; i++) {
                 let listContainer = listIterator.next().value
                 let listNode = List.createListNode(listContainer)
                 let listBinder = List.createListBinder(listContainer, listNode)
                 Listeners.applyListListeners(listBinder)
             }
-        })()
-
+        }
 
         function refreshTopBar(listHash) {
             // Update TopBar information
@@ -1031,6 +1029,7 @@ export const runApp = () => {
             topBarTitle.textContent = "Select or add a list to get started!"
             topBarTitle.style.color = "black"
             document.getElementById("lowerAddTask").style.display = "none"
+            userContentContainer.removeAttribute("data-activeList")
         }
 
         return { loadList, unloadLists, loadListsIntoSideBar, refreshTopBar, generateHome }
@@ -1226,19 +1225,19 @@ export const runApp = () => {
         // DEMO CONTENT
         const demoContent = () => {
 
-            const listOne = List.submitNewList({
+            const listOne = List.createListObject({
                 name: "Reminders",
                 color: "#FFC285",
                 lightToggle: true,
             })
 
-            const listTwo = List.submitNewList({
+            const listTwo = List.createListObject({
                 name: "Groceries",
                 color: "#B8AFD5",
                 lightToggle: true,
             })
 
-            // const listThree = List.submitNewList({
+            // const listThree = List.createListObject({
             //     name: "Coding",
             //     color: "#ED96B3",
             //     lightToggle: true,
@@ -1371,70 +1370,97 @@ export const runApp = () => {
             }
 
             List.updateTaskCounters()
-
         }
 
-        demoContent()
-        // LOCAL STORAGE
-        // localStorage.clear()
+        // STORAGE
+        const storage = (() => {
 
+            function _generateStringableRecursive(data) {
 
-        const listMap = List.ListStorage
+                let object = {}
 
-        function generateStringableRecursive(data) {
-
-            let object = {}
-
-            let dataTypes = ['string', 'boolean', 'number', 'undefined']
-            if (dataTypes.includes(typeof data) || data instanceof Date) {
-                return data
-            }
-            else if (data instanceof Map) {
-                for (let [key, value] of data) {
-                    object[key] = generateStringableRecursive(value)
+                let dataTypes = ['string', 'boolean', 'number', 'undefined']
+                if (dataTypes.includes(typeof data) || data instanceof Date) {
+                    return data
                 }
-            }
-            else if (data instanceof Object) {
-                for (let property in data) {
-                    object[property] = generateStringableRecursive(data[property])
+                else if (data instanceof Map) {
+                    for (let [key, value] of data) {
+                        object[key] = _generateStringableRecursive(value)
+                    }
                 }
+                else if (data instanceof Object) {
+                    for (let property in data) {
+                        object[property] = _generateStringableRecursive(data[property])
+                    }
+                }
+                return object
             }
 
-            return object
-        }
+            function _restoreListMap(jsonObject) {
 
-        const stringified = JSON.stringify(generateStringableRecursive(listMap))
+                const restoredListMap = new Map()
 
-        const destringified = JSON.parse(stringified)
+                for (let property in jsonObject) {
+                    let listObject = jsonObject[property]
+                    let listHash = property
 
-        function restoreListMap(jsonObject) {
+                    let listOfTasks = listObject.list
 
-            const restoredListMap = new Map()
+                    let newListMap = new Map()
 
-            for (let property in jsonObject) {
-                let listObject = jsonObject[property]
-                let listHash = property
+                    for (let task in listOfTasks) {
+                        let taskObject = listOfTasks[task]
+                        let taskHash = task
 
-                let listOfTasks = listObject.list
+                        if (taskObject.date) {
+                            taskObject.date = new Date(taskObject.date)
+                        }
 
-                let newListMap = new Map()
+                        newListMap.set(taskHash, taskObject)
+                    }
 
-                for (let task in listOfTasks) {
-                    let taskObject = listOfTasks[task]
-                    let taskHash = task
+                    listObject.list = newListMap
+                    restoredListMap.set(listHash, listObject)
+                }
+                return restoredListMap
+            }
 
-                    taskObject.date = new Date(taskObject.date)
-
-                    newListMap.set(taskHash, taskObject)
+            function _loadStorage() {
+                contentController.unloadLists()
+                const storedInfo = window.localStorage.getItem('listMap')
+                const destringified = JSON.parse(storedInfo)
+                const restoredListMap = _restoreListMap(destringified)
+                List.ListStorage = restoredListMap
+                console.log(List.ListStorage)
+                contentController.loadListsIntoSideBar()
+                const listMapIterator = List.ListStorage.keys()
+                for (let i = 0; i < List.ListStorage.size; i++) {
+                    contentController.loadList(listMapIterator.next().value)
                 }
 
-                listObject.list = newListMap
-                restoredListMap.set(listHash, listObject)
+                List.updateTaskCounters()
+                contentController.generateHome()
+                Listeners.sideBarToggles.updateSideBarToggleCounts()
             }
-            return restoredListMap
-        }
 
-        contentController.generateHome()
-        Listeners.sideBarToggles.updateSideBarToggleCounts()
+            function _populateStorage() {
+                demoContent()
+                const listMap = List.ListStorage
+                const stringableObject = _generateStringableRecursive(listMap)
+                const stringified = JSON.stringify(stringableObject)
+                window.localStorage.setItem('listMap', stringified)
+            }
+
+            console.log(window.localStorage)
+            window.localStorage.clear()
+            if (window.localStorage.getItem('listMap')) {
+                console.log('LOADING STORAGE')
+                _loadStorage()
+            } else {
+                console.log('CREATING NEW STORAGE')
+                _populateStorage()
+                _loadStorage()
+            }
+        })()
     })()
 }
