@@ -56,10 +56,11 @@ export const runApp = () => {
                 listContainer.lightToggle = listParameters.lightToggle
             }
 
-            ListStorage.set(hash, listContainer)
+            List.ListStorage.set(hash, listContainer)
 
             // Update list storage
             Storage.populateStorage()
+
             return hash
         }
 
