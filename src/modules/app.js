@@ -20,6 +20,7 @@ import flagIcon from "../img/flag.svg"
 
 export const runApp = () => {
 
+    console.log(localStorage)
 
     // List stores and creates/edits/deletes objects that hold groups of task objects. i.e "Grocery List".
     // List also creates list node elements in the DOM
@@ -56,6 +57,9 @@ export const runApp = () => {
             }
 
             ListStorage.set(hash, listContainer)
+
+            // Update list storage
+            Storage.populateStorage()
             return hash
         }
 
@@ -104,6 +108,9 @@ export const runApp = () => {
             listParameters.listBinder.container.color = listParameters.color
             listParameters.listBinder.container.lightToggle = listParameters.lightToggle
             listParameters.listBinder.change()
+
+            // Update list storage
+            Storage.populateStorage()
         }
 
         function updateTaskCounters() {
@@ -118,6 +125,9 @@ export const runApp = () => {
             listBinder.node.remove()
             listBinder.obj = null
             List.ListStorage.delete(listBinder.container.hash)
+
+            // Update list storage
+            Storage.populateStorage()
         }
 
         // Function to handle of submission of form input into new list
@@ -255,6 +265,9 @@ export const runApp = () => {
             taskBinder.obj = null
             List.ListStorage.get(taskBinder.listHash).list.delete(taskBinder.taskHash)
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
+
+            // Update list storage
+            Storage.populateStorage()
         }
 
         function editTaskBinder(taskParameters) {
@@ -286,6 +299,9 @@ export const runApp = () => {
 
             // Update the node with the newly edited data in the task object
             taskBinder.change()
+
+            // Update list storage
+            Storage.populateStorage()
         }
 
         // Function to handle submission of form input into new task binder
@@ -304,6 +320,9 @@ export const runApp = () => {
             const taskBinder = TaskBinder.createTaskBinder(taskNode, taskObject, taskParameters.listHash)
             TaskBinder.storeTaskBinder(taskBinder)
             Listeners.applyTaskListeners(taskBinder)
+
+            // Update list storage
+            Storage.populateStorage()
         }
 
         return { TaskBinderStorage, storeTaskBinder, createTaskBinder, deleteTaskBinder, editTaskBinder, createTaskObject, createTaskNode, submitNewTask }
@@ -1207,20 +1226,8 @@ export const runApp = () => {
         return { renderAddTaskForm, renderEditTaskForm, renderAddListForm, renderEditListForm, hideAllForms }
     })()
 
-    const App = (() => {
-
-        // Dev tools to be deleted when production ready.
-        const devStuff = (() => {
-
-            // Easy check
-            document.getElementById("topBar").addEventListener("click", function () {
-                console.log("LIST STORAGE")
-                console.log(List.ListStorage)
-                // console.log("SEARCH TOGGLES")
-                // console.log(Search.toggles)
-            })
-
-        })()
+    // STORAGE
+    const Storage = (() => {
 
         // DEMO CONTENT
         const demoContent = () => {
@@ -1372,95 +1379,112 @@ export const runApp = () => {
             List.updateTaskCounters()
         }
 
-        // STORAGE
-        const storage = (() => {
+        function generateStringableRecursive(data) {
 
-            function _generateStringableRecursive(data) {
+            let object = {}
 
-                let object = {}
-
-                let dataTypes = ['string', 'boolean', 'number', 'undefined']
-                if (dataTypes.includes(typeof data) || data instanceof Date) {
-                    return data
+            let dataTypes = ['string', 'boolean', 'number', 'undefined']
+            if (dataTypes.includes(typeof data) || data instanceof Date) {
+                return data
+            }
+            else if (data instanceof Map) {
+                for (let [key, value] of data) {
+                    object[key] = generateStringableRecursive(value)
                 }
-                else if (data instanceof Map) {
-                    for (let [key, value] of data) {
-                        object[key] = _generateStringableRecursive(value)
+            }
+            else if (data instanceof Object) {
+                for (let property in data) {
+                    object[property] = generateStringableRecursive(data[property])
+                }
+            }
+            return object
+        }
+
+        function restoreListMap(jsonObject) {
+
+            const restoredListMap = new Map()
+
+            for (let property in jsonObject) {
+                let listObject = jsonObject[property]
+                let listHash = property
+
+                let listOfTasks = listObject.list
+
+                let newListMap = new Map()
+
+                for (let task in listOfTasks) {
+                    let taskObject = listOfTasks[task]
+                    let taskHash = task
+
+                    if (taskObject.date) {
+                        taskObject.date = new Date(taskObject.date)
                     }
+
+                    newListMap.set(taskHash, taskObject)
                 }
-                else if (data instanceof Object) {
-                    for (let property in data) {
-                        object[property] = _generateStringableRecursive(data[property])
-                    }
-                }
-                return object
+
+                listObject.list = newListMap
+                restoredListMap.set(listHash, listObject)
+            }
+            return restoredListMap
+        }
+
+        function loadStorage() {
+            contentController.unloadLists()
+            const storedInfo = window.localStorage.getItem('listMap')
+            const destringified = JSON.parse(storedInfo)
+            const restoredListMap = restoreListMap(destringified)
+            List.ListStorage = restoredListMap
+            console.log(List.ListStorage)
+            contentController.loadListsIntoSideBar()
+            const listMapIterator = List.ListStorage.keys()
+            for (let i = 0; i < List.ListStorage.size; i++) {
+                contentController.loadList(listMapIterator.next().value)
             }
 
-            function _restoreListMap(jsonObject) {
+            List.updateTaskCounters()
+            contentController.generateHome()
+            Listeners.sideBarToggles.updateSideBarToggleCounts()
+        }
 
-                const restoredListMap = new Map()
+        function populateStorage() {
+            const listMap = List.ListStorage
+            const stringableObject = generateStringableRecursive(listMap)
+            const stringified = JSON.stringify(stringableObject)
+            window.localStorage.setItem('listMap', stringified)
+        }
 
-                for (let property in jsonObject) {
-                    let listObject = jsonObject[property]
-                    let listHash = property
+        return { populateStorage, demoContent, populateStorage, generateStringableRecursive, restoreListMap, loadStorage }
+    })()
 
-                    let listOfTasks = listObject.list
+    const App = (() => {
 
-                    let newListMap = new Map()
+        // Dev tools to be deleted when production ready.
+        const devStuff = (() => {
 
-                    for (let task in listOfTasks) {
-                        let taskObject = listOfTasks[task]
-                        let taskHash = task
-
-                        if (taskObject.date) {
-                            taskObject.date = new Date(taskObject.date)
-                        }
-
-                        newListMap.set(taskHash, taskObject)
-                    }
-
-                    listObject.list = newListMap
-                    restoredListMap.set(listHash, listObject)
-                }
-                return restoredListMap
-            }
-
-            function _loadStorage() {
-                contentController.unloadLists()
-                const storedInfo = window.localStorage.getItem('listMap')
-                const destringified = JSON.parse(storedInfo)
-                const restoredListMap = _restoreListMap(destringified)
-                List.ListStorage = restoredListMap
+            // Easy check
+            document.getElementById("topBar").addEventListener("click", function () {
+                console.log("LIST STORAGE")
                 console.log(List.ListStorage)
-                contentController.loadListsIntoSideBar()
-                const listMapIterator = List.ListStorage.keys()
-                for (let i = 0; i < List.ListStorage.size; i++) {
-                    contentController.loadList(listMapIterator.next().value)
-                }
+                console.log("~LOCAL~ STORAGE")
+                console.log(window.localStorage)
+                // console.log("SEARCH TOGGLES")
+                // console.log(Search.toggles)
+            })
 
-                List.updateTaskCounters()
-                contentController.generateHome()
-                Listeners.sideBarToggles.updateSideBarToggleCounts()
-            }
-
-            function _populateStorage() {
-                demoContent()
-                const listMap = List.ListStorage
-                const stringableObject = _generateStringableRecursive(listMap)
-                const stringified = JSON.stringify(stringableObject)
-                window.localStorage.setItem('listMap', stringified)
-            }
-
-            console.log(window.localStorage)
-            window.localStorage.clear()
-            if (window.localStorage.getItem('listMap')) {
-                console.log('LOADING STORAGE')
-                _loadStorage()
-            } else {
-                console.log('CREATING NEW STORAGE')
-                _populateStorage()
-                _loadStorage()
-            }
         })()
+
+
+        console.log(window.localStorage)
+        if (localStorage.getItem('listMap')) {
+            console.log('LOADING STORAGE')
+            Storage.loadStorage()
+        } else {
+            console.log('CREATING NEW STORAGE')
+            Storage.demoContent()
+            Storage.populateStorage()
+            Storage.loadStorage()
+        }
+
     })()
 }
