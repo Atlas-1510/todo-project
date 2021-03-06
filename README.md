@@ -16,6 +16,7 @@ This is a task-tracker website built to maintain lists of tasks. Through buildin
 - Add location setting to tasks
 - Online user storage with Firebase
 - Log in with Google/Apple
+- Responsive web design (different screen sizes)
 
 
 ## Credit for external packages
