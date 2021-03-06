@@ -20,28 +20,19 @@ import flagIcon from "../img/flag.svg"
 
 export const runApp = () => {
 
-    console.log(localStorage)
-
     // List stores and creates/edits/deletes objects that hold groups of task objects. i.e "Grocery List".
-    // List also creates list node elements in the DOM
     const List = (() => {
 
-        // This is the list of list objects
+        // This contains all the list objects, which in turn contain all the task objects. List objects also contain other data,
+        // like list title and list color.
         const ListStorage = new Map()
 
         // This is a storage object for list binders. Used to keep references to pairs of list nodes and list objects.
-        // Can be used to enable list nodes & object pairs to be renamed by the user (not implemented yet), 
+        // Can be used to enable list nodes & object pairs to be renamed by the user, 
         // and to update side bar count of tasks within a list.
         const ListBinderStorage = new Map()
 
-        // Add a new list to ListStorage 
         function createListObject(listParameters) {
-
-            // this function takes an object of the form:
-            // {
-            //     color: #ABCD
-            //     name: "blahblahblah"
-            // }
 
             const newList = new Map()
             const hash = listParameters.name + new Date()
@@ -57,8 +48,6 @@ export const runApp = () => {
             }
 
             List.ListStorage.set(hash, listContainer)
-
-            // Update list storage
             Storage.populateStorage()
 
             return hash
@@ -83,6 +72,7 @@ export const runApp = () => {
             listEditIcon.src = pencilSquareIcon
             const listDeleteIcon = createNode("img", listNode, "", ["deleteListIcon", "listIcon"])
             listDeleteIcon.src = trashIcon
+
             return listNode
         }
 
@@ -95,13 +85,6 @@ export const runApp = () => {
 
         function editListBinder(listParameters) {
 
-            // function takes an object like so:
-            // {
-            //     name: "asdfasdf",
-            //     color: "#1234",
-            //     listBinder: listBinder,
-            // }
-
             if (listParameters.name !== "") {
                 listParameters.listBinder.container.name = listParameters.name
             }
@@ -110,7 +93,6 @@ export const runApp = () => {
             listParameters.listBinder.container.lightToggle = listParameters.lightToggle
             listParameters.listBinder.change()
 
-            // Update list storage
             Storage.populateStorage()
         }
 
@@ -127,18 +109,10 @@ export const runApp = () => {
             listBinder.obj = null
             List.ListStorage.delete(listBinder.container.hash)
 
-            // Update list storage
             Storage.populateStorage()
         }
 
-        // Function to handle of submission of form input into new list
         function submitNewList(listParameters) {
-
-            // this function takes an object of the form:
-            // {
-            //     color: #ABCD
-            //     name: "blahblahblah"
-            // }
 
             const listObjectHash = List.createListObject(listParameters)
             const listObject = List.ListStorage.get(listObjectHash)
@@ -178,8 +152,6 @@ export const runApp = () => {
                 flagged: taskParameters.flagged,
                 scheduled: taskParameters.scheduled,
                 listHash: taskParameters.listHash,
-                // color: List.ListStorage.get(taskParameters.listHash).color,
-                // lightToggle: List.ListStorage.get(taskParameters.listHash).lightToggle
             }
 
             return task
@@ -219,12 +191,6 @@ export const runApp = () => {
                 flagNode.src = flagIcon
             }
 
-
-
-
-
-
-
             if (List.ListStorage.get(taskObject.listHash).lightToggle === 'true' || List.ListStorage.get(taskObject.listHash).lightToggle === true) {
                 taskNode.style.color = "black"
             } else if (List.ListStorage.get(taskObject.listHash).lightToggle === 'false' || List.ListStorage.get(taskObject.listHash).lightToggle === false) {
@@ -248,7 +214,6 @@ export const runApp = () => {
             return taskNode
         }
 
-        // Stores a newly created task object in the list storage object
         function storeTaskBinder(taskBinder) {
             List.ListStorage.get(taskBinder.listHash).list.set(taskBinder.taskHash, taskBinder.obj)
         }
@@ -267,7 +232,6 @@ export const runApp = () => {
             List.ListStorage.get(taskBinder.listHash).list.delete(taskBinder.taskHash)
             TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
 
-            // Update list storage
             Storage.populateStorage()
         }
 
@@ -275,7 +239,6 @@ export const runApp = () => {
 
             const taskBinder = taskParameters.taskBinder
 
-            // Update the task object with the newly edited data
             if (taskParameters.name !== "") {
                 taskBinder.obj.name = taskParameters.name
             }
@@ -298,23 +261,12 @@ export const runApp = () => {
                 taskBinder.obj.completeBool = false
             }
 
-            // Update the node with the newly edited data in the task object
             taskBinder.change()
 
-            // Update list storage
             Storage.populateStorage()
         }
 
-        // Function to handle submission of form input into new task binder
         function submitNewTask(taskParameters) {
-
-            // {
-            //     name
-            //     date
-            //     completeBool
-            //     flagged
-            //     listHash
-            // }
 
             const taskObject = TaskBinder.createTaskObject(taskParameters)
             const taskNode = TaskBinder.createTaskNode(taskObject)
@@ -322,7 +274,6 @@ export const runApp = () => {
             TaskBinder.storeTaskBinder(taskBinder)
             Listeners.applyTaskListeners(taskBinder)
 
-            // Update list storage
             Storage.populateStorage()
         }
 
@@ -339,7 +290,6 @@ export const runApp = () => {
             all: false,
         }
 
-        // Runs a search based on either a text parameter, or an object that contains the bool state of the flagged/scheduled/today/all toggles
         function runSearch(searchType, searchParameters) {
 
             function _createSearchTest() {
@@ -385,8 +335,6 @@ export const runApp = () => {
                         }
                     }
                     return searchTest
-                } else {
-                    console.log("Error with createSearchTest - no test type provided")
                 }
             }
 
@@ -394,10 +342,8 @@ export const runApp = () => {
 
             let searchResultObjects = []
 
-            // Iterate over each list in listStorage
             List.ListStorage.forEach((listContainer) => {
                 const list = listContainer.list
-                // Iterate over each task in list
                 list.forEach((task) => {
                     if (searchTest(task, searchParameters)) {
                         searchResultObjects.push(task)
@@ -417,10 +363,8 @@ export const runApp = () => {
                 Listeners.applyTaskListeners(taskBinder)
             })
 
-            // Hide the add task form
             document.getElementById("lowerAddTask").style.display = "none"
 
-            // Update top bar
             document.getElementById("listTitle").textContent = "Search"
             document.getElementById("listTitle").style.color = "black"
             document.getElementById("topBarListCount").textContent = Object.keys(searchResults).length
@@ -554,7 +498,6 @@ export const runApp = () => {
                     onSelect: (instance, date) => {
 
                         dateNode.dispatchEvent(dateChange)
-                        // If in new task form or edit task form
                         const formType = instance.parent.parentNode.id
                         const parsedDate = Date.parse(date)
 
@@ -564,8 +507,6 @@ export const runApp = () => {
 
                         if (formType == "newTaskForm") {
 
-                            // Not clicking on the checkbox, clicking on the date selector menu
-                            // If first click, there shouldn't be a data date attribute yet. toggle date on
                             dateNode.setAttribute("data-date", parsedDate)
                             const newFormDateCheckBox = document.getElementById("newFormDateCheckBox")
                             newFormDateCheckBox.style.display = "flex"
@@ -580,8 +521,6 @@ export const runApp = () => {
                         }
                     }
                 })
-
-
 
                 dateNode.addEventListener("dateChange", () => {
                     dateNode.classList.add("dateChosen")
@@ -643,7 +582,6 @@ export const runApp = () => {
                         colorAbort.remove()
                         colorPickerActive = false
                     })
-
                 })
             })
         })()
@@ -712,7 +650,6 @@ export const runApp = () => {
 
         const submitButtons = (() => {
 
-            // Function to prevent page from refreshing when new task form is submitted
             const _submitRefreshBlocker = (() => {
                 const buttons = document.querySelectorAll(".submitRefreshBlocker")
                 buttons.forEach(function (button) {
@@ -878,7 +815,6 @@ export const runApp = () => {
                 }
                 List.submitNewList(listParameters)
             })
-
         })()
 
         const sideBarToggles = (() => {
@@ -945,8 +881,6 @@ export const runApp = () => {
 
         const dateCheckBox = (() => {
 
-            // Listener for the date deselector checkbox in the new task form
-            // This listener is activated when clicked on to remove a previously selected date
             const newForm = (() => {
                 const newFormDateCheckBox = document.getElementById("newFormDateCheckBox")
                 const newFormDateSelector = document.getElementById("dateInput")
@@ -995,7 +929,6 @@ export const runApp = () => {
     // contentController loads/unloads stored user content into the DOM.
     const contentController = (() => {
 
-        // Render list of lists in sidebar
         function loadListsIntoSideBar() {
             let listIterator = List.ListStorage.values()
             for (let i = 0; i < List.ListStorage.size; i++) {
@@ -1007,7 +940,6 @@ export const runApp = () => {
         }
 
         function refreshTopBar(listHash) {
-            // Update TopBar information
             const listContainer = List.ListStorage.get(listHash)
             const topBarTitle = document.getElementById("listTitle")
             topBarTitle.textContent = listContainer.name
@@ -1020,7 +952,6 @@ export const runApp = () => {
             topBarCount.textContent = listContainer.list.size
         }
 
-        // Load tasks from a list into the user content container
         function loadList(listHash) {
 
             userContentContainer.setAttribute("data-activeList", listHash)
@@ -1035,11 +966,8 @@ export const runApp = () => {
         }
 
         function unloadLists() {
-            // For every taskBinder in task binder storage
             TaskBinder.TaskBinderStorage.forEach(function (taskBinder) {
-                // delete the node, but retain the task object
                 taskBinder.node.remove()
-                // delete the task binder
                 TaskBinder.TaskBinderStorage.delete(taskBinder.taskHash)
             })
         }
@@ -1070,7 +998,6 @@ export const runApp = () => {
 
             function hide() {
                 form.style.display = "none"
-                // Move the add list form container, so it shows up at the bottom the next time it is opened
                 const newItem = document.getElementById("listsContainer").lastChild
                 newItem.parentNode.insertBefore(form, newItem.nextSibling)
             }
@@ -1093,10 +1020,8 @@ export const runApp = () => {
 
             function hide() {
                 form.style.display = "none"
-                // Move the 'Add Task' button to the end of the user content container, after the new task item
                 const newItem = document.getElementById("userContentContainer").lastChild
                 newItem.parentNode.insertBefore(lowerAddButton, newItem.nextSibling)
-                // Do the same thing for the 'new task form', so it shows up at the bottom the next time it is opened
                 newItem.parentNode.insertBefore(form, newItem.nextSibling)
             }
 
@@ -1115,12 +1040,10 @@ export const runApp = () => {
 
                 document.getElementById("listsContainer").insertBefore(editListFormContainer, listBinder.node)
 
-                // Title
                 const titleSelector = editListFormContainer.querySelector("#editListTitle")
                 const priorTitle = listBinder.container.name
                 titleSelector.setAttribute("placeholder", priorTitle)
 
-                // Colour
                 const colourSelector = editListFormContainer.querySelector("#editListColor")
                 const priorColour = listBinder.container.color
                 if (priorColour) {
@@ -1128,8 +1051,6 @@ export const runApp = () => {
                     colourSelector.setAttribute("data-color", priorColour)
                 }
 
-                // Assigns list hash from original list to the form, so on submission the form can use the hash to 
-                // identify and update the correct list object
                 editListFormContainer.setAttribute("data-listHash", listBinder.container.hash)
                 editListFormContainer.style.display = "flex"
             }
@@ -1158,7 +1079,6 @@ export const runApp = () => {
 
                 userContentContainer.insertBefore(editTaskContainer, taskBinder.node)
 
-                // Complete checkbox
                 const checkbox = editTaskContainer.querySelector(".checkbox")
                 if (taskBinder.obj.completeBool) {
                     checkbox.src = filledSquareIcon
@@ -1169,12 +1089,10 @@ export const runApp = () => {
                 }
                 checkbox.addEventListener("click", Listeners.completeCheckBoxEditForm)
 
-                // Title
                 const titleSelector = editTaskContainer.querySelector("#editItemTitle")
                 const priorTitle = taskBinder.obj.name
                 titleSelector.setAttribute("placeholder", priorTitle)
 
-                // Date
                 const dateSelector = editTaskContainer.querySelector("#editDateInput")
                 if (!isNaN(taskBinder.obj.date)) {
                     const priorDate = format(taskBinder.obj.date, "eee d/M/yy")
@@ -1186,15 +1104,12 @@ export const runApp = () => {
                     dateSelector.classList.add("dateChosen")
                 }
 
-                // Flag
                 if (taskBinder.obj.flagged) {
                     const flagButton = document.getElementById("editItemFlag")
                     flagButton.setAttribute("data-flagged", true)
                     flagButton.classList.add("flagActive")
                 }
 
-                // Assigns task and list hashes from original task to the form, so on submission the form can use the hash to 
-                // identify and update the correct task object
                 editTaskContainer.setAttribute("data-taskHash", taskBinder.taskHash)
                 editTaskContainer.setAttribute("data-listHash", taskBinder.listHash)
 
@@ -1205,7 +1120,6 @@ export const runApp = () => {
 
                 const taskHash = editTaskContainer.dataset.taskhash
                 const taskBinderInstance = TaskBinder.TaskBinderStorage.get(taskHash)
-                // THIS IS THE PROBLEM
                 if (taskBinderInstance) {
                     taskBinderInstance.node.style.display = "grid"
                 }
@@ -1227,7 +1141,7 @@ export const runApp = () => {
         return { renderAddTaskForm, renderEditTaskForm, renderAddListForm, renderEditListForm, hideAllForms }
     })()
 
-    // STORAGE
+    // Storage handles the packing/unpacking of user content for access across multiple sessions.
     const Storage = (() => {
 
         // DEMO CONTENT
@@ -1245,11 +1159,11 @@ export const runApp = () => {
                 lightToggle: true,
             })
 
-            // const listThree = List.createListObject({
-            //     name: "Coding",
-            //     color: "#ED96B3",
-            //     lightToggle: true,
-            // })
+            const listThree = List.createListObject({
+                name: "Coding",
+                color: "#ED96B3",
+                lightToggle: true,
+            })
 
             const currentDate = new Date()
 
@@ -1274,29 +1188,29 @@ export const runApp = () => {
                         days: 0
                     })
                 },
-                // {
-                //     name: "Get timber to build new desk from Bunnings",
-                //     listHash: `${listOne}`,
-                //     flagged: false,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 1
-                //     })
-                // },
-                // {
-                //     name: "Stay late at work until jazz gig with Ebony",
-                //     listHash: `${listOne}`,
-                //     flagged: true,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 3
-                //     })
-                // },
-                // {
-                //     name: "Review CV and GitHub profile",
-                //     listHash: `${listThree}`,
-                //     flagged: true,
-                // },
+                {
+                    name: "Get timber to build new desk from Bunnings",
+                    listHash: `${listOne}`,
+                    flagged: false,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 1
+                    })
+                },
+                {
+                    name: "Stay late at work until jazz gig with Ebony",
+                    listHash: `${listOne}`,
+                    flagged: true,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 3
+                    })
+                },
+                {
+                    name: "Review CV and GitHub profile",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                },
                 {
                     name: "Bananas",
                     listHash: `${listTwo}`,
@@ -1307,70 +1221,70 @@ export const runApp = () => {
                     listHash: `${listTwo}`,
                     completeBool: true,
                 },
-                // {
-                //     name: "Bread",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Avocado (2)",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Greek Yoghurt",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Roti Bread",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Hummus",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Carrots",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Celery",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Kombucha",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Wine",
-                //     listHash: `${listTwo}`,
-                // },
-                // {
-                //     name: "Review code organisation best practice",
-                //     listHash: `${listThree}`,
-                //     flagged: false,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 2
-                //     })
-                // },
-                // {
-                //     name: "Follow up on that networking opportunity with Tristan",
-                //     listHash: `${listThree}`,
-                //     flagged: true,
-                //     scheduled: true,
-                //     date: add(currentDate, {
-                //         days: 0
-                //     })
-                // },
-                // {
-                //     name: "Review Odin Project submissions for ways to improve this app",
-                //     listHash: `${listThree}`,
-                //     flagged: true,
-                // },
-                // {
-                //     name: "Investigate colour design theory, CSS best practice",
-                //     listHash: `${listThree}`,
-                //     flagged: false,
-                // },
+                {
+                    name: "Bread",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Avocado (2)",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Greek Yoghurt",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Roti Bread",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Hummus",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Carrots",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Celery",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Kombucha",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Wine",
+                    listHash: `${listTwo}`,
+                },
+                {
+                    name: "Review code organisation best practice",
+                    listHash: `${listThree}`,
+                    flagged: false,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 2
+                    })
+                },
+                {
+                    name: "Follow up on that networking opportunity with Tristan",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                    scheduled: true,
+                    date: add(currentDate, {
+                        days: 0
+                    })
+                },
+                {
+                    name: "Review Odin Project submissions for ways to improve this app",
+                    listHash: `${listThree}`,
+                    flagged: true,
+                },
+                {
+                    name: "Investigate colour design theory, CSS best practice",
+                    listHash: `${listThree}`,
+                    flagged: false,
+                },
             ]
 
             for (let i = 0; i < tasks.length; i++) {
@@ -1436,7 +1350,6 @@ export const runApp = () => {
             const destringified = JSON.parse(storedInfo)
             const restoredListMap = restoreListMap(destringified)
             List.ListStorage = restoredListMap
-            console.log(List.ListStorage)
             contentController.loadListsIntoSideBar()
             const listMapIterator = List.ListStorage.keys()
             for (let i = 0; i < List.ListStorage.size; i++) {
@@ -1458,34 +1371,15 @@ export const runApp = () => {
         return { populateStorage, demoContent, populateStorage, generateStringableRecursive, restoreListMap, loadStorage }
     })()
 
+    // Executes application
     const App = (() => {
 
-        // Dev tools to be deleted when production ready.
-        const devStuff = (() => {
-
-            // Easy check
-            document.getElementById("topBar").addEventListener("click", function () {
-                console.log("LIST STORAGE")
-                console.log(List.ListStorage)
-                console.log("~LOCAL~ STORAGE")
-                console.log(window.localStorage)
-                // console.log("SEARCH TOGGLES")
-                // console.log(Search.toggles)
-            })
-
-        })()
-
-
-        console.log(window.localStorage)
         if (localStorage.getItem('listMap')) {
-            console.log('LOADING STORAGE')
             Storage.loadStorage()
         } else {
-            console.log('CREATING NEW STORAGE')
             Storage.demoContent()
             Storage.populateStorage()
             Storage.loadStorage()
         }
-
     })()
 }
