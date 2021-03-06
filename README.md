@@ -11,14 +11,14 @@ This is a task-tracker website built to maintain lists of tasks. Through buildin
 - Organisation of functions into reusable modules, enabling more seamless code structure (i.e closing all other forms when a new form is opened)
 - Front end design
 
-# Features still to be added
+## Features still to be added
 
 - Add location setting to tasks
 - Online user storage with Firebase
 - Log in with Google/Apple
 
 
-# Credit for external packages
+## Credit for external packages
 - Simple Color Picker by Guillaume Gouessan - https://www.npmjs.com/package/simple-color-picker
 - js-datepicker by Aaron Cordova - https://www.npmjs.com/package/js-datepicker
 - date-fns by kossnocorp - https://www.npmjs.com/package/date-fns
