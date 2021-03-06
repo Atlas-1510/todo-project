@@ -19,6 +19,6 @@ This is a task-tracker website built to maintain lists of tasks. Through buildin
 
 
 # Credit for external packages
-Simple Color Picker by Guillaume Gouessan - https://www.npmjs.com/package/simple-color-picker
-js-datepicker by Aaron Cordova - https://www.npmjs.com/package/js-datepicker
-date-fns by kossnocorp - https://www.npmjs.com/package/date-fns
+- Simple Color Picker by Guillaume Gouessan - https://www.npmjs.com/package/simple-color-picker
+- js-datepicker by Aaron Cordova - https://www.npmjs.com/package/js-datepicker
+- date-fns by kossnocorp - https://www.npmjs.com/package/date-fns
