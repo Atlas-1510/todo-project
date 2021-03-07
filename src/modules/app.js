@@ -20,8 +20,6 @@ import flagIcon from "../img/flag.svg"
 
 export const runApp = () => {
 
-    localStorage.clear()
-
     // List stores and creates/edits/deletes objects that hold groups of task objects. i.e "Grocery List".
     const List = (() => {
 
