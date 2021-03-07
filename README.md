@@ -1,5 +1,7 @@
 # To-do project for The Odin Project
 
+Link to project: https://atlas-1510.github.io/todo-project/
+
 This is a task-tracker website built to maintain lists of tasks. Through building this project I gained several new skills, including:
 
 - Development using webpack for both a dev and production environment.
