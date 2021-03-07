@@ -20,6 +20,8 @@ import flagIcon from "../img/flag.svg"
 
 export const runApp = () => {
 
+    localStorage.clear()
+
     // List stores and creates/edits/deletes objects that hold groups of task objects. i.e "Grocery List".
     const List = (() => {
 
@@ -450,6 +452,32 @@ export const runApp = () => {
                 contentController.generateHome()
             })
         }
+
+        const expandableMenu = (() => {
+
+            const sideBarContent = document.getElementById("sideBarContentContainer")
+
+            function openNav() {
+                document.getElementById("sideBar").style.width = "270px";
+                document.getElementById("sideBarContentContainer").style.width = "90%"
+            }
+
+            function closeNav() {
+                // document.getElementById("sideBar").style.width = "0px";
+                document.getElementById("sideBar").removeAttribute("style")
+            }
+
+
+            const openButton = document.getElementById("expandMenu")
+            openButton.addEventListener("click", () => {
+                openNav()
+            })
+
+            const closeButton = document.getElementById("closeSideBarButton")
+            closeButton.addEventListener("click", () => {
+                closeNav()
+            })
+        })()
 
         const searchBar = (() => {
             const searchInputNode = document.getElementById("searchBar")
